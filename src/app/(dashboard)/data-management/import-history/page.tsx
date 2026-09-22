@@ -1,11 +1,13 @@
-import React from "react";
+'use client';
+
+import React, { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, History, FileSpreadsheet, RotateCcw } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageBanner } from "@/components/shared/page-banner";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
 
 const SAMPLE_HISTORY = [
   {
@@ -44,6 +46,14 @@ const SAMPLE_HISTORY = [
 ];
 
 export default function ImportHistoryPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const paginated = SAMPLE_HISTORY.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   return (
     <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-20 animate-in fade-in duration-200">
       {/* Banner */}
@@ -71,7 +81,7 @@ export default function ImportHistoryPage() {
       />
 
       {/* Main Table */}
-      <div className="rounded-lg border border-border bg-card/60 backdrop-blur-md shadow-xs overflow-hidden">
+      <div className="rounded-lg border border-border bg-card shadow-xs overflow-hidden">
         <Table>
           <TableHeader className="bg-muted/40">
             <TableRow>
@@ -86,7 +96,7 @@ export default function ImportHistoryPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {SAMPLE_HISTORY.map((batch) => (
+            {paginated.map((batch) => (
               <TableRow key={batch.id} className="hover:bg-muted/30 transition-colors">
                 <TableCell className="py-2.5 px-3">
                   <div className="space-y-0.5">
@@ -135,6 +145,16 @@ export default function ImportHistoryPage() {
             ))}
           </TableBody>
         </Table>
+
+        <DataTablePagination
+          pageIndex={currentPage}
+          pageSize={pageSize}
+          totalItems={SAMPLE_HISTORY.length}
+          pageSizeOptions={[10, 25, 50, 100]}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          itemLabel="batches"
+        />
       </div>
     </div>
   );

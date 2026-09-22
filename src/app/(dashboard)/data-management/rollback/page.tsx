@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageBanner } from "@/components/shared/page-banner";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
 
 const SAMPLE_BATCHES = [
   {
@@ -47,6 +48,8 @@ const SAMPLE_BATCHES = [
 
 export default function RollbackCenterPage() {
   const [batches, setBatches] = useState<any[]>(SAMPLE_BATCHES);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [email, setEmail] = useState("");
   const [tableName, setTableName] = useState("employees");
   const [targetDate, setTargetDate] = useState("");
@@ -231,6 +234,16 @@ export default function RollbackCenterPage() {
               )}
             </TableBody>
           </Table>
+
+          <DataTablePagination
+            pageIndex={currentPage}
+            pageSize={pageSize}
+            totalItems={batches.length}
+            pageSizeOptions={[10, 25, 50, 100]}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            itemLabel="batches"
+          />
         </div>
       </div>
     </div>

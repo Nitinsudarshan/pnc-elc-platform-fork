@@ -21,8 +21,36 @@ import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageBanner } from "@/components/shared/page-banner";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
 
 const SAMPLE_LOGS = [
+  {
+    id: "log-onb-1",
+    table_name: "onboarding_records",
+    record_id: "11111111-1111-1111-1111-111111111111",
+    action: "update",
+    changed_data: { status: "under_review", candidate_name: "Aarav Sharma", progress_percentage: 83 },
+    changed_by: "aarav.sharma@example.com (Candidate)",
+    created_at: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
+  },
+  {
+    id: "log-onb-2",
+    table_name: "onboarding_documents",
+    record_id: "doc-aadhaar-001",
+    action: "update",
+    changed_data: { document_name: "Aadhaar Card", verification_status: "rejected", reason: "Document is blurry, name mismatch" },
+    changed_by: "sharmistha@navgurukul.org (P&C)",
+    created_at: new Date(Date.now() - 1000 * 60 * 25).toISOString(),
+  },
+  {
+    id: "log-onb-3",
+    table_name: "onboarding_records",
+    record_id: "33333333-3333-3333-3333-333333333333",
+    action: "insert",
+    changed_data: { candidate_name: "Rahul Kumar", official_email: "rahul.kumar@navgurukul.org", employee_id: "NG-2026-0182", status: "completed" },
+    changed_by: "nitin@navgurukul.org (P&C)",
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+  },
   {
     id: "log-1",
     table_name: "employees",
@@ -103,6 +131,14 @@ export default function AuditLogsPage() {
     fetchLogs();
   }, []);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Reset to page 1 on filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchRecord, filterTable, filterAction]);
+
   const filteredLogs = logs.filter((log) => {
     const term = searchRecord.toLowerCase().trim();
     const matchesSearch =
@@ -116,6 +152,11 @@ export default function AuditLogsPage() {
 
     return matchesSearch && matchesTable && matchesAction;
   });
+
+  const paginatedLogs = filteredLogs.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const getActionBadge = (action: string) => {
     switch (action?.toLowerCase()) {
@@ -195,6 +236,10 @@ export default function AuditLogsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Tables</SelectItem>
+            <SelectItem value="onboarding_records">onboarding_records</SelectItem>
+            <SelectItem value="onboarding_documents">onboarding_documents</SelectItem>
+            <SelectItem value="onboarding_personal_details">onboarding_personal_details</SelectItem>
+            <SelectItem value="onboarding_policies">onboarding_policies</SelectItem>
             <SelectItem value="employees">employees</SelectItem>
             <SelectItem value="appraisals">appraisals</SelectItem>
             <SelectItem value="peer_feedback">peer_feedback</SelectItem>
@@ -229,8 +274,8 @@ export default function AuditLogsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredLogs.length > 0 ? (
-              filteredLogs.map((log) => (
+            {paginatedLogs.length > 0 ? (
+              paginatedLogs.map((log) => (
                 <TableRow key={log.id} className="hover:bg-muted/40 transition-colors">
                   <TableCell className="py-3 px-4 font-mono text-xs text-muted-foreground whitespace-nowrap">
                     {new Date(log.created_at || log.changed_at).toLocaleString()}
@@ -263,6 +308,16 @@ export default function AuditLogsPage() {
             )}
           </TableBody>
         </Table>
+
+        <DataTablePagination
+          pageIndex={currentPage}
+          pageSize={pageSize}
+          totalItems={filteredLogs.length}
+          pageSizeOptions={[10, 25, 50, 100]}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setPageSize}
+          itemLabel="logs"
+        />
       </div>
     </div>
   );
