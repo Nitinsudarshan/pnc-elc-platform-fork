@@ -1,0 +1,63 @@
+import { NextRequest, NextResponse } from 'next/server';
+import {
+  getOnboardingById,
+  sendOnboardingInvitation,
+  verifyOrRejectDocument,
+  updateOnboardingStatus,
+  provisionOfficialAccount,
+} from '@/lib/onboarding/service';
+
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const data = await getOnboardingById(id);
+    if (!data) {
+      return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
+    }
+    return NextResponse.json({ success: true, data });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const body = await req.json();
+    const { action } = body;
+
+    let result = null;
+
+    if (action === 'send_invitation') {
+      result = await sendOnboardingInvitation(id);
+    } else if (action === 'verify_document') {
+      result = await verifyOrRejectDocument(
+        id,
+        body.document_id,
+        body.status,
+        body.rejection_reason,
+        body.reviewer_name
+      );
+    } else if (action === 'update_status') {
+      result = await updateOnboardingStatus(id, body.status, body.note);
+    } else if (action === 'provision_account') {
+      result = await provisionOfficialAccount(id);
+    } else {
+      return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 });
+    }
+
+    if (!result) {
+      return NextResponse.json({ success: false, error: 'Record not found or update failed' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, data: result });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
