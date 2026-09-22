@@ -11,6 +11,7 @@ import {
   ClipboardCheck,
   TrendingUp,
   DatabaseBackup,
+  UserPlus,
 } from "lucide-react"
 
 import { NavMain, NavItem } from "@/components/nav-main"
@@ -65,6 +66,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       isActive: pathname.startsWith("/employees"),
     },
     {
+      title: "Onboarding",
+      url: "/manage/onboarding",
+      icon: UserPlus,
+      isActive: pathname.startsWith("/manage/onboarding"),
+    },
+    {
       title: "Appraisals",
       url: "/appraisals",
       icon: TrendingUp,
@@ -82,6 +89,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: Settings,
       isActive: pathname.startsWith("/manage") || pathname.startsWith("/data-management"),
       items: [
+        {
+          title: "Onboarding",
+          url: "/manage/onboarding",
+          icon: UserPlus,
+          isActive: pathname.startsWith("/manage/onboarding"),
+        },
         {
           title: "Users",
           url: "/manage/users",
