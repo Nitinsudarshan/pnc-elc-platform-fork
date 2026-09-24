@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
   getOnboardingByToken,
+  recordPortalVisit,
   updatePersonalDetails,
   confirmEmploymentDetails,
   uploadCandidateDocument,
@@ -10,16 +11,18 @@ import {
 } from '@/lib/onboarding/service';
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ token: string }> }
 ) {
   try {
     const { token } = await params;
-    const data = await getOnboardingByToken(token);
-    if (!data) {
+    // Record candidate visit
+    const userAgent = req.headers.get('user-agent') || 'Browser';
+    const visited = await recordPortalVisit(token, { userAgent });
+    if (!visited) {
       return NextResponse.json({ success: false, error: 'Invalid invitation link' }, { status: 404 });
     }
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({ success: true, data: visited });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

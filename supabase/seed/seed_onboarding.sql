@@ -36,7 +36,7 @@ INSERT INTO onboarding_records (
   'Responsible for creating user-centric design systems, web wireframes, and design specs for student-facing educational platforms.',
   'draft',
   0,
-  'token-kavita-rao-draft',
+  'k8m2q7x1-kavita-rao',
   'Sharmistha Mazumdar'
 ) ON CONFLICT (id) DO NOTHING;
 
@@ -76,7 +76,7 @@ INSERT INTO onboarding_records (
   'Develop scalable backend microservices and maintain core student management pipelines in Next.js and Supabase.',
   'in_progress',
   85,
-  'token-aarav-sharma-prog',
+  'k7m3p9q2-aarav-sharma',
   NOW() - INTERVAL '3 days',
   'Nitin Sudarshan'
 ) ON CONFLICT (id) DO NOTHING;
@@ -172,7 +172,7 @@ INSERT INTO onboarding_records (
   'Coordinate residential campus learning programs, student mentorship cohorts, and track academic outcomes.',
   'submitted',
   100,
-  'token-priya-singh-sub',
+  'p9x4b1m7-priya-singh',
   NOW() - INTERVAL '5 days',
   NOW() - INTERVAL '4 hours',
   'Sharmistha Mazumdar'
@@ -272,7 +272,7 @@ INSERT INTO onboarding_records (
   'Oversee campus facility logistics, food supply procurement, vendor settlements, and student residential safety protocols.',
   'completed',
   100,
-  'token-rahul-kumar-comp',
+  'r2m8q4x9-rahul-kumar',
   NOW() - INTERVAL '10 days',
   NOW() - INTERVAL '3 days',
   NOW() - INTERVAL '2 days',

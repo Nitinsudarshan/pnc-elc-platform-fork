@@ -15,6 +15,21 @@ import {
 import { DEFAULT_PREJOINING_POLICIES } from './default-policies';
 import { generateOfferLetterData, generateAppointmentLetterData } from './templates';
 
+export function generateInvitationToken(candidateName: string): string {
+  // Generate 8-character unique alphanumeric token (e.g., "k7m3p9q2")
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let tokenPrefix = '';
+  for (let i = 0; i < 8; i++) {
+    tokenPrefix += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  const slug = (candidateName || 'candidate')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return `${tokenPrefix}-${slug}`;
+}
+
 // In-Memory fallback store populated with realistic seed data
 let MEMORY_ONBOARDING_STORE: Map<string, FullOnboardingData> = new Map();
 
@@ -43,7 +58,7 @@ function initSeedData() {
     role_responsibilities: 'Responsible for creating user-centric design systems, web wireframes, and design specs for student-facing educational platforms.',
     status: 'draft',
     progress_percentage: 0,
-    invitation_token: 'token-kavita-rao-draft',
+    invitation_token: 'k8m2q7x1-kavita-rao',
     created_by: 'Sharmistha Mazumdar',
     created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
     updated_at: new Date(Date.now() - 86400000 * 2).toISOString(),
@@ -123,8 +138,11 @@ function initSeedData() {
     role_responsibilities: 'Develop scalable backend microservices and maintain core student management pipelines in Next.js and Supabase.',
     status: 'in_progress',
     progress_percentage: 85,
-    invitation_token: 'token-aarav-sharma-prog',
+    invitation_token: 'k7m3p9q2-aarav-sharma',
     invited_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+    first_visited_at: new Date(Date.now() - 86400000 * 2.8).toISOString(),
+    last_visited_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+    visit_count: 3,
     created_by: 'Nitin Sudarshan',
     created_at: new Date(Date.now() - 86400000 * 4).toISOString(),
     updated_at: new Date(Date.now() - 86400000 * 1).toISOString(),
@@ -283,12 +301,28 @@ function initSeedData() {
         created_at: aaravRecord.invited_at!,
       },
       {
+        id: 'log-a-visit-1',
+        onboarding_id: aaravId,
+        actor_type: 'candidate',
+        action: 'Candidate Portal First Accessed',
+        description: 'Candidate accessed self-service onboarding portal for the first time.',
+        created_at: aaravRecord.first_visited_at!,
+      },
+      {
         id: 'log-a-3',
         onboarding_id: aaravId,
         actor_type: 'candidate',
         action: 'Personal Details Updated',
         description: 'Candidate completed and saved personal details form.',
         created_at: new Date(Date.now() - 86400000 * 2.5).toISOString(),
+      },
+      {
+        id: 'log-a-visit-2',
+        onboarding_id: aaravId,
+        actor_type: 'candidate',
+        action: 'Candidate Portal Accessed',
+        description: 'Candidate revisited onboarding portal (Visit #2) to sign documents.',
+        created_at: new Date(Date.now() - 86400000 * 2.1).toISOString(),
       },
       {
         id: 'log-a-4',
@@ -305,6 +339,14 @@ function initSeedData() {
         action: 'Document Rejected',
         description: 'Address proof rejected: Blurry copy older than 3 months.',
         created_at: new Date(Date.now() - 86400000 * 0.5).toISOString(),
+      },
+      {
+        id: 'log-a-visit-3',
+        onboarding_id: aaravId,
+        actor_type: 'candidate',
+        action: 'Candidate Portal Accessed',
+        description: 'Candidate accessed portal (Visit #3) to review rejected address proof feedback.',
+        created_at: aaravRecord.last_visited_at!,
       },
     ],
   });
@@ -331,8 +373,11 @@ function initSeedData() {
     role_responsibilities: 'Coordinate residential campus learning programs, student mentorship cohorts, and track academic outcomes.',
     status: 'submitted',
     progress_percentage: 100,
-    invitation_token: 'token-priya-singh-sub',
+    invitation_token: 'p9x4b1m7-priya-singh',
     invited_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    first_visited_at: new Date(Date.now() - 86400000 * 4.8).toISOString(),
+    last_visited_at: new Date(Date.now() - 3600000 * 4).toISOString(),
+    visit_count: 4,
     submitted_at: new Date(Date.now() - 3600000 * 4).toISOString(),
     created_by: 'Sharmistha Mazumdar',
     created_at: new Date(Date.now() - 86400000 * 6).toISOString(),
@@ -432,9 +477,13 @@ function initSeedData() {
     activityLogs: [
       { id: 'log-p-1', onboarding_id: priyaId, actor_type: 'pnc', action: 'Onboarding Created', description: 'P&C created onboarding record.', created_at: priyaRecord.created_at },
       { id: 'log-p-2', onboarding_id: priyaId, actor_type: 'pnc', action: 'Invitation Sent', description: 'Invitation sent to candidate.', created_at: priyaRecord.invited_at! },
+      { id: 'log-p-visit-1', onboarding_id: priyaId, actor_type: 'candidate', action: 'Candidate Portal First Accessed', description: 'Candidate opened self-service portal for the first time.', created_at: priyaRecord.first_visited_at! },
+      { id: 'log-p-visit-2', onboarding_id: priyaId, actor_type: 'candidate', action: 'Candidate Portal Accessed', description: 'Candidate revisited portal (Visit #2) to upload documents.', created_at: new Date(Date.now() - 86400000 * 2).toISOString() },
       { id: 'log-p-3', onboarding_id: priyaId, actor_type: 'candidate', action: 'Policies Completed', description: 'Candidate read and acknowledged all pre-joining policies.', created_at: new Date(Date.now() - 86400000).toISOString() },
+      { id: 'log-p-visit-3', onboarding_id: priyaId, actor_type: 'candidate', action: 'Candidate Portal Accessed', description: 'Candidate revisited portal (Visit #3) for digital signing.', created_at: new Date(Date.now() - 3600000 * 6).toISOString() },
       { id: 'log-p-4', onboarding_id: priyaId, actor_type: 'candidate', action: 'Offer & Appointment Letters Signed', description: 'Candidate accepted and signed employment documents.', created_at: new Date(Date.now() - 3600000 * 5).toISOString() },
       { id: 'log-p-5', onboarding_id: priyaId, actor_type: 'candidate', action: 'Onboarding Submitted to P&C', description: 'Candidate submitted complete onboarding dossier for verification.', created_at: priyaRecord.submitted_at! },
+      { id: 'log-p-visit-4', onboarding_id: priyaId, actor_type: 'candidate', action: 'Candidate Portal Accessed', description: 'Candidate revisited portal (Visit #4) to check verification status.', created_at: priyaRecord.last_visited_at! },
     ],
   });
 
@@ -460,8 +509,11 @@ function initSeedData() {
     role_responsibilities: 'Oversee campus facility logistics, food supply procurement, vendor settlements, and student residential safety protocols.',
     status: 'completed',
     progress_percentage: 100,
-    invitation_token: 'token-rahul-kumar-comp',
+    invitation_token: 'r2m8q4x9-rahul-kumar',
     invited_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+    first_visited_at: new Date(Date.now() - 86400000 * 9.5).toISOString(),
+    last_visited_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+    visit_count: 5,
     submitted_at: new Date(Date.now() - 86400000 * 3).toISOString(),
     approved_at: new Date(Date.now() - 86400000 * 2).toISOString(),
     completed_at: new Date(Date.now() - 86400000 * 1).toISOString(),
@@ -575,6 +627,8 @@ function initSeedData() {
     activityLogs: [
       { id: 'log-r-1', onboarding_id: rahulId, actor_type: 'pnc', action: 'Onboarding Created', description: 'P&C created onboarding record for Rahul Kumar.', created_at: rahulRecord.created_at },
       { id: 'log-r-2', onboarding_id: rahulId, actor_type: 'pnc', action: 'Invitation Sent', description: 'Invitation link sent.', created_at: rahulRecord.invited_at! },
+      { id: 'log-r-visit-1', onboarding_id: rahulId, actor_type: 'candidate', action: 'Candidate Portal First Accessed', description: 'Candidate opened portal for the first time.', created_at: rahulRecord.first_visited_at! },
+      { id: 'log-r-visit-2', onboarding_id: rahulId, actor_type: 'candidate', action: 'Candidate Portal Accessed', description: 'Candidate revisited portal (Visit #2) and submitted all personal details.', created_at: new Date(Date.now() - 86400000 * 4).toISOString() },
       { id: 'log-r-3', onboarding_id: rahulId, actor_type: 'candidate', action: 'Onboarding Submitted', description: 'Candidate completed all onboarding steps and submitted dossier.', created_at: rahulRecord.submitted_at! },
       { id: 'log-r-4', onboarding_id: rahulId, actor_type: 'pnc', action: 'Documents Verified', description: 'P&C verified all 5 required documents.', created_at: rahulRecord.approved_at! },
       { id: 'log-r-5', onboarding_id: rahulId, actor_type: 'pnc', action: 'Onboarding Approved', description: 'P&C completed final review and approved onboarding dossier.', created_at: rahulRecord.approved_at! },
@@ -614,16 +668,26 @@ export async function getAllOnboardingRecords(): Promise<OnboardingRecord[]> {
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 }
 
-export async function getOnboardingById(id: string): Promise<FullOnboardingData | null> {
+export async function getOnboardingById(idOrToken: string): Promise<FullOnboardingData | null> {
   try {
     const supabase = createServerSupabaseClient();
-    const { data: record, error } = await supabase
+    let { data: record, error } = await supabase
       .from('onboarding_records')
       .select('*, teams(name), employees!manager_id(name), employee_types(name)')
-      .eq('id', id)
-      .single();
+      .eq('id', idOrToken)
+      .maybeSingle();
+
+    if (!record) {
+      const tokenRes = await supabase
+        .from('onboarding_records')
+        .select('*, teams(name), employees!manager_id(name), employee_types(name)')
+        .eq('invitation_token', idOrToken)
+        .maybeSingle();
+      record = tokenRes.data;
+    }
 
     if (!error && record) {
+      const id = record.id;
       const [pers, emp, docs, pols, genDocs, logs, prov] = await Promise.all([
         supabase.from('onboarding_personal_details').select('*').eq('onboarding_id', id).maybeSingle(),
         supabase.from('onboarding_employment_details').select('*').eq('onboarding_id', id).maybeSingle(),
@@ -654,40 +718,75 @@ export async function getOnboardingById(id: string): Promise<FullOnboardingData 
     // Fallback to memory store
   }
 
-  const existing = MEMORY_ONBOARDING_STORE.get(id);
+  const existing = MEMORY_ONBOARDING_STORE.get(idOrToken);
   if (existing) return JSON.parse(JSON.stringify(existing));
-  return null;
-}
-
-export async function getOnboardingByToken(token: string): Promise<FullOnboardingData | null> {
-  try {
-    const supabase = createServerSupabaseClient();
-    const { data: record, error } = await supabase
-      .from('onboarding_records')
-      .select('*, teams(name), employees!manager_id(name), employee_types(name)')
-      .eq('invitation_token', token)
-      .single();
-
-    if (!error && record) {
-      return getOnboardingById(record.id);
-    }
-  } catch (err) {
-    // Fallback to memory store
-  }
 
   for (const item of MEMORY_ONBOARDING_STORE.values()) {
-    if (item.record.invitation_token === token) {
+    if (item.record.invitation_token === idOrToken || item.record.id === idOrToken) {
       return JSON.parse(JSON.stringify(item));
     }
   }
   return null;
 }
 
+export async function getOnboardingByToken(token: string): Promise<FullOnboardingData | null> {
+  return getOnboardingById(token);
+}
+
+export async function recordPortalVisit(
+  tokenOrId: string,
+  metadata?: { ip?: string; userAgent?: string }
+): Promise<FullOnboardingData | null> {
+  const data = await getOnboardingById(tokenOrId);
+  if (!data) return null;
+
+  const now = new Date().toISOString();
+  const isFirstVisit = !data.record.first_visited_at || !data.record.visit_count;
+
+  if (isFirstVisit) {
+    data.record.first_visited_at = now;
+    data.record.last_visited_at = now;
+    data.record.visit_count = 1;
+    if (data.record.status === 'invited') {
+      data.record.status = 'in_progress';
+    }
+    data.activityLogs.unshift({
+      id: `log-visit-${Date.now()}`,
+      onboarding_id: data.record.id,
+      actor_type: 'candidate',
+      action: 'Candidate Portal First Accessed',
+      description: `Candidate accessed self-service onboarding portal for the first time (${data.record.personal_email}).`,
+      created_at: now,
+      metadata,
+    });
+  } else {
+    // Only log if previous visit was > 1 minute ago to avoid duplicate logs on rapid re-renders
+    const lastVisitTime = data.record.last_visited_at ? new Date(data.record.last_visited_at).getTime() : 0;
+    const nowTime = new Date(now).getTime();
+    if (nowTime - lastVisitTime > 60 * 1000) {
+      data.record.visit_count = (data.record.visit_count || 1) + 1;
+      data.record.last_visited_at = now;
+      data.activityLogs.unshift({
+        id: `log-visit-${Date.now()}`,
+        onboarding_id: data.record.id,
+        actor_type: 'candidate',
+        action: 'Candidate Portal Accessed',
+        description: `Candidate visited the onboarding portal (Visit #${data.record.visit_count}).`,
+        created_at: now,
+        metadata,
+      });
+    }
+  }
+
+  MEMORY_ONBOARDING_STORE.set(data.record.id, data);
+  return data;
+}
+
 export async function createOnboardingRecord(
   payload: Omit<OnboardingRecord, 'id' | 'status' | 'progress_percentage' | 'invitation_token' | 'created_at' | 'updated_at'>
 ): Promise<FullOnboardingData> {
   const newId = `onb-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-  const token = `token-${payload.candidate_name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${Date.now().toString(36)}`;
+  const token = generateInvitationToken(payload.candidate_name);
   const now = new Date().toISOString();
 
   const record: OnboardingRecord = {

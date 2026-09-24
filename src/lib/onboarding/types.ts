@@ -42,6 +42,9 @@ export interface OnboardingRecord {
   progress_percentage: number;
   invitation_token: string;
   invited_at?: string | null;
+  first_visited_at?: string | null;
+  last_visited_at?: string | null;
+  visit_count?: number;
   submitted_at?: string | null;
   approved_at?: string | null;
   completed_at?: string | null;
