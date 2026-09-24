@@ -131,8 +131,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-bold tracking-tight">Navgurukul ELC</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    Employee Lifecycle
+                  <span className="truncate text-xs text-muted-foreground font-medium">
+                    NG ELC Platform
                   </span>
                 </div>
               </Link>

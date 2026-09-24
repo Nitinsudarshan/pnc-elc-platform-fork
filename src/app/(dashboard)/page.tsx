@@ -72,8 +72,8 @@ export default function DashboardPage() {
     <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-20 animate-in fade-in duration-300">
       {/* Banner */}
       <PageBanner
-        title="Welcome to Navgurukul ELC"
-        description="Comprehensive Employee Life Cycle platform for performance appraisals, confirmations, and organizational data."
+        title="Welcome to Navgurukul ELC (NG ELC)"
+        description="Comprehensive Employee Life Cycle platform for candidate onboarding, appraisals, confirmations, and organizational data."
         icon={<Compass className="h-6 w-6 text-teal-600 dark:text-teal-400" />}
       />
 
