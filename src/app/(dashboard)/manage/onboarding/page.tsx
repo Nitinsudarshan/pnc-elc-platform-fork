@@ -21,6 +21,7 @@ import {
   FileText,
   History,
   Briefcase,
+  MoreVertical,
 } from 'lucide-react';
 import { PageBanner } from '@/components/shared/page-banner';
 import { DataTablePagination } from '@/components/shared/data-table-pagination';
@@ -37,6 +38,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Select,
   SelectContent,
@@ -180,8 +188,12 @@ export default function OnboardingDashboardPage() {
     const matchesStatus =
       statusFilter === 'all'
         ? true
+        : statusFilter === 'in_progress'
+        ? ['invited', 'in_progress'].includes(r.status)
         : statusFilter === 'submitted'
         ? ['submitted', 'under_review'].includes(r.status)
+        : statusFilter === 'completed'
+        ? ['approved', 'completed'].includes(r.status)
         : r.status === statusFilter;
 
     const matchesTeam =
@@ -197,9 +209,7 @@ export default function OnboardingDashboardPage() {
 
   const counts = {
     total: records.length,
-    draft: records.filter((r) => r.status === 'draft').length,
-    invited: records.filter((r) => r.status === 'invited').length,
-    inProgress: records.filter((r) => r.status === 'in_progress').length,
+    inProgress: records.filter((r) => ['invited', 'in_progress'].includes(r.status)).length,
     submitted: records.filter((r) => ['submitted', 'under_review'].includes(r.status)).length,
     completed: records.filter((r) => ['approved', 'completed'].includes(r.status)).length,
   };
@@ -229,12 +239,12 @@ export default function OnboardingDashboardPage() {
         }
       />
 
-      {/* Metrics Grid (2 rows, 3 cols) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {/* Metrics Grid (4 cards, each 1/4 width on desktop) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* 1. Total Onboardings */}
         <div
           onClick={() => setStatusFilter('all')}
-          className={`rounded-lg bg-card border shadow-xs p-3.5 flex flex-col justify-between gap-2 cursor-pointer transition-all ${
+          className={`rounded-xl bg-card border shadow-xs p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all ${
             statusFilter === 'all'
               ? 'border-indigo-600 dark:border-indigo-500 ring-1 ring-indigo-500 bg-indigo-50/30 dark:bg-indigo-950/30'
               : 'border-border/80 hover:border-indigo-300 dark:hover:border-indigo-800'
@@ -242,62 +252,20 @@ export default function OnboardingDashboardPage() {
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Total Onboardings</span>
-            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">
+            <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">
               <Users className="h-4 w-4" />
             </div>
           </div>
           <div className="space-y-0.5">
-            <div className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">{counts.total}</div>
+            <div className="text-2xl font-bold tracking-tight text-foreground">{counts.total}</div>
             <p className="text-[11px] text-muted-foreground">All candidate pipeline records</p>
           </div>
         </div>
 
-        {/* 2. Drafts */}
-        <div
-          onClick={() => setStatusFilter('draft')}
-          className={`rounded-lg bg-card border shadow-xs p-3.5 flex flex-col justify-between gap-2 cursor-pointer transition-all ${
-            statusFilter === 'draft'
-              ? 'border-slate-600 dark:border-slate-500 ring-1 ring-slate-500 bg-slate-50/50 dark:bg-slate-900/50'
-              : 'border-border/80 hover:border-slate-300 dark:hover:border-slate-700'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">Draft Records</span>
-            <div className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-              <FileText className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="space-y-0.5">
-            <div className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">{counts.draft}</div>
-            <p className="text-[11px] text-muted-foreground">Created, awaiting dispatch</p>
-          </div>
-        </div>
-
-        {/* 3. Invitations Sent */}
-        <div
-          onClick={() => setStatusFilter('invited')}
-          className={`rounded-lg bg-card border shadow-xs p-3.5 flex flex-col justify-between gap-2 cursor-pointer transition-all ${
-            statusFilter === 'invited'
-              ? 'border-blue-600 dark:border-blue-500 ring-1 ring-blue-500 bg-blue-50/30 dark:bg-blue-950/30'
-              : 'border-border/80 hover:border-blue-300 dark:hover:border-blue-800'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">Invitations Sent</span>
-            <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
-              <Send className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="space-y-0.5">
-            <div className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">{counts.invited}</div>
-            <p className="text-[11px] text-muted-foreground">Candidate links dispatched</p>
-          </div>
-        </div>
-
-        {/* 4. In Progress */}
+        {/* 2. In Progress */}
         <div
           onClick={() => setStatusFilter('in_progress')}
-          className={`rounded-lg bg-card border shadow-xs p-3.5 flex flex-col justify-between gap-2 cursor-pointer transition-all ${
+          className={`rounded-xl bg-card border shadow-xs p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all ${
             statusFilter === 'in_progress'
               ? 'border-amber-600 dark:border-amber-500 ring-1 ring-amber-500 bg-amber-50/30 dark:bg-amber-950/30'
               : 'border-border/80 hover:border-amber-300 dark:hover:border-amber-800'
@@ -305,20 +273,20 @@ export default function OnboardingDashboardPage() {
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">In Progress</span>
-            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
+            <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
               <Clock className="h-4 w-4" />
             </div>
           </div>
           <div className="space-y-0.5">
-            <div className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">{counts.inProgress}</div>
+            <div className="text-2xl font-bold tracking-tight text-foreground">{counts.inProgress}</div>
             <p className="text-[11px] text-muted-foreground">Candidate filling info & docs</p>
           </div>
         </div>
 
-        {/* 5. Submitted / Review */}
+        {/* 3. Submitted for Review */}
         <div
           onClick={() => setStatusFilter('submitted')}
-          className={`rounded-lg bg-card border shadow-xs p-3.5 flex flex-col justify-between gap-2 cursor-pointer transition-all ${
+          className={`rounded-xl bg-card border shadow-xs p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all ${
             statusFilter === 'submitted'
               ? 'border-purple-600 dark:border-purple-500 ring-1 ring-purple-500 bg-purple-50/30 dark:bg-purple-950/30'
               : 'border-border/80 hover:border-purple-300 dark:hover:border-purple-800'
@@ -326,20 +294,20 @@ export default function OnboardingDashboardPage() {
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Submitted for Review</span>
-            <div className="p-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400">
+            <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400">
               <FileCheck2 className="h-4 w-4" />
             </div>
           </div>
           <div className="space-y-0.5">
-            <div className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">{counts.submitted}</div>
+            <div className="text-2xl font-bold tracking-tight text-foreground">{counts.submitted}</div>
             <p className="text-[11px] text-muted-foreground">Awaiting P&C doc verification</p>
           </div>
         </div>
 
-        {/* 6. Completed & Provisioned */}
+        {/* 4. Completed & Active */}
         <div
           onClick={() => setStatusFilter('completed')}
-          className={`rounded-lg bg-card border shadow-xs p-3.5 flex flex-col justify-between gap-2 cursor-pointer transition-all ${
+          className={`rounded-xl bg-card border shadow-xs p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all ${
             statusFilter === 'completed'
               ? 'border-emerald-600 dark:border-emerald-500 ring-1 ring-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/30'
               : 'border-border/80 hover:border-emerald-300 dark:hover:border-emerald-800'
@@ -347,12 +315,12 @@ export default function OnboardingDashboardPage() {
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Completed & Active</span>
-            <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
+            <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
               <CheckCircle2 className="h-4 w-4" />
             </div>
           </div>
           <div className="space-y-0.5">
-            <div className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">{counts.completed}</div>
+            <div className="text-2xl font-bold tracking-tight text-foreground">{counts.completed}</div>
             <p className="text-[11px] text-muted-foreground">Official accounts provisioned</p>
           </div>
         </div>
@@ -519,49 +487,54 @@ export default function OnboardingDashboardPage() {
 
                     {/* Actions */}
                     <TableCell className="py-2.5 px-3 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        {item.status === 'draft' && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
                           <Button
+                            variant="ghost"
                             size="sm"
-                            variant="outline"
-                            onClick={() => handleSendInvitation(item.id, item.personal_email)}
-                            className="text-xs h-7 px-2 gap-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 rounded-lg"
+                            className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground hover:bg-muted/80 rounded-lg inline-flex items-center justify-center"
+                            title="Actions"
                           >
-                            <Send className="size-3" />
-                            <span>Send</span>
+                            <span className="sr-only">Open actions menu</span>
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
-                        )}
-
-                        {item.invitation_token && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            asChild
-                            className="text-xs h-7 px-2 gap-1 text-muted-foreground hover:text-foreground rounded-lg"
-                            title="Open simulated candidate portal"
-                          >
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-lg border-border">
+                          <DropdownMenuItem asChild>
                             <Link
-                              href={`/onboarding/${item.invitation_token}`}
-                              target="_blank"
-                              rel="noreferrer"
+                              href={`/onboarding/review/${item.invitation_token || item.id}`}
+                              className="flex items-center gap-2 cursor-pointer font-medium py-2 text-xs"
                             >
-                              <span>Portal</span>
-                              <ExternalLink className="size-3" />
+                              <FileCheck2 className="size-3.5 text-indigo-600 dark:text-indigo-400" />
+                              <span>Review Dossier</span>
                             </Link>
-                          </Button>
-                        )}
+                          </DropdownMenuItem>
+                          
+                          {item.invitation_token && (
+                            <DropdownMenuItem asChild>
+                              <Link
+                                href={`/onboarding/${item.invitation_token}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex items-center gap-2 cursor-pointer py-2 text-xs text-muted-foreground hover:text-foreground"
+                              >
+                                <ExternalLink className="size-3.5 text-blue-500" />
+                                <span>Candidate Form ↗</span>
+                              </Link>
+                            </DropdownMenuItem>
+                          )}
 
-                        <Button
-                          size="sm"
-                          asChild
-                          className="text-xs h-7 px-2.5 gap-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-xs"
-                        >
-                          <Link href={`/manage/onboarding/${item.id}`}>
-                            <span>Review</span>
-                            <ChevronRight className="size-3" />
-                          </Link>
-                        </Button>
-                      </div>
+                          <DropdownMenuSeparator />
+
+                          <DropdownMenuItem
+                            onClick={() => handleSendInvitation(item.id, item.personal_email)}
+                            className="flex items-center gap-2 cursor-pointer py-2 text-xs"
+                          >
+                            <Send className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+                            <span>{item.status === 'draft' ? 'Send Invitation' : 'Resend Invitation'}</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 );

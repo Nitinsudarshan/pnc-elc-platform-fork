@@ -142,7 +142,8 @@ export default function CreateOnboardingPage() {
           }
         }
 
-        router.push(`/manage/onboarding/${createdId}`);
+        // Land back at /manage/onboarding
+        router.push('/manage/onboarding');
       } else {
         toast.error(json.error || 'Failed to create onboarding');
       }
