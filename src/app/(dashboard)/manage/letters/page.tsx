@@ -41,7 +41,7 @@ import {
 } from '@/components/ui/dialog';
 import { CandidateLetter } from '@/lib/letter-templates/types';
 import { DocumentLetterhead } from '@/components/shared/document-letterhead';
-import { downloadDocumentAsPdf, downloadDocumentAsWord } from '@/lib/letter-templates/download';
+import { downloadDocumentAsPdf } from '@/lib/letter-templates/download';
 import { toast } from 'sonner';
 
 export default function LettersLibraryPage() {
@@ -335,33 +335,6 @@ export default function LettersLibraryPage() {
             >
               <Download className="h-3.5 w-3.5" />
               <span>Download PDF</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (selectedLetter) {
-                  const dateStr = new Date(selectedLetter.created_at).toLocaleDateString('en-IN', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  });
-                  downloadDocumentAsWord(
-                    `${selectedLetter.candidate_name} - ${selectedLetter.template_name}`,
-                    selectedLetter.template_name,
-                    selectedLetter.content,
-                    {
-                      refNumber: `NG-LTR-${selectedLetter.id.slice(0, 8).toUpperCase()}`,
-                      date: dateStr,
-                    }
-                  );
-                  toast.success(`Downloaded Word document for ${selectedLetter.candidate_name}`);
-                }
-              }}
-              className="rounded-lg text-xs gap-1.5"
-            >
-              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Download Word (.doc)</span>
             </Button>
             <Button
               variant="outline"

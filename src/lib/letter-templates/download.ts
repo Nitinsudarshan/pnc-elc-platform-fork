@@ -124,7 +124,7 @@ export async function downloadDocumentAsPdf(
                   ? `<h1 style="text-align: center; font-size: 15px; font-weight: 800; color: #0f172a; margin: 4px 0 14px 0; letter-spacing: 0.03em; text-transform: uppercase;">${title}</h1>`
                   : ''
               }
-              <div class="space-y-2.5">
+              <div>
                 ${pageHtml}
               </div>
             </main>

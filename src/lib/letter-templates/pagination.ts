@@ -202,10 +202,31 @@ export function paginateLetterContent(
       node.nodeType === Node.ELEMENT_NODE &&
       /^H[1-6]$/i.test((node as HTMLElement).tagName);
 
-    // Orphan heading protection: heading must have room for at least one subsequent element
+    // Orphan heading protection: heading must have room for at least one subsequent element/item
     if (isHeading && i < validNodes.length - 1) {
       const headingClone = node.cloneNode(true);
-      const nextClone = validNodes[i + 1].cloneNode(true);
+      const nextNode = validNodes[i + 1];
+      let nextClone: Node;
+
+      // If next element is a list (UL or OL), test with just the first list item
+      // since list-item splitting can place subsequent items on the following page
+      if (
+        nextNode.nodeType === Node.ELEMENT_NODE &&
+        ['UL', 'OL'].includes((nextNode as HTMLElement).tagName.toUpperCase())
+      ) {
+        const nextList = nextNode as HTMLElement;
+        const miniList = document.createElement(nextList.tagName.toLowerCase());
+        for (const attr of Array.from(nextList.attributes)) {
+          miniList.setAttribute(attr.name, attr.value);
+        }
+        if (nextList.children.length > 0) {
+          miniList.appendChild(nextList.children[0].cloneNode(true));
+        }
+        nextClone = miniList;
+      } else {
+        nextClone = nextNode.cloneNode(true);
+      }
+
       contentBox.appendChild(headingClone);
       contentBox.appendChild(nextClone);
 

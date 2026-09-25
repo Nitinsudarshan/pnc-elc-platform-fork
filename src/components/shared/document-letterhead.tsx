@@ -131,7 +131,6 @@ export function DocumentLetterhead({
                 )}
 
                 <div
-                  className="space-y-2.5"
                   dangerouslySetInnerHTML={{ __html: pageHtml }}
                 />
               </main>

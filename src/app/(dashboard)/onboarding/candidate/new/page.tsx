@@ -32,7 +32,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { DocumentLetterhead } from '@/components/shared/document-letterhead';
-import { downloadDocumentAsPdf, downloadDocumentAsWord } from '@/lib/letter-templates/download';
+import { downloadDocumentAsPdf } from '@/lib/letter-templates/download';
 import { toast } from 'sonner';
 import {
   Card,
@@ -785,29 +785,6 @@ export default function CreateCandidateOnboardingPage() {
               >
                 <Download className="h-3.5 w-3.5" />
                 <span>Download PDF</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const candidateName = formData.candidate_name.trim() || 'Candidate';
-                  const dateStr = new Date(formData.joining_date).toLocaleDateString('en-IN', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  });
-                  downloadDocumentAsWord(
-                    `${candidateName} - Offer Letter`,
-                    'Offer Letter',
-                    customizedLetterContent,
-                    { date: dateStr }
-                  );
-                  toast.success(`Downloaded Word document for ${candidateName}`);
-                }}
-                className="rounded-lg text-xs gap-1.5"
-              >
-                <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-                <span>Download Word (.doc)</span>
               </Button>
               <Button
                 variant="outline"

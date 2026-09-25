@@ -75,10 +75,12 @@ import {
   LetterType,
   AddendumType,
   TemplateStatus,
-  STANDARD_PLACEHOLDERS,
+  LetterTemplateDocument,
 } from '@/lib/letter-templates/types';
 import { DocumentLetterhead } from '@/components/shared/document-letterhead';
-import { downloadDocumentAsPdf, downloadDocumentAsWord } from '@/lib/letter-templates/download';
+import { downloadDocumentAsPdf } from '@/lib/letter-templates/download';
+import { BlockEditor } from '@/components/letter-templates/block-editor';
+import { replaceVariablesWithDummyData } from '@/lib/letter-templates/variables';
 import { toast } from 'sonner';
 
 const LETTER_TYPES: LetterType[] = [
@@ -100,29 +102,13 @@ export default function LetterTemplatesPage() {
   const [employeeTypeFilter, setEmployeeTypeFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
 
-  // Editor Modal state
-  const [editorModalOpen, setEditorModalOpen] = useState(false);
+  // Block Editor state
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentEditingTemplate, setCurrentEditingTemplate] = useState<LetterTemplate | null>(null);
+
+  // Preview Modal state
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
-  const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
   const [selectedPreviewTemplate, setSelectedPreviewTemplate] = useState<LetterTemplate | null>(null);
-
-  // Form State
-  const [formData, setFormData] = useState<{
-    name: string;
-    letter_type: LetterType;
-    employee_type_name: string;
-    addendum_type: AddendumType;
-    description: string;
-    content: string;
-  }>({
-    name: '',
-    letter_type: 'Offer Letter',
-    employee_type_name: 'Consultant',
-    addendum_type: 'Salary',
-    description: '',
-    content: '',
-  });
-
   const [previewContent, setPreviewContent] = useState<string>('');
 
   const fetchTemplates = async () => {
@@ -147,109 +133,67 @@ export default function LetterTemplatesPage() {
   }, []);
 
   const openCreateModal = () => {
-    setEditingTemplateId(null);
-    setFormData({
-      name: '',
-      letter_type: 'Offer Letter',
-      employee_type_name: 'Consultant',
-      addendum_type: 'Salary',
-      description: '',
-      content: `<h1>{{Template Title}}</h1>
-<p><strong>NavGurukul Foundation for Social Welfare</strong></p>
-<p>Date: {{Offer Letter Date}}</p>
-<p>Dear {{Full Name}},</p>
-
-<p>We are pleased to share the details regarding your engagement as <strong>{{Designation}}</strong> in the <strong>{{Department}}</strong> department.</p>
-
-<h3>Engagement Terms</h3>
-<table border="0" cellpadding="6" style="border-collapse: collapse; width: 100%; border: none;">
-  <tr>
-    <td style="width: 32%; padding: 4px 8px 4px 0;"><strong>Position Title</strong></td>
-    <td style="padding: 4px 8px 4px 0;">{{Designation}}</td>
-  </tr>
-  <tr>
-    <td style="padding: 4px 8px 4px 0;"><strong>Department</strong></td>
-    <td style="padding: 4px 8px 4px 0;">{{Department}}</td>
-  </tr>
-  <tr>
-    <td style="padding: 4px 8px 4px 0;"><strong>Date of Joining</strong></td>
-    <td style="padding: 4px 8px 4px 0;">{{Date of Joining}}</td>
-  </tr>
-  <tr>
-    <td style="padding: 4px 8px 4px 0;"><strong>Monthly Compensation</strong></td>
-    <td style="padding: 4px 8px 4px 0;">{{Monthly Compensation}}</td>
-  </tr>
-</table>
-
-<p>Please confirm your acceptance of this letter within {{Acceptance Period}}.</p>
-
-<br/>
-<p>Sincerely,<br/>{{Authorized Signatory Name}}<br/>{{Authorized Signatory Title}}</p>`,
-    });
-    setEditorModalOpen(true);
+    setCurrentEditingTemplate(null);
+    setIsEditing(true);
   };
 
   const openEditModal = (tpl: LetterTemplate) => {
-    setEditingTemplateId(tpl.id);
-    setFormData({
-      name: tpl.name,
-      letter_type: tpl.letter_type,
-      employee_type_name: tpl.employee_type_name,
-      addendum_type: tpl.addendum_type || 'Salary',
-      description: tpl.description || '',
-      content: tpl.content,
-    });
-    setEditorModalOpen(true);
+    setCurrentEditingTemplate(tpl);
+    setIsEditing(true);
   };
 
   const openPreview = (tpl: LetterTemplate) => {
     setSelectedPreviewTemplate(tpl);
-    setPreviewContent(tpl.content);
+    setPreviewContent(replaceVariablesWithDummyData(tpl.content));
     setPreviewModalOpen(true);
   };
 
-  const handleSave = async () => {
-    if (!formData.name.trim()) {
-      toast.error('Template name is required');
-      return;
-    }
-    if (!formData.content.trim()) {
-      toast.error('Template content cannot be empty');
-      return;
-    }
-
+  const handleSaveBlockTemplate = async (data: {
+    name: string;
+    letter_type: LetterType;
+    employee_type_name: string;
+    addendum_type?: AddendumType | null;
+    description?: string;
+    content: string;
+    blocks_json: LetterTemplateDocument;
+  }) => {
     try {
-      if (editingTemplateId) {
-        const res = await fetch(`/api/letter-templates/${editingTemplateId}`, {
+      if (currentEditingTemplate?.id) {
+        const res = await fetch(`/api/letter-templates/${currentEditingTemplate.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(data),
         });
         const json = await res.json();
         if (json.success) {
           toast.success('Letter template updated successfully');
-          setEditorModalOpen(false);
+          setIsEditing(false);
+          setCurrentEditingTemplate(null);
           fetchTemplates();
         } else {
           toast.error(json.error || 'Failed to update template');
+          throw new Error(json.error || 'Failed to update template');
         }
       } else {
         const res = await fetch('/api/letter-templates', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(data),
         });
         const json = await res.json();
         if (json.success) {
           toast.success('Letter template created successfully');
-          setEditorModalOpen(false);
+          setIsEditing(false);
+          setCurrentEditingTemplate(null);
           fetchTemplates();
         } else {
           toast.error(json.error || 'Failed to create template');
+          throw new Error(json.error || 'Failed to create template');
         }
       }
-    } catch (e) {
-      toast.error('Network error saving template');
+    } catch (e: any) {
+      toast.error(e?.message || 'Error saving template');
+      throw e;
     }
   };
 
@@ -271,14 +215,6 @@ export default function LetterTemplatesPage() {
     } catch (e) {
       toast.error('Error updating template status');
     }
-  };
-
-  const insertPlaceholder = (ph: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      content: prev.content + ` ${ph} `,
-    }));
-    toast.success(`Inserted ${ph}`);
   };
 
   const filteredTemplates = useMemo(() => {
@@ -303,6 +239,19 @@ export default function LetterTemplatesPage() {
       return matchesStatus && matchesLetterType && matchesEmployeeType && matchesSearch;
     });
   }, [templates, statusFilter, letterTypeFilter, employeeTypeFilter, search]);
+
+  if (isEditing) {
+    return (
+      <BlockEditor
+        initialTemplate={currentEditingTemplate}
+        onBack={() => {
+          setIsEditing(false);
+          setCurrentEditingTemplate(null);
+        }}
+        onSave={handleSaveBlockTemplate}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-20 animate-in fade-in duration-300">
@@ -386,7 +335,7 @@ export default function LetterTemplatesPage() {
                 <SelectValue placeholder="Employee Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Employee Types</SelectItem>
+                <SelectItem value="all">All</SelectItem>
                 <SelectItem value="Consultant">Consultant</SelectItem>
                 <SelectItem value="FTE">FTE</SelectItem>
                 <SelectItem value="Intern">Intern</SelectItem>
@@ -536,17 +485,6 @@ export default function LetterTemplatesPage() {
                               <span>Download PDF</span>
                             </DropdownMenuItem>
 
-                            <DropdownMenuItem
-                              onClick={() => {
-                                downloadDocumentAsWord(tpl.name, tpl.name, tpl.content);
-                                toast.success(`Downloaded ${tpl.name}.doc`);
-                              }}
-                              className="text-xs cursor-pointer gap-2"
-                            >
-                              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-                              <span>Download Word (.doc)</span>
-                            </DropdownMenuItem>
-
                             <DropdownMenuItem onClick={() => openEditModal(tpl)} className="text-xs cursor-pointer gap-2">
                               <Edit className="h-3.5 w-3.5 text-muted-foreground" />
                               <span>Edit Template</span>
@@ -587,178 +525,7 @@ export default function LetterTemplatesPage() {
         )}
       </div>
 
-      {/* CREATE / EDIT TEMPLATE MODAL */}
-      <Dialog open={editorModalOpen} onOpenChange={setEditorModalOpen}>
-        <DialogContent
-          className="w-[90vw] max-w-[90vw] sm:max-w-[90vw] sm:w-[90vw] h-[90vh] max-h-[90vh] flex flex-col rounded-2xl p-0 overflow-hidden"
-          style={{ width: '90vw', maxWidth: '90vw', height: '90vh', maxHeight: '90vh' }}
-        >
-          <DialogHeader className="p-5 border-b border-border/60 bg-muted/20 shrink-0">
-            <DialogTitle className="text-base font-bold flex items-center gap-2">
-              <FileText className="h-5 w-5 text-indigo-600" />
-              <span>{editingTemplateId ? 'Edit Letter Template' : 'Create New Letter Template'}</span>
-            </DialogTitle>
-            <DialogDescription className="text-xs">
-              Define the template name, categorize by Letter & Employee Type, and customize placeholder content.
-            </DialogDescription>
-          </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
-            {/* Top Row: Template Name & Types */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-              <div className="space-y-1.5 sm:col-span-3">
-                <Label className="text-xs font-semibold">Template Name *</Label>
-                <Input
-                  placeholder="e.g., Consultant Offer Letter"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="h-9 text-xs rounded-lg"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">Letter Type *</Label>
-                <Select
-                  value={formData.letter_type}
-                  onValueChange={(val: LetterType) => setFormData({ ...formData, letter_type: val })}
-                >
-                  <SelectTrigger className="h-9 text-xs rounded-lg">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {LETTER_TYPES.map((lt) => (
-                      <SelectItem key={lt} value={lt}>
-                        {lt}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold">Applicable Employee Type *</Label>
-                <Select
-                  value={formData.employee_type_name}
-                  onValueChange={(val: string) => setFormData({ ...formData, employee_type_name: val })}
-                >
-                  <SelectTrigger className="h-9 text-xs rounded-lg">
-                    <SelectValue placeholder="Select employee type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Consultant">Consultant</SelectItem>
-                    <SelectItem value="FTE">FTE (Full-Time Employee)</SelectItem>
-                    <SelectItem value="Intern">Intern</SelectItem>
-                    <SelectItem value="Apprentice">Apprentice</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {formData.letter_type === 'Addendum' ? (
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold">Addendum Category *</Label>
-                  <Select
-                    value={formData.addendum_type}
-                    onValueChange={(val: AddendumType) => setFormData({ ...formData, addendum_type: val })}
-                  >
-                    <SelectTrigger className="h-9 text-xs rounded-lg">
-                      <SelectValue placeholder="Addendum type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ADDENDUM_TYPES.map((at) => (
-                        <SelectItem key={at} value={at}>
-                          {at} Addendum
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              ) : (
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-medium text-muted-foreground">Description (Optional)</Label>
-                  <Input
-                    placeholder="Short summary of this template's use case"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="h-9 text-xs rounded-lg"
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Quick Placeholders Bar */}
-            <div className="rounded-xl border border-border/80 bg-muted/30 p-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
-                  <span>Insert Placeholders</span>
-                </span>
-                <span className="text-[10px] text-muted-foreground">Click any placeholder to append into editor</span>
-              </div>
-              <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
-                {STANDARD_PLACEHOLDERS.map((p) => (
-                  <button
-                    key={p.placeholder}
-                    type="button"
-                    onClick={() => insertPlaceholder(p.placeholder)}
-                    title={p.description}
-                    className="px-2 py-0.5 rounded-md bg-card border border-border/80 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-[10px] font-mono transition-colors"
-                  >
-                    {p.placeholder}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Content Editor */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs font-semibold">Letter Template Content (HTML / Rich Text) *</Label>
-                <span className="text-[10px] text-muted-foreground">{'Supports HTML tags & {{placeholders}}'}</span>
-              </div>
-              <Textarea
-                rows={14}
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                className="font-mono text-xs rounded-xl p-3 leading-relaxed"
-                placeholder="Enter letter template body with HTML tags..."
-              />
-            </div>
-          </div>
-
-          <DialogFooter className="p-4 border-t border-border/60 bg-muted/20 shrink-0 gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setPreviewContent(formData.content);
-                setPreviewModalOpen(true);
-              }}
-              className="rounded-lg text-xs"
-            >
-              <Eye className="h-3.5 w-3.5 mr-1" />
-              Preview Rendered
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setEditorModalOpen(false)}
-              className="rounded-lg text-xs"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleSave}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold"
-            >
-              Save Template
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* PREVIEW MODAL */}
       <Dialog open={previewModalOpen} onOpenChange={setPreviewModalOpen}>
@@ -798,24 +565,6 @@ export default function LetterTemplatesPage() {
             >
               <Download className="h-3.5 w-3.5" />
               <span>Download PDF</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (selectedPreviewTemplate) {
-                  downloadDocumentAsWord(
-                    selectedPreviewTemplate.name,
-                    selectedPreviewTemplate.name,
-                    previewContent
-                  );
-                  toast.success(`Downloaded ${selectedPreviewTemplate.name}.doc`);
-                }
-              }}
-              className="rounded-lg text-xs gap-1.5"
-            >
-              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Download Word (.doc)</span>
             </Button>
             <Button
               variant="outline"
