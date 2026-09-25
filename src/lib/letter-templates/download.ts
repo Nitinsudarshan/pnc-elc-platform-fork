@@ -2,6 +2,11 @@
 
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import {
+  paginateLetterContent,
+  cleanLetterContent,
+  DOCUMENT_STYLES,
+} from './pagination';
 
 /**
  * Helper to get the NavGurukul logo as Base64 data URL
@@ -23,41 +28,8 @@ async function getLogoBase64(): Promise<string> {
 }
 
 /**
- * Generates the clean letterhead HTML markup
- */
-function generateLetterheadHtml(
-  title: string,
-  contentHtml: string,
-  logoSrc: string
-): string {
-  // Clean content HTML
-  let cleanContent = contentHtml
-    .replace(/<p>\s*<strong>\s*NavGurukul Foundation for Social Welfare\s*<\/strong>\s*<\/p>/gi, '')
-    .replace(/<p>\s*Date:\s*\{\{Offer Letter Date\}\}\s*<\/p>/gi, '')
-    .replace(/<p>\s*Date:\s*[0-9A-Za-z,\s-]+\s*<\/p>/gi, '');
-
-  return `
-    <div style="width: 740px; margin: 0 auto; background: #ffffff; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; box-sizing: border-box; padding: 24px 32px 32px 32px;">
-      <!-- Top Letterhead Header: Centered bigger logo with NO black line & refined gradient bar -->
-      <div style="text-align: center; margin-bottom: 20px;">
-        <div style="display: flex; justify-content: center; align-items: center; padding-bottom: 4px;">
-          <img src="${logoSrc}" alt="NavGurukul" style="height: 48px; width: auto; max-width: 240px; object-fit: contain;" />
-        </div>
-
-        <!-- Decorative branding bar: Center is darker than extremes, but not too dark -->
-        <div style="height: 3.5px; width: 100%; background: linear-gradient(to right, #fb7185 0%, #e11270 25%, #9f1239 50%, #e11270 75%, #fb7185 100%); margin-top: 10px; border-radius: 9999px;"></div>
-      </div>
-
-      <!-- Main Document Body -->
-      <div style="font-size: 11px; color: #1e293b; line-height: 1.48;" class="pdf-document-content">
-        ${cleanContent}
-      </div>
-    </div>
-  `;
-}
-
-/**
- * Direct file download as PDF with clean letterhead and footer on EVERY page
+ * Direct file download as PDF with clean letterhead, persistent header & footer on EVERY page,
+ * borderless tables, lossless 300+ DPI text rendering, and exact pixel-by-pixel match to the preview.
  */
 export async function downloadDocumentAsPdf(
   filename: string,
@@ -77,175 +49,129 @@ export async function downloadDocumentAsPdf(
 
   const logoSrc = await getLogoBase64();
 
-  // Create isolated iframe to render pure HTML without stylesheet conflicts
+  // 1. Paginate the content into exact A4 pages matching preview
+  const pages = paginateLetterContent(contentHtml, { title });
+
+  // 2. Initialize jsPDF (A4 portrait)
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  // 3. Create isolated hidden iframe to render pure HTML without OKLCH/LAB stylesheets conflicts
   const iframe = document.createElement('iframe');
   iframe.style.position = 'fixed';
-  iframe.style.top = '0';
-  iframe.style.left = '0';
-  iframe.style.width = '740px';
-  iframe.style.height = '1400px';
+  iframe.style.top = '-99999px';
+  iframe.style.left = '-99999px';
+  iframe.style.width = '794px';
+  iframe.style.height = '1123px';
   iframe.style.border = 'none';
-  iframe.style.zIndex = '-9999';
-  iframe.style.opacity = '0.01';
+  iframe.style.opacity = '0';
   iframe.style.pointerEvents = 'none';
+  iframe.style.zIndex = '-9999';
 
   document.body.appendChild(iframe);
 
-  const doc = iframe.contentDocument || iframe.contentWindow?.document;
-  if (!doc) {
-    document.body.removeChild(iframe);
-    throw new Error('Unable to initialize PDF render context');
-  }
-
-  doc.open();
-  doc.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <style>
-        * { box-sizing: border-box; }
-        body {
-          margin: 0;
-          padding: 0;
-          background: #ffffff;
-          color: #0f172a;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-          font-size: 11px;
-          line-height: 1.48;
-        }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 8px 0;
-        }
-        /* Data table with border */
-        table[border="1"], table:not([border="0"]) {
-          border: 1px solid #cbd5e1;
-        }
-        table[border="1"] td, table[border="1"] th, table:not([border="0"]) td {
-          border: 1px solid #cbd5e1;
-          padding: 5px 8px;
-          font-size: 10.5px;
-        }
-        /* Signature table without border */
-        table[border="0"], table[border="0"] td, table[border="0"] th {
-          border: none !important;
-          padding: 4px 6px;
-        }
-        h1 {
-          font-size: 15px;
-          font-weight: 800;
-          color: #0f172a;
-          margin: 8px 0 6px 0;
-        }
-        h2 {
-          font-size: 13px;
-          font-weight: 700;
-          color: #0f172a;
-          margin: 10px 0 4px 0;
-        }
-        h3 {
-          font-size: 12px;
-          font-weight: 700;
-          color: #0f172a;
-          margin: 8px 0 4px 0;
-        }
-        p {
-          margin: 0 0 5px 0;
-        }
-        ul {
-          margin: 3px 0 6px 0;
-          padding-left: 18px;
-        }
-        li {
-          margin-bottom: 3px;
-          line-height: 1.42;
-        }
-      </style>
-    </head>
-    <body>
-      ${generateLetterheadHtml(title, contentHtml, logoSrc)}
-    </body>
-    </html>
-  `);
-  doc.close();
-
   try {
-    // Wait for rendering
-    await new Promise((r) => setTimeout(r, 150));
-
-    const renderTarget = (doc.body.firstElementChild as HTMLElement) || doc.body;
-
-    const canvas = await html2canvas(renderTarget, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff',
-      width: 740,
-    });
-
-    const imgData = canvas.toDataURL('image/jpeg', 0.98);
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-    });
-
-    const pdfWidth = 210; // A4 width in mm
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    const pageHeight = 297; // A4 height in mm
-    const footerY = 287; // Position near bottom for footer
-    const contentMaxPageHeight = 270; // Safe zone to prevent overlapping with footer
-
-    // Helper to draw consistent footer on every page
-    const drawFooter = () => {
-      pdf.setDrawColor(203, 213, 225); // #cbd5e1
-      pdf.setLineWidth(0.3);
-      pdf.line(14, footerY - 4, 196, footerY - 4);
-
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(7.5);
-      pdf.setTextColor(100, 116, 139); // #64748b
-
-      // Left
-      pdf.text('NavGurukul Foundation for Social Welfare', 14, footerY);
-      // Center
-      pdf.text('www.navgurukul.org  •  hi@navgurukul.org', 105, footerY, { align: 'center' });
-      // Right
-      pdf.text('Confidential', 196, footerY, { align: 'right' });
-    };
-
-    if (pdfHeight <= contentMaxPageHeight) {
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-      drawFooter();
-    } else {
-      let heightLeft = pdfHeight;
-      let position = 0;
-      let pageCount = 0;
-
-      // First page
-      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
-      pageCount++;
-      heightLeft -= contentMaxPageHeight;
-
-      // Subsequent pages with proper safe-offset
-      while (heightLeft > 0) {
-        position -= contentMaxPageHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
-        pageCount++;
-        heightLeft -= contentMaxPageHeight;
-      }
-
-      // Draw footer on every single page
-      for (let i = 1; i <= pageCount; i++) {
-        pdf.setPage(i);
-        drawFooter();
-      }
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!iframeDoc) {
+      throw new Error('Unable to initialize PDF render context');
     }
 
-    // Directly trigger file download
+    for (let i = 0; i < pages.length; i++) {
+      const pageHtml = pages[i];
+      const isFirstPage = i === 0;
+      const pageHasH1 = /<h1[^>]*>/i.test(pageHtml);
+
+      iframeDoc.open();
+      iframeDoc.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            ${DOCUMENT_STYLES}
+            html, body {
+              margin: 0;
+              padding: 0;
+              background-color: #ffffff !important;
+              color: #0f172a !important;
+              width: 794px;
+              height: 1123px;
+              overflow: hidden;
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+              text-rendering: optimizeLegibility;
+            }
+          </style>
+        </head>
+        <body style="background-color: #ffffff; color: #0f172a; margin: 0; padding: 0;">
+          <div id="page-wrapper" class="document-a4-page" style="width: 794px; height: 1123px; min-height: 1123px; max-height: 1123px; box-sizing: border-box; padding: 40px 48px 32px 48px; display: flex; flex-direction: column; justify-content: space-between; background-color: #ffffff; color: #0f172a; overflow: hidden; position: relative; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+            
+            <!-- Header on EVERY page -->
+            <header style="margin-bottom: 16px; text-align: center; flex-shrink: 0;">
+              <div style="display: flex; justify-content: center; align-items: center; padding-bottom: 2px;">
+                <img src="${logoSrc}" alt="NavGurukul" style="height: 46px; width: auto; max-width: 220px; object-fit: contain;" />
+              </div>
+              <div style="height: 3.5px; width: 100%; background: linear-gradient(to right, #fb7185 0%, #e11270 25%, #9f1239 50%, #e11270 75%, #fb7185 100%); margin-top: 10px; border-radius: 9999px;"></div>
+            </header>
+
+            <!-- Main Content -->
+            <main style="flex: 1; overflow: hidden;" class="document-content">
+              ${
+                isFirstPage && title && !pageHasH1
+                  ? `<h1 style="text-align: center; font-size: 15px; font-weight: 800; color: #0f172a; margin: 4px 0 14px 0; letter-spacing: 0.03em; text-transform: uppercase;">${title}</h1>`
+                  : ''
+              }
+              <div class="space-y-2.5">
+                ${pageHtml}
+              </div>
+            </main>
+
+            <!-- Footer on EVERY page with 3-column balanced grid -->
+            <footer style="border-top: 1px solid #cbd5e1; padding-top: 10px; margin-top: 12px; font-size: 10px; color: #64748b; flex-shrink: 0; width: 100%;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; width: 100%;">
+                <div style="text-align: left; white-space: nowrap;">NavGurukul Foundation for Social Welfare</div>
+                <div style="text-align: center; font-weight: 500; color: #334155; white-space: nowrap;">www.navgurukul.org • hi@navgurukul.org</div>
+                <div style="text-align: right; white-space: nowrap;">Confidential</div>
+              </div>
+            </footer>
+          </div>
+        </body>
+        </html>
+      `);
+      iframeDoc.close();
+
+      // Brief settle delay for font/image rasterization
+      await new Promise((r) => setTimeout(r, 90));
+
+      const pageWrapper = iframeDoc.getElementById('page-wrapper') || iframeDoc.body;
+
+      // Render at scale: 3 for high-DPI 300+ retina print sharpness
+      const canvas = await html2canvas(pageWrapper, {
+        scale: 3,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        width: 794,
+        height: 1123,
+        windowWidth: 794,
+        windowHeight: 1123,
+      });
+
+      // Lossless PNG encoding prevents JPEG compression fuzziness/pixelation
+      const imgData = canvas.toDataURL('image/png');
+
+      if (i > 0) {
+        pdf.addPage();
+      }
+
+      // Exact 1:1 match to A4 paper dimensions (210mm x 297mm)
+      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297, undefined, 'FAST');
+    }
+
+    // Save output PDF
     pdf.save(`${safeFilename}.pdf`);
   } catch (err) {
     console.error('Direct PDF download error:', err);
@@ -258,7 +184,7 @@ export async function downloadDocumentAsPdf(
 }
 
 /**
- * Utility to export letterhead documents as Word-compatible (.doc)
+ * Utility to export letterhead documents as Word-compatible (.doc) with clean borderless tables
  */
 export function downloadDocumentAsWord(
   filename: string,
@@ -272,6 +198,8 @@ export function downloadDocumentAsWord(
   const safeFilename = (filename || 'Letter_Template')
     .replace(/[^a-z0-9-_]/gi, '_')
     .toLowerCase();
+
+  const cleaned = cleanLetterContent(contentHtml);
 
   const fullHtml = `<!DOCTYPE html>
 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
@@ -301,29 +229,32 @@ export function downloadDocumentAsWord(
       text-transform: uppercase;
       margin: 0;
     }
-    h1, h2, h3, h4 {
+    h1 {
+      font-size: 14pt;
+      font-weight: bold;
       color: #0f172a;
+      text-align: center;
+      text-transform: uppercase;
       margin-top: 14px;
-      margin-bottom: 6px;
+      margin-bottom: 12px;
     }
-    h1 { font-size: 14pt; }
-    h2 { font-size: 12pt; }
-    h3 { font-size: 11pt; }
+    h2 { font-size: 12pt; color: #0f172a; margin-top: 12px; margin-bottom: 6px; }
+    h3 { font-size: 11pt; color: #0f172a; margin-top: 10px; margin-bottom: 4px; }
+    /* Borderless tables without box lines */
     table {
       width: 100%;
       border-collapse: collapse;
       margin: 10px 0;
+      border: none !important;
     }
-    table[border="1"], table:not([border="0"]) {
-      border: 1px solid #cbd5e1;
+    table, tr, td, th {
+      border: none !important;
     }
-    table[border="1"] td, table:not([border="0"]) td {
-      border: 1px solid #cbd5e1;
-      padding: 6px 10px;
-      font-size: 10pt;
-    }
-    table[border="0"], table[border="0"] td {
-      border: none;
+    table td {
+      border: none !important;
+      padding: 5px 10px 5px 0;
+      font-size: 10.5pt;
+      vertical-align: top;
     }
     .footer-table {
       width: 100%;
@@ -341,14 +272,14 @@ export function downloadDocumentAsWord(
   </div>
 
   <div class="document-body">
-    ${contentHtml}
+    ${cleaned}
   </div>
 
   <table class="footer-table" style="border: none;">
     <tr style="border: none;">
-      <td style="border: none; width: 40%;">NavGurukul Foundation for Social Welfare</td>
-      <td style="border: none; width: 30%; text-align: center;"><strong>www.navgurukul.org</strong></td>
-      <td style="border: none; width: 30%; text-align: right;">Confidential</td>
+      <td style="border: none; width: 33.3%; text-align: left;">NavGurukul Foundation for Social Welfare</td>
+      <td style="border: none; width: 33.3%; text-align: center;"><strong>www.navgurukul.org • hi@navgurukul.org</strong></td>
+      <td style="border: none; width: 33.3%; text-align: right;">Confidential</td>
     </tr>
   </table>
 </body>
