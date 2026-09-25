@@ -470,7 +470,7 @@ export async function getLetterTemplates(filter?: {
   letter_type?: string;
 }): Promise<LetterTemplate[]> {
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     let query = supabase.from('letter_templates').select('*');
 
     if (filter?.status && filter.status !== 'all') {
@@ -510,7 +510,7 @@ export async function getLetterTemplates(filter?: {
 
 export async function getLetterTemplateById(id: string): Promise<LetterTemplate | null> {
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     const { data, error } = await supabase.from('letter_templates').select('*').eq('id', id).maybeSingle();
     if (!error && data) return data;
   } catch (err) {
@@ -539,7 +539,7 @@ export async function createLetterTemplate(input: CreateLetterTemplateInput): Pr
   };
 
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     const { data, error } = await supabase.from('letter_templates').insert(template).select().maybeSingle();
     if (!error && data) {
       MEMORY_TEMPLATES_STORE.set(data.id, data);
@@ -580,7 +580,7 @@ export async function updateLetterTemplate(
   };
 
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     const { data, error } = await supabase.from('letter_templates').update(updated).eq('id', id).select().maybeSingle();
     if (!error && data) {
       MEMORY_TEMPLATES_STORE.set(id, data);
@@ -604,7 +604,7 @@ export async function getCandidateLetters(filter?: {
   search?: string;
 }): Promise<CandidateLetter[]> {
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     let query = supabase.from('candidate_letters').select('*');
     if (filter?.candidate_id) {
       query = query.eq('candidate_id', filter.candidate_id);
@@ -635,7 +635,7 @@ export async function getCandidateLetters(filter?: {
 
 export async function getCandidateLetterById(id: string): Promise<CandidateLetter | null> {
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     const { data, error } = await supabase.from('candidate_letters').select('*').eq('id', id).maybeSingle();
     if (!error && data) return data;
   } catch (err) {
@@ -665,7 +665,7 @@ export async function createCandidateLetter(input: CreateCandidateLetterInput): 
   };
 
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     const { data, error } = await supabase.from('candidate_letters').insert(letter).select().maybeSingle();
     if (!error && data) {
       MEMORY_CANDIDATE_LETTERS_STORE.set(data.id, data);

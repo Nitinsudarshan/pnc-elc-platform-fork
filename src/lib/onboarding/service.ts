@@ -718,7 +718,7 @@ initSeedData();
 
 export async function getAllOnboardingRecords(): Promise<OnboardingRecord[]> {
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     const { data, error } = await supabase
       .from('onboarding_records')
       .select('*, teams(name), employees!manager_id(name), employee_types(name)')
@@ -743,7 +743,7 @@ export async function getAllOnboardingRecords(): Promise<OnboardingRecord[]> {
 
 export async function getOnboardingById(idOrToken: string): Promise<FullOnboardingData | null> {
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     let { data: record, error } = await supabase
       .from('onboarding_records')
       .select('*, teams(name), employees!manager_id(name), employee_types(name)')
@@ -925,7 +925,7 @@ export async function createOnboardingRecord(
   };
 
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     await supabase.from('onboarding_records').insert({
       id: newId,
       candidate_name: record.candidate_name,
