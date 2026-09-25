@@ -111,10 +111,13 @@ export function EmployeesTable({ employees }: { employees: Employee[] }) {
 
       // Status filter (for active tab)
       if (activeTab === 'active' && statusFilter !== 'all') {
-        if (statusFilter === 'confirmed' && emp.status?.toLowerCase() !== 'confirmed') {
+        const isConfirmed =
+          emp.status?.toLowerCase() === 'confirmed' ||
+          Boolean(emp.confirmation_date);
+        if (statusFilter === 'confirmed' && !isConfirmed) {
           return false;
         }
-        if (statusFilter === 'active' && emp.status?.toLowerCase() !== 'active') {
+        if (statusFilter === 'active' && isConfirmed) {
           return false;
         }
       }
@@ -198,18 +201,20 @@ export function EmployeesTable({ employees }: { employees: Employee[] }) {
     );
   };
 
-  // Check if any filters are active
+  // Check if any filters or search are active
   const hasActiveFilters =
     search.trim() !== '' ||
     typeFilter !== 'all' ||
     teamFilter !== 'all' ||
     statusFilter !== 'all';
 
-  const resetFilters = () => {
+  const clearFiltersAndSort = () => {
     setSearch('');
     setTypeFilter('all');
     setTeamFilter('all');
     setStatusFilter('all');
+    setSortField('name');
+    setSortOrder('asc');
     setCurrentPage(1);
   };
 
@@ -272,19 +277,6 @@ export function EmployeesTable({ employees }: { employees: Employee[] }) {
               </span>
             </TabsTrigger>
           </TabsList>
-
-          {/* Quick Stats or Reset Button */}
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={resetFilters}
-              className="text-xs text-muted-foreground hover:text-foreground h-8 gap-1 self-start sm:self-auto"
-            >
-              <RotateCcw className="size-3.5" />
-              <span>Reset filters</span>
-            </Button>
-          )}
         </div>
 
         {/* Filter Controls Toolbar */}
@@ -316,135 +308,94 @@ export function EmployeesTable({ employees }: { employees: Employee[] }) {
             )}
           </div>
 
-          {/* Dropdown Filters & Quick Sort */}
+          {/* Dropdown Filters & Clear */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Filter by Employment Type */}
-            <div className="min-w-[170px]">
-              <Select
-                value={typeFilter}
-                onValueChange={(val) => {
-                  setTypeFilter(val);
-                  setCurrentPage(1);
-                }}
-              >
-                <SelectTrigger className="h-9 text-xs rounded-lg bg-card">
-                  <div className="flex items-center gap-1.5 truncate">
-                    <Filter className="size-3 text-muted-foreground shrink-0" />
-                    <span className="text-muted-foreground">Type:</span>
-                    <span className="font-semibold text-foreground truncate">
-                      {typeFilter === 'all' ? 'All Types' : formatEmploymentType(typeFilter)}
-                    </span>
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="text-xs">
-                  <SelectItem value="all">All Employment Types</SelectItem>
-                  {availableTypes.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {formatEmploymentType(t)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Select
+              value={typeFilter}
+              onValueChange={(val) => {
+                setTypeFilter(val);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="h-9 text-xs rounded-lg bg-card min-w-[160px]">
+                <div className="flex items-center gap-1.5 truncate">
+                  <Filter className="size-3 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Type:</span>
+                  <SelectValue placeholder="All Types" />
+                </div>
+              </SelectTrigger>
+              <SelectContent position="popper" className="text-xs">
+                <SelectItem value="all">All Types</SelectItem>
+                {availableTypes.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {formatEmploymentType(t)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
             {/* Filter by Team */}
-            <div className="min-w-[150px]">
-              <Select
-                value={teamFilter}
-                onValueChange={(val) => {
-                  setTeamFilter(val);
-                  setCurrentPage(1);
-                }}
-              >
-                <SelectTrigger className="h-9 text-xs rounded-lg bg-card">
-                  <div className="flex items-center gap-1.5 truncate">
-                    <span className="text-muted-foreground">Team:</span>
-                    <span className="font-semibold text-foreground truncate">
-                      {teamFilter === 'all' ? 'All Teams' : teamFilter}
-                    </span>
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="text-xs">
-                  <SelectItem value="all">All Teams</SelectItem>
-                  {availableTeams.map((team) => (
-                    <SelectItem key={team} value={team}>
-                      {team}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Select
+              value={teamFilter}
+              onValueChange={(val) => {
+                setTeamFilter(val);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="h-9 text-xs rounded-lg bg-card min-w-[150px]">
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className="text-muted-foreground">Team:</span>
+                  <SelectValue placeholder="All Teams" />
+                </div>
+              </SelectTrigger>
+              <SelectContent position="popper" className="text-xs">
+                <SelectItem value="all">All Teams</SelectItem>
+                {availableTeams.map((team) => (
+                  <SelectItem key={team} value={team}>
+                    {team}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
             {/* Filter by Status (Only in Active Tab) */}
             {activeTab === 'active' && (
-              <div className="min-w-[140px]">
-                <Select
-                  value={statusFilter}
-                  onValueChange={(val) => {
-                    setStatusFilter(val);
-                    setCurrentPage(1);
-                  }}
-                >
-                  <SelectTrigger className="h-9 text-xs rounded-lg bg-card">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <span className="text-muted-foreground">Status:</span>
-                      <span className="font-semibold text-foreground capitalize">
-                        {statusFilter === 'all' ? 'All' : statusFilter}
-                      </span>
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="text-xs">
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="confirmed">Confirmed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {/* Quick Sort Dropdown */}
-            <div className="min-w-[160px]">
               <Select
-                value={`${sortField}-${sortOrder}`}
+                value={statusFilter}
                 onValueChange={(val) => {
-                  const [field, order] = val.split('-') as [SortField, SortOrder];
-                  setSortField(field);
-                  setSortOrder(order);
+                  setStatusFilter(val);
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="h-9 text-xs rounded-lg bg-card">
+                <SelectTrigger className="h-9 text-xs rounded-lg bg-card min-w-[140px]">
                   <div className="flex items-center gap-1.5 truncate">
-                    <span className="text-muted-foreground">Sort:</span>
-                    <span className="font-semibold text-foreground truncate">
-                      {sortField === 'name' && (sortOrder === 'asc' ? 'Name (A→Z)' : 'Name (Z→A)')}
-                      {sortField === 'tenure' && (sortOrder === 'desc' ? 'Tenure (Longest)' : 'Tenure (Shortest)')}
-                      {sortField === 'joining_date' && (sortOrder === 'desc' ? 'Joining (Newest)' : 'Joining (Oldest)')}
-                      {sortField === 'exit_date' && (sortOrder === 'desc' ? 'Exit Date (Newest)' : 'Exit Date (Oldest)')}
-                      {sortField === 'type' && 'Employment Type'}
-                      {sortField === 'team' && 'Team'}
-                      {sortField === 'status' && 'Status'}
-                    </span>
+                    <span className="text-muted-foreground">Status:</span>
+                    <SelectValue placeholder="All Statuses" />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="text-xs">
-                  <SelectItem value="name-asc">Name (A → Z)</SelectItem>
-                  <SelectItem value="name-desc">Name (Z → A)</SelectItem>
-                  <SelectItem value="tenure-desc">Tenure (Highest first)</SelectItem>
-                  <SelectItem value="tenure-asc">Tenure (Lowest first)</SelectItem>
-                  <SelectItem value="joining_date-desc">Joining Date (Newest first)</SelectItem>
-                  <SelectItem value="joining_date-asc">Joining Date (Oldest first)</SelectItem>
-                  {activeTab === 'exited' && (
-                    <>
-                      <SelectItem value="exit_date-desc">Exit Date (Newest first)</SelectItem>
-                      <SelectItem value="exit_date-asc">Exit Date (Oldest first)</SelectItem>
-                    </>
-                  )}
-                  <SelectItem value="type-asc">Employment Type</SelectItem>
-                  <SelectItem value="team-asc">Team (A → Z)</SelectItem>
+                <SelectContent position="popper" className="text-xs">
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="confirmed">Confirmed</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            )}
+
+            {/* Clear Action */}
+            {hasActiveFilters && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearFiltersAndSort}
+                className="h-9 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/80 shrink-0 gap-1.5 border-dashed rounded-lg transition-all animate-in fade-in"
+                title="Clear filters, search, and sorting"
+                aria-label="Clear filters, search, and sorting"
+              >
+                <X className="size-3.5 text-muted-foreground" />
+                <span>Clear</span>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -518,10 +469,10 @@ export function EmployeesTable({ employees }: { employees: Employee[] }) {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={resetFilters}
+                              onClick={clearFiltersAndSort}
                               className="mt-2 text-xs rounded-lg"
                             >
-                              Reset filters
+                              Clear filters
                             </Button>
                           )}
                         </div>
@@ -684,10 +635,10 @@ export function EmployeesTable({ employees }: { employees: Employee[] }) {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={resetFilters}
+                              onClick={clearFiltersAndSort}
                               className="mt-2 text-xs rounded-lg"
                             >
-                              Reset filters
+                              Clear filters
                             </Button>
                           )}
                         </div>
