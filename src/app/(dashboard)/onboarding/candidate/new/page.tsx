@@ -56,7 +56,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { LetterTemplate, STANDARD_PLACEHOLDERS } from '@/lib/letter-templates/types';
-import { populateTemplatePlaceholders } from '@/lib/letter-templates/service';
+import { populateTemplatePlaceholders } from '@/lib/letter-templates/utils';
 
 export default function CreateCandidateOnboardingPage() {
   const router = useRouter();

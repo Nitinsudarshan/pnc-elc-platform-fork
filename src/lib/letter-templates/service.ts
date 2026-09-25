@@ -9,6 +9,8 @@ import {
   AddendumType,
   TemplateStatus,
 } from './types';
+import { populateTemplatePlaceholders } from './utils';
+export { populateTemplatePlaceholders };
 
 // In-Memory fallback store populated with realistic seed data
 let MEMORY_TEMPLATES_STORE: Map<string, LetterTemplate> = new Map();
@@ -21,7 +23,7 @@ const CONSULTANT_OFFER_LETTER_CONTENT = `<h1>Consultant Offer Letter</h1>
 <p>We are delighted to inform you that, after reviewing your application and conducting subsequent interviews, you have been selected for the role of <strong>{{Designation}}</strong>. We are excited about this journey together! Kindly take a moment to review the specifics of your engagement below.</p>
 
 <h3>Engagement Details</h3>
-<table border="1" cellpadding="6" style="border-collapse: collapse; width: 100%;">
+<table border="0" cellpadding="6" style="border-collapse: collapse; width: 100%; border: none;">
   <tbody>
     <tr>
       <td style="width: 30%;"><strong>Position Title</strong></td>
@@ -104,7 +106,7 @@ const FTE_OFFER_LETTER_CONTENT = `<h1>Employment Offer Letter (Full-Time Employe
 <p>We are pleased to offer you the full-time position of <strong>{{Designation}}</strong> with the <strong>{{Department}}</strong> team at NavGurukul Foundation for Social Welfare.</p>
 
 <h3>Key Employment Terms</h3>
-<table border="1" cellpadding="6" style="border-collapse: collapse; width: 100%;">
+<table border="0" cellpadding="6" style="border-collapse: collapse; width: 100%; border: none;">
   <tbody>
     <tr>
       <td style="width: 30%;"><strong>Designation</strong></td>
@@ -182,7 +184,7 @@ const FTE_SALARY_ADDENDUM_CONTENT = `<h1>Employment Addendum - Compensation Revi
 <p>This Addendum serves to modify the compensation terms of your employment contract with NavGurukul for the position of <strong>{{Designation}}</strong> in the <strong>{{Department}}</strong> department.</p>
 
 <h3>Revised Compensation Details</h3>
-<table border="1" cellpadding="6" style="border-collapse: collapse; width: 100%;">
+<table border="0" cellpadding="6" style="border-collapse: collapse; width: 100%; border: none;">
   <tbody>
     <tr>
       <td style="width: 35%;"><strong>Employee Name</strong></td>
@@ -412,56 +414,7 @@ function initSeedTemplates() {
 
 initSeedTemplates();
 
-// Helper to replace placeholders
-export function populateTemplatePlaceholders(
-  templateContent: string,
-  candidateData: Record<string, any>
-): string {
-  if (!templateContent) return '';
 
-  const currentDate = new Date().toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-
-  const map: Record<string, string> = {
-    '{{Full Name}}': candidateData.candidate_name || candidateData.full_name || '{{Full Name}}',
-    '{{Offer Letter Date}}': candidateData.offer_letter_date || currentDate,
-    '{{Designation}}': candidateData.designation || '{{Designation}}',
-    '{{Department}}': candidateData.department || candidateData.team_name || '{{Department}}',
-    '{{Reporting Manager}}': candidateData.manager_name || candidateData.reporting_manager || 'Reporting Manager',
-    '{{Date of Joining}}': candidateData.joining_date || candidateData.date_of_joining || '{{Date of Joining}}',
-    '{{Work Location}}': candidateData.location || candidateData.work_location || 'NavGurukul Campus / Remote',
-    '{{Travel Requirement}}': candidateData.travel_requirement || 'As required for campus visits and programmatic needs (approx 10-20%)',
-    '{{Monthly Compensation}}': candidateData.ctc || candidateData.monthly_compensation || '₹50,000',
-    '{{Payment and Invoice Terms}}':
-      candidateData.payment_terms ||
-      'Invoices submitted by the 25th will be processed by the 5th of the following month, subject to applicable TDS deductions.',
-    '{{Role Overview}}':
-      candidateData.role_responsibilities ||
-      candidateData.role_overview ||
-      'Deliver on core project objectives, drive high-impact educational outcomes, and support student empowerment initiatives.',
-    '{{Working Days and Leave Terms}}':
-      candidateData.leave_terms ||
-      '5 working days per week. Leaves subject to organizational consultant leave guidelines as shared in the Handbook.',
-    '{{Notice Period}}': candidateData.notice_period || '1 Month',
-    '{{Review Period}}': candidateData.probation_period || '3 Months',
-    '{{Termination Clause}}':
-      'Either party may discontinue this engagement by providing written notice in accordance with the notice period.',
-    '{{Acceptance Period}}': '7 days',
-    '{{Authorized Signatory Name}}': 'Nitin Sudarshan / Sharmistha Mazumdar',
-    '{{Authorized Signatory Title}}': 'People & Culture Lead, NavGurukul',
-    '{{Date of Acceptance}}': currentDate,
-    '{{Personal Email}}': candidateData.personal_email || candidateData.email || '{{Personal Email}}',
-  };
-
-  let result = templateContent;
-  for (const [key, val] of Object.entries(map)) {
-    result = result.replaceAll(key, val);
-  }
-  return result;
-}
 
 // Letter Template CRUD Operations
 export async function getLetterTemplates(filter?: {
