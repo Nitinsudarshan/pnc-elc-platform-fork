@@ -8,6 +8,9 @@ import {
   OnboardingGeneratedDocument,
   OnboardingActivityLog,
   EmployeeAccountProvisioning,
+  EmployeeOrientationChecklist,
+  ProbationMilestone,
+  EmployeeProbationMilestones,
   FullOnboardingData,
   OnboardingStatus,
   DocumentStatus,
@@ -614,6 +617,35 @@ function initSeedData() {
     credentials_delivery_status: 'sent',
     provisioned_at: rahulRecord.completed_at!,
     created_at: rahulRecord.approved_at!,
+    orientation_checklist: {
+      welcome_email_sent: true,
+      welcome_email_sent_at: rahulRecord.completed_at,
+      it_assets_assigned: true,
+      it_assets_notes: 'MacBook Air M2 (Asset ID: NG-LAP-2026-042) + Headset issued',
+      slack_access_granted: true,
+      buddy_introduced: true,
+      manager_1on1_done: true,
+      pnc_induction_done: true,
+      posh_training_completed: true,
+    },
+    probation_milestones: {
+      day_30: {
+        status: 'completed',
+        due_date: '2026-11-10',
+        completed_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+        reviewer_name: 'Rohit Verma',
+        notes: 'Great culture fit and strong ownership in campus ops.',
+      },
+      day_60: {
+        status: 'scheduled',
+        due_date: '2026-12-10',
+        notes: 'Mid-probation milestone scheduled with Rohit Verma.',
+      },
+      day_90: {
+        status: 'pending',
+        due_date: '2027-01-10',
+      },
+    },
   };
 
   MEMORY_ONBOARDING_STORE.set(rahulId, {
@@ -634,6 +666,47 @@ function initSeedData() {
       { id: 'log-r-5', onboarding_id: rahulId, actor_type: 'pnc', action: 'Onboarding Approved', description: 'P&C completed final review and approved onboarding dossier.', created_at: rahulRecord.approved_at! },
       { id: 'log-r-6', onboarding_id: rahulId, actor_type: 'system', action: 'Official Account Provisioned', description: 'Created rahul.kumar@navgurukul.org (Employee Code: NG-2026-00124) and sent credentials to candidate personal email.', created_at: rahulRecord.completed_at! },
       { id: 'log-r-7', onboarding_id: rahulId, actor_type: 'system', action: 'Employee Record Linked', description: 'Onboarding record linked to permanent Employee Directory entity.', created_at: rahulRecord.completed_at! },
+    ],
+  });
+
+  // 5. Approved Record (Ready for IT Provisioning): Ananya Mishra
+  const ananyaId = '55555555-5555-5555-5555-555555555555';
+  const ananyaRecord: OnboardingRecord = {
+    id: ananyaId,
+    candidate_name: 'Ananya Mishra',
+    personal_email: 'ananya.mishra.work@gmail.com',
+    phone: '+91 98222 11223',
+    designation: 'Curriculum Specialist',
+    department: 'Academia',
+    team_name: 'Academia',
+    manager_name: 'Ananya Sen',
+    buddy_name: 'Rohit Verma',
+    location: 'Bangalore / Hybrid',
+    employee_type_name: 'Full-Time Employee',
+    joining_date: '2026-10-05',
+    probation_period: '3 Months',
+    notice_period: '1 Month',
+    ctc: '₹9,00,000 PA',
+    is_alumni: false,
+    role_responsibilities: 'Design and review Python & web engineering curriculum modules for undergraduate fellowship learners.',
+    status: 'approved',
+    progress_percentage: 100,
+    invitation_token: 'm4q8z2x1-ananya-mishra',
+    invited_at: new Date(Date.now() - 86400000 * 7).toISOString(),
+    submitted_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    approved_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+    created_by: 'Sharmistha Mazumdar',
+    created_at: new Date(Date.now() - 86400000 * 8).toISOString(),
+    updated_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+  };
+
+  MEMORY_ONBOARDING_STORE.set(ananyaId, {
+    record: ananyaRecord,
+    documents: [],
+    policies: [],
+    generatedDocuments: [],
+    activityLogs: [
+      { id: 'log-an-1', onboarding_id: ananyaId, actor_type: 'pnc', action: 'Onboarding Approved', description: 'P&C approved all documents. Awaiting IT Account Provisioning.', created_at: ananyaRecord.approved_at! },
     ],
   });
 }
@@ -1281,4 +1354,172 @@ function recalculateProgress(data: FullOnboardingData) {
   if (apptSigned) score += 0.5;
 
   data.record.progress_percentage = Math.min(100, Math.round((score / totalWeight) * 100));
+}
+
+export async function getAllFullOnboardingData(): Promise<FullOnboardingData[]> {
+  try {
+    const records = await getAllOnboardingRecords();
+    const fullList = await Promise.all(
+      records.map(async (r) => {
+        const full = await getOnboardingById(r.id);
+        return (
+          full || {
+            record: r,
+            documents: [],
+            policies: [],
+            generatedDocuments: [],
+            activityLogs: [],
+          }
+        );
+      })
+    );
+    return fullList;
+  } catch (e) {
+    return Array.from(MEMORY_ONBOARDING_STORE.values());
+  }
+}
+
+export async function updateOrientationChecklist(
+  id: string,
+  checklist: Partial<EmployeeOrientationChecklist>
+): Promise<FullOnboardingData | null> {
+  const data = await getOnboardingById(id);
+  if (!data) return null;
+
+  if (!data.provisioning) {
+    data.provisioning = {
+      id: `prov-${id}`,
+      onboarding_id: id,
+      official_email: `${data.record.candidate_name.toLowerCase().replace(/\s+/g, '.')}@navgurukul.org`,
+      employee_id_code: `NG-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`,
+      status: 'active',
+      credentials_delivery_status: 'sent',
+      created_at: new Date().toISOString(),
+    };
+  }
+
+  data.provisioning.orientation_checklist = {
+    welcome_email_sent: false,
+    it_assets_assigned: false,
+    slack_access_granted: false,
+    buddy_introduced: false,
+    manager_1on1_done: false,
+    pnc_induction_done: false,
+    posh_training_completed: false,
+    ...(data.provisioning.orientation_checklist || {}),
+    ...checklist,
+  };
+
+  const now = new Date().toISOString();
+  data.activityLogs.unshift({
+    id: `log-${Date.now()}-orient`,
+    onboarding_id: id,
+    actor_type: 'pnc',
+    action: 'Orientation Checklist Updated',
+    description: `P&C updated onboarding orientation items for ${data.record.candidate_name}.`,
+    created_at: now,
+  });
+
+  MEMORY_ONBOARDING_STORE.set(id, data);
+  return data;
+}
+
+export async function updateProbationMilestone(
+  id: string,
+  milestoneKey: 'day_30' | 'day_60' | 'day_90',
+  milestoneData: Partial<ProbationMilestone>
+): Promise<FullOnboardingData | null> {
+  const data = await getOnboardingById(id);
+  if (!data) return null;
+
+  if (!data.provisioning) {
+    data.provisioning = {
+      id: `prov-${id}`,
+      onboarding_id: id,
+      official_email: `${data.record.candidate_name.toLowerCase().replace(/\s+/g, '.')}@navgurukul.org`,
+      employee_id_code: `NG-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`,
+      status: 'active',
+      credentials_delivery_status: 'sent',
+      created_at: new Date().toISOString(),
+    };
+  }
+
+  if (!data.provisioning.probation_milestones) {
+    data.provisioning.probation_milestones = {};
+  }
+
+  data.provisioning.probation_milestones[milestoneKey] = {
+    status: 'pending',
+    ...(data.provisioning.probation_milestones[milestoneKey] || {}),
+    ...milestoneData,
+  };
+
+  const now = new Date().toISOString();
+  data.activityLogs.unshift({
+    id: `log-${Date.now()}-prob`,
+    onboarding_id: id,
+    actor_type: 'pnc',
+    action: `Probation Milestone Updated (${milestoneKey.replace('_', ' ').toUpperCase()})`,
+    description: `Updated milestone status to ${milestoneData.status || 'updated'}: ${milestoneData.notes || 'No notes'}`,
+    created_at: now,
+  });
+
+  MEMORY_ONBOARDING_STORE.set(id, data);
+  return data;
+}
+
+export async function updateProvisioningDetails(
+  id: string,
+  details: { official_email?: string; employee_id_code?: string; it_assets_notes?: string }
+): Promise<FullOnboardingData | null> {
+  const data = await getOnboardingById(id);
+  if (!data) return null;
+
+  if (!data.provisioning) {
+    data.provisioning = {
+      id: `prov-${id}`,
+      onboarding_id: id,
+      official_email: details.official_email || `${data.record.candidate_name.toLowerCase().replace(/\s+/g, '.')}@navgurukul.org`,
+      employee_id_code: details.employee_id_code || `NG-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`,
+      status: 'active',
+      credentials_delivery_status: 'sent',
+      created_at: new Date().toISOString(),
+    };
+  } else {
+    if (details.official_email) data.provisioning.official_email = details.official_email;
+    if (details.employee_id_code) data.provisioning.employee_id_code = details.employee_id_code;
+  }
+
+  if (details.it_assets_notes !== undefined) {
+    if (!data.provisioning.orientation_checklist) {
+      data.provisioning.orientation_checklist = {
+        welcome_email_sent: true,
+        it_assets_assigned: true,
+        slack_access_granted: true,
+        buddy_introduced: true,
+        manager_1on1_done: true,
+        pnc_induction_done: true,
+        posh_training_completed: true,
+      };
+    }
+    data.provisioning.orientation_checklist.it_assets_notes = details.it_assets_notes;
+    data.provisioning.orientation_checklist.it_assets_assigned = Boolean(details.it_assets_notes);
+  }
+
+  data.record.status = 'completed';
+  const now = new Date().toISOString();
+  data.record.completed_at = now;
+  data.record.updated_at = now;
+
+  data.activityLogs.unshift({
+    id: `log-${Date.now()}-prov-edit`,
+    onboarding_id: id,
+    actor_type: 'pnc',
+    action: 'Employee Account Provisioning Updated',
+    description: `Configured official email: ${data.provisioning.official_email}, Employee ID: ${data.provisioning.employee_id_code}`,
+    created_at: now,
+  });
+
+  MEMORY_ONBOARDING_STORE.set(id, data);
+  return data;
 }

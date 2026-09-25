@@ -5,6 +5,9 @@ import {
   verifyOrRejectDocument,
   updateOnboardingStatus,
   provisionOfficialAccount,
+  updateOrientationChecklist,
+  updateProbationMilestone,
+  updateProvisioningDetails,
 } from '@/lib/onboarding/service';
 
 export async function GET(
@@ -48,6 +51,16 @@ export async function PATCH(
       result = await updateOnboardingStatus(id, body.status, body.note);
     } else if (action === 'provision_account') {
       result = await provisionOfficialAccount(id);
+    } else if (action === 'update_orientation_checklist') {
+      result = await updateOrientationChecklist(id, body.checklist || {});
+    } else if (action === 'update_probation_milestone') {
+      result = await updateProbationMilestone(
+        id,
+        body.milestone_key,
+        body.milestone_data || {}
+      );
+    } else if (action === 'update_provisioning') {
+      result = await updateProvisioningDetails(id, body.details || {});
     } else {
       return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 });
     }

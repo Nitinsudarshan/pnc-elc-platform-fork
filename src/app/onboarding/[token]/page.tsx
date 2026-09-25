@@ -865,7 +865,7 @@ export default function CandidateOnboardingPortalPage({
                             setPreviewDoc({
                               title: doc.document_type,
                               html: `<div class="p-8 text-center space-y-4">
-                                <div class="size-16 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 mx-auto flex items-center justify-center font-bold">PDF</div>
+                                <div class="size-16 rounded-lg bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-600 mx-auto flex items-center justify-center font-bold">PDF</div>
                                 <p class="font-bold text-sm text-foreground">${doc.file_name}</p>
                                 <p class="text-xs text-muted-foreground">[Document Vault Storage Reference: secure://${doc.id}]</p>
                               </div>`,
@@ -1167,7 +1167,7 @@ export default function CandidateOnboardingPortalPage({
                       Timestamp: {new Date(offerDoc.signed_at).toLocaleString('en-IN')}
                     </p>
                     {offerDoc.signature_data_url && (
-                      <div className="mt-1 p-2 bg-white rounded border border-border/60 inline-block">
+                      <div className="mt-1 p-2 bg-white dark:bg-muted rounded-lg border border-border/60 inline-block">
                         <img src={offerDoc.signature_data_url} alt="Signature" className="h-8 object-contain" />
                       </div>
                     )}
@@ -1235,7 +1235,7 @@ export default function CandidateOnboardingPortalPage({
                       Timestamp: {new Date(apptDoc.signed_at).toLocaleString('en-IN')}
                     </p>
                     {apptDoc.signature_data_url && (
-                      <div className="mt-1 p-2 bg-white rounded border border-border/60 inline-block">
+                      <div className="mt-1 p-2 bg-white dark:bg-muted rounded-lg border border-border/60 inline-block">
                         <img src={apptDoc.signature_data_url} alt="Signature" className="h-8 object-contain" />
                       </div>
                     )}
@@ -1425,7 +1425,7 @@ export default function CandidateOnboardingPortalPage({
                   </Button>
                 </div>
 
-                <div className="relative border-2 border-dashed border-indigo-400/80 rounded-lg bg-slate-50 dark:bg-zinc-900 p-2 shadow-inner">
+                <div className="relative border-2 border-dashed border-indigo-400/80 rounded-lg bg-muted/30 p-2 shadow-inner">
                   <canvas
                     ref={canvasRef}
                     width={500}

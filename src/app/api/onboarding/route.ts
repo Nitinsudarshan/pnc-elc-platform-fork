@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllOnboardingRecords, createOnboardingRecord } from '@/lib/onboarding/service';
+import {
+  getAllOnboardingRecords,
+  getAllFullOnboardingData,
+  createOnboardingRecord,
+} from '@/lib/onboarding/service';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const details = searchParams.get('details');
+    if (details === 'full') {
+      const fullRecords = await getAllFullOnboardingData();
+      return NextResponse.json({ success: true, data: fullRecords });
+    }
     const records = await getAllOnboardingRecords();
     return NextResponse.json({ success: true, data: records });
   } catch (error: any) {

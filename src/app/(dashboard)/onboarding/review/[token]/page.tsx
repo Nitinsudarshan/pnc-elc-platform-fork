@@ -244,7 +244,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
       {/* Top Breadcrumb & Return */}
       <div className="flex items-center justify-between">
         <Link
-          href="/manage/onboarding"
+          href="/onboarding/candidate"
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="size-3.5" />

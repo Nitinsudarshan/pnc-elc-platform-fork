@@ -167,6 +167,32 @@ export interface OnboardingActivityLog {
   created_at: string;
 }
 
+export interface EmployeeOrientationChecklist {
+  welcome_email_sent: boolean;
+  welcome_email_sent_at?: string | null;
+  it_assets_assigned: boolean;
+  it_assets_notes?: string;
+  slack_access_granted: boolean;
+  buddy_introduced: boolean;
+  manager_1on1_done: boolean;
+  pnc_induction_done: boolean;
+  posh_training_completed: boolean;
+}
+
+export interface ProbationMilestone {
+  status: 'pending' | 'scheduled' | 'completed';
+  notes?: string;
+  due_date?: string;
+  completed_at?: string | null;
+  reviewer_name?: string;
+}
+
+export interface EmployeeProbationMilestones {
+  day_30?: ProbationMilestone;
+  day_60?: ProbationMilestone;
+  day_90?: ProbationMilestone;
+}
+
 export interface EmployeeAccountProvisioning {
   id: string;
   onboarding_id: string;
@@ -177,6 +203,8 @@ export interface EmployeeAccountProvisioning {
   credentials_delivery_status: DeliveryStatus;
   provisioned_at?: string | null;
   created_at: string;
+  orientation_checklist?: EmployeeOrientationChecklist;
+  probation_milestones?: EmployeeProbationMilestones;
 }
 
 export interface FullOnboardingData {
