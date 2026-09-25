@@ -23,9 +23,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    if (!body.name || !body.letter_type || !body.employee_type_name || !body.content) {
+    if (!body.name || !body.letter_type || !body.employee_type_name || (!body.content && !body.blocks_json)) {
       return NextResponse.json(
-        { success: false, error: 'Name, letter type, employee type, and content are required' },
+        { success: false, error: 'Name, letter type, employee type, and content or blocks are required' },
         { status: 400 }
       );
     }

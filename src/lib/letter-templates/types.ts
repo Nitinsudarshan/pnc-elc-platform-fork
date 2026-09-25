@@ -8,6 +8,9 @@ export type LetterType =
 
 export type AddendumType = 'Salary' | 'Location' | 'Role' | 'Other';
 
+import { LetterTemplateDocument } from './block-types';
+export * from './block-types';
+
 export type TemplateStatus = 'active' | 'archived';
 
 export interface LetterTemplate {
@@ -19,6 +22,7 @@ export interface LetterTemplate {
   addendum_type?: AddendumType | null;
   description?: string | null;
   content: string;
+  blocks_json?: LetterTemplateDocument | null;
   status: TemplateStatus;
   created_by?: string;
   created_at: string;
@@ -33,6 +37,7 @@ export interface CreateLetterTemplateInput {
   addendum_type?: AddendumType | null;
   description?: string | null;
   content: string;
+  blocks_json?: LetterTemplateDocument | null;
   status?: TemplateStatus;
 }
 
@@ -44,6 +49,7 @@ export interface UpdateLetterTemplateInput {
   addendum_type?: AddendumType | null;
   description?: string | null;
   content?: string;
+  blocks_json?: LetterTemplateDocument | null;
   status?: TemplateStatus;
 }
 

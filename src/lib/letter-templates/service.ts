@@ -10,6 +10,8 @@ import {
   TemplateStatus,
 } from './types';
 import { populateTemplatePlaceholders } from './utils';
+import { CONSULTANT_OFFER_LETTER_BLOCKS } from './consultant-offer-blocks';
+import { renderBlocksToHtml } from './block-renderer';
 export { populateTemplatePlaceholders };
 
 // In-Memory fallback store populated with realistic seed data
@@ -265,6 +267,7 @@ function initSeedTemplates() {
       employee_type_name: 'Consultant',
       description: 'Standard engagement offer letter for independent consultants and retainers',
       content: CONSULTANT_OFFER_LETTER_CONTENT,
+      blocks_json: CONSULTANT_OFFER_LETTER_BLOCKS,
       status: 'active',
       created_by: 'People & Culture',
       created_at: new Date(Date.now() - 86400000 * 14).toISOString(),
@@ -476,6 +479,15 @@ export async function createLetterTemplate(input: CreateLetterTemplateInput): Pr
   const now = new Date().toISOString();
   const id = `tpl-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
+  const content =
+    input.content ||
+    (input.blocks_json
+      ? renderBlocksToHtml(
+          input.blocks_json.sections || input.blocks_json.blocks || [],
+          { templateTitle: input.name }
+        )
+      : '');
+
   const template: LetterTemplate = {
     id,
     name: input.name,
@@ -484,7 +496,8 @@ export async function createLetterTemplate(input: CreateLetterTemplateInput): Pr
     employee_type_name: input.employee_type_name,
     addendum_type: input.letter_type === 'Addendum' ? input.addendum_type || 'Other' : null,
     description: input.description || null,
-    content: input.content,
+    content,
+    blocks_json: input.blocks_json || null,
     status: input.status || 'active',
     created_by: 'People & Culture',
     created_at: now,
@@ -514,6 +527,17 @@ export async function updateLetterTemplate(
   if (!template) return null;
 
   const now = new Date().toISOString();
+  const nextBlocksJson = input.blocks_json !== undefined ? input.blocks_json : template.blocks_json;
+  const nextContent =
+    input.content !== undefined
+      ? input.content
+      : nextBlocksJson
+      ? renderBlocksToHtml(
+          nextBlocksJson.sections || nextBlocksJson.blocks || [],
+          { templateTitle: input.name || template.name }
+        )
+      : template.content;
+
   const updated: LetterTemplate = {
     ...template,
     name: input.name !== undefined ? input.name : template.name,
@@ -527,7 +551,8 @@ export async function updateLetterTemplate(
           : template.addendum_type
         : null,
     description: input.description !== undefined ? input.description : template.description,
-    content: input.content !== undefined ? input.content : template.content,
+    content: nextContent,
+    blocks_json: nextBlocksJson,
     status: input.status !== undefined ? input.status : template.status,
     updated_at: now,
   };
