@@ -162,22 +162,22 @@ export default function LetterTemplatesPage() {
 <p>We are pleased to share the details regarding your engagement as <strong>{{Designation}}</strong> in the <strong>{{Department}}</strong> department.</p>
 
 <h3>Engagement Terms</h3>
-<table border="1" cellpadding="6" style="border-collapse: collapse; width: 100%;">
+<table border="0" cellpadding="6" style="border-collapse: collapse; width: 100%; border: none;">
   <tr>
-    <td style="width: 30%;"><strong>Position Title</strong></td>
-    <td>{{Designation}}</td>
+    <td style="width: 32%; padding: 4px 8px 4px 0;"><strong>Position Title</strong></td>
+    <td style="padding: 4px 8px 4px 0;">{{Designation}}</td>
   </tr>
   <tr>
-    <td><strong>Department</strong></td>
-    <td>{{Department}}</td>
+    <td style="padding: 4px 8px 4px 0;"><strong>Department</strong></td>
+    <td style="padding: 4px 8px 4px 0;">{{Department}}</td>
   </tr>
   <tr>
-    <td><strong>Date of Joining</strong></td>
-    <td>{{Date of Joining}}</td>
+    <td style="padding: 4px 8px 4px 0;"><strong>Date of Joining</strong></td>
+    <td style="padding: 4px 8px 4px 0;">{{Date of Joining}}</td>
   </tr>
   <tr>
-    <td><strong>Monthly Compensation</strong></td>
-    <td>{{Monthly Compensation}}</td>
+    <td style="padding: 4px 8px 4px 0;"><strong>Monthly Compensation</strong></td>
+    <td style="padding: 4px 8px 4px 0;">{{Monthly Compensation}}</td>
   </tr>
 </table>
 
@@ -414,19 +414,19 @@ export default function LetterTemplatesPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="hover:bg-transparent bg-muted/10 text-[11px] uppercase tracking-wider text-muted-foreground">
-                  <TableHead className="w-[300px]">Template Name</TableHead>
-                  <TableHead>Letter Type</TableHead>
-                  <TableHead>Employee Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Last Updated</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow className="hover:bg-transparent bg-muted/10 text-[11px] uppercase tracking-wider text-muted-foreground border-b border-border/80">
+                  <TableHead className="w-[320px] px-5 py-3.5">Template Name</TableHead>
+                  <TableHead className="px-4 py-3.5">Letter Type</TableHead>
+                  <TableHead className="px-4 py-3.5">Employee Type</TableHead>
+                  <TableHead className="px-4 py-3.5">Status</TableHead>
+                  <TableHead className="px-4 py-3.5">Last Updated</TableHead>
+                  <TableHead className="px-5 py-3.5 text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredTemplates.map((tpl) => (
-                  <TableRow key={tpl.id} className="hover:bg-muted/30 transition-colors">
-                    <TableCell>
+                  <TableRow key={tpl.id} className="hover:bg-muted/30 transition-colors border-b border-border/60">
+                    <TableCell className="px-5 py-4">
                       <div className="space-y-0.5">
                         <p className="font-semibold text-xs text-foreground flex items-center gap-2">
                           <span>{tpl.name}</span>
@@ -442,19 +442,19 @@ export default function LetterTemplatesPage() {
                       </div>
                     </TableCell>
 
-                    <TableCell>
+                    <TableCell className="px-4 py-4">
                       <Badge variant="secondary" className="text-[10px] font-medium">
                         {tpl.letter_type}
                       </Badge>
                     </TableCell>
 
-                    <TableCell>
+                    <TableCell className="px-4 py-4">
                       <span className="text-xs font-medium text-foreground bg-muted/50 px-2 py-0.5 rounded-md">
                         {tpl.employee_type_name}
                       </span>
                     </TableCell>
 
-                    <TableCell>
+                    <TableCell className="px-4 py-4">
                       <Badge
                         variant="outline"
                         className={`text-[10px] font-semibold ${
@@ -467,13 +467,13 @@ export default function LetterTemplatesPage() {
                       </Badge>
                     </TableCell>
 
-                    <TableCell>
+                    <TableCell className="px-4 py-4">
                       <span className="text-xs text-muted-foreground font-mono">
                         {new Date(tpl.updated_at).toLocaleDateString()}
                       </span>
                     </TableCell>
 
-                    <TableCell className="text-right">
+                    <TableCell className="px-5 py-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <Button
                           size="sm"
