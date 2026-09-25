@@ -12,7 +12,7 @@ export type EmployeeDetail = {
 }
 
 export async function getProfileData(employeeId: string) {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createServerSupabaseClient()
 
   // Query employee with safe fallback if exit_date doesn't exist
   const getEmployee = async () => {

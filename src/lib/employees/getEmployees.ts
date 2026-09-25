@@ -13,7 +13,7 @@ export type Employee = {
 }
 
 export async function getEmployees(): Promise<Employee[]> {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createServerSupabaseClient()
 
   // Attempt query with exit_date and email
   const withExit = await supabase
