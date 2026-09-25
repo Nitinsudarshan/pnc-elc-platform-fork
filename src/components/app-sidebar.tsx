@@ -12,6 +12,10 @@ import {
   TrendingUp,
   DatabaseBackup,
   UserPlus,
+  Compass,
+  BadgeCheck,
+  FileText,
+  FileCheck2,
 } from "lucide-react"
 
 import { NavMain, NavItem } from "@/components/nav-main"
@@ -26,6 +30,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 
 const data = {
@@ -67,9 +72,32 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     {
       title: "Onboarding",
-      url: "/manage/onboarding",
+      url: "/onboarding",
       icon: UserPlus,
-      isActive: pathname.startsWith("/manage/onboarding"),
+      isActive: pathname.startsWith("/onboarding") || pathname.startsWith("/manage/onboarding"),
+      items: [
+        {
+          title: "Hub",
+          url: "/onboarding",
+          icon: Compass,
+          isActive: pathname === "/onboarding" || pathname === "/onboarding/hub",
+        },
+        {
+          title: "Candidate",
+          url: "/onboarding/candidate",
+          icon: UserPlus,
+          isActive:
+            pathname.startsWith("/onboarding/candidate") ||
+            pathname.startsWith("/manage/onboarding") ||
+            pathname.startsWith("/onboarding/review"),
+        },
+        {
+          title: "Employee",
+          url: "/onboarding/employee",
+          icon: BadgeCheck,
+          isActive: pathname.startsWith("/onboarding/employee"),
+        },
+      ],
     },
     {
       title: "Appraisals",
@@ -85,15 +113,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     {
       title: "Manage",
-      url: "/manage/users",
+      url: "/manage/letter-templates",
       icon: Settings,
       isActive: pathname.startsWith("/manage") || pathname.startsWith("/data-management"),
       items: [
         {
-          title: "Onboarding",
-          url: "/manage/onboarding",
-          icon: UserPlus,
-          isActive: pathname.startsWith("/manage/onboarding"),
+          title: "Letter Templates",
+          url: "/manage/letter-templates",
+          icon: FileText,
+          isActive: pathname.startsWith("/manage/letter-templates"),
+        },
+        {
+          title: "Letters",
+          url: "/manage/letters",
+          icon: FileCheck2,
+          isActive: pathname.startsWith("/manage/letters"),
         },
         {
           title: "Users",
@@ -126,9 +160,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   if (isMobile) setOpenMobile(false)
                 }}
               >
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-sm font-black text-xs">
-                  NG
-                </div>
+                <Image
+                  src="/ng-icon.png"
+                  alt="NavGurukul Logo"
+                  width={32}
+                  height={32}
+                  className="size-8 rounded-lg object-contain"
+                />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-bold tracking-tight">Navgurukul ELC</span>
                   <span className="truncate text-xs text-muted-foreground font-medium">

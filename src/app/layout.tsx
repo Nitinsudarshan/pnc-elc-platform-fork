@@ -20,10 +20,10 @@ export const metadata: Metadata = {
   description: "Navgurukul Employee Life Cycle (ELC) Platform - Onboarding, Confirmations, Appraisals, and Data Management.",
   icons: {
     icon: [
-      { url: "/favicon.png", sizes: "any" },
+      { url: "/ng-icon.png", sizes: "any" },
       { url: "/navgurukul-logo.png", type: "image/png" },
     ],
-    shortcut: "/favicon.png",
+    shortcut: "/ng-icon.png",
     apple: "/apple-icon.png",
   },
 };
