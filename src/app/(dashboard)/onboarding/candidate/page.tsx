@@ -254,17 +254,17 @@ function CandidateOnboardingContent() {
       {/* Header Banner */}
       <PageBanner
         title="Candidate Onboarding"
-        description="Pre-joining pipeline: Manage candidate profiles, invitation links, KYC document verification, and offer approvals."
-        icon={<UserPlus className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
+        description="Pre-joining pipeline: Manage candidate profiles, invitation links, and document verification."
+        icon={<UserPlus className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
         actions={
           <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="gap-1.5 font-semibold rounded-lg text-xs">
+            <Button asChild variant="outline" size="sm" className="gap-1.5 font-medium rounded-lg text-xs">
               <Link href="/data-management/audit-logs?table=onboarding_records">
                 <History className="h-3.5 w-3.5 text-muted-foreground" />
                 <span>Audit Logs</span>
               </Link>
             </Button>
-            <Button asChild size="sm" className="gap-2 shadow-sm font-semibold rounded-lg text-xs bg-blue-600 hover:bg-blue-700 text-white">
+            <Button asChild size="sm" className="gap-2 font-medium rounded-lg text-xs">
               <Link href="/onboarding/candidate/new">
                 <UserPlus className="h-3.5 w-3.5" />
                 <span>Create Candidate</span>
@@ -279,15 +279,15 @@ function CandidateOnboardingContent() {
         {/* 1. Total Onboardings */}
         <div
           onClick={() => setStatusFilter('all')}
-          className={`rounded-xl bg-card border shadow-xs p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all ${
+          className={`rounded-lg bg-card border shadow-xs p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all ${
             statusFilter === 'all'
-              ? 'border-blue-600 dark:border-blue-500 ring-1 ring-blue-500 bg-blue-50/30 dark:bg-blue-950/30'
-              : 'border-border/80 hover:border-blue-300 dark:hover:border-blue-800'
+              ? 'border-primary ring-1 ring-primary/30 bg-muted/30'
+              : 'border-border/80 hover:border-border'
           }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Total Candidates</span>
-            <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
+            <div className="p-2 rounded-lg bg-muted text-muted-foreground">
               <Users className="h-4 w-4" />
             </div>
           </div>
@@ -300,15 +300,15 @@ function CandidateOnboardingContent() {
         {/* 2. In Progress */}
         <div
           onClick={() => setStatusFilter('in_progress')}
-          className={`rounded-xl bg-card border shadow-xs p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all ${
+          className={`rounded-lg bg-card border shadow-xs p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all ${
             statusFilter === 'in_progress'
-              ? 'border-amber-600 dark:border-amber-500 ring-1 ring-amber-500 bg-amber-50/30 dark:bg-amber-950/30'
-              : 'border-border/80 hover:border-amber-300 dark:hover:border-amber-800'
+              ? 'border-primary ring-1 ring-primary/30 bg-muted/30'
+              : 'border-border/80 hover:border-border'
           }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">In Progress</span>
-            <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
+            <div className="p-2 rounded-lg bg-muted text-muted-foreground">
               <Clock className="h-4 w-4" />
             </div>
           </div>
@@ -321,15 +321,15 @@ function CandidateOnboardingContent() {
         {/* 3. Submitted for Review */}
         <div
           onClick={() => setStatusFilter('submitted')}
-          className={`rounded-xl bg-card border shadow-xs p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all ${
+          className={`rounded-lg bg-card border shadow-xs p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all ${
             statusFilter === 'submitted'
-              ? 'border-purple-600 dark:border-purple-500 ring-1 ring-purple-500 bg-purple-50/30 dark:bg-purple-950/30'
-              : 'border-border/80 hover:border-purple-300 dark:hover:border-purple-800'
+              ? 'border-primary ring-1 ring-primary/30 bg-muted/30'
+              : 'border-border/80 hover:border-border'
           }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Submitted for Review</span>
-            <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400">
+            <div className="p-2 rounded-lg bg-muted text-muted-foreground">
               <FileCheck2 className="h-4 w-4" />
             </div>
           </div>
@@ -342,15 +342,15 @@ function CandidateOnboardingContent() {
         {/* 4. Approved & Converted */}
         <div
           onClick={() => setStatusFilter('approved')}
-          className={`rounded-xl bg-card border shadow-xs p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all ${
+          className={`rounded-lg bg-card border shadow-xs p-4 flex flex-col justify-between gap-3 cursor-pointer transition-all ${
             statusFilter === 'approved'
-              ? 'border-emerald-600 dark:border-emerald-500 ring-1 ring-emerald-500 bg-emerald-50/30 dark:bg-emerald-950/30'
-              : 'border-border/80 hover:border-emerald-300 dark:hover:border-emerald-800'
+              ? 'border-primary ring-1 ring-primary/30 bg-muted/30'
+              : 'border-border/80 hover:border-border'
           }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Approved by P&C</span>
-            <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
+            <div className="p-2 rounded-lg bg-muted text-muted-foreground">
               <ShieldCheck className="h-4 w-4" />
             </div>
           </div>
@@ -362,7 +362,7 @@ function CandidateOnboardingContent() {
       </div>
 
       {/* Main Table Card */}
-      <div className="rounded-xl border border-border/80 bg-card shadow-xs overflow-hidden">
+      <div className="rounded-lg border border-border/80 bg-card shadow-xs overflow-hidden">
         {/* Search & Filter Bar */}
         <div className="p-4 border-b border-border/60 bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="relative w-full sm:w-80">

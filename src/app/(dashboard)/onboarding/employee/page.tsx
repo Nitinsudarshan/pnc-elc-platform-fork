@@ -334,11 +334,11 @@ function EmployeeOnboardingContent() {
       {/* Header Banner */}
       <PageBanner
         title="Employee Onboarding"
-        description="Post-joining pipeline: Official email & ID provisioning, IT hardware allocation, Day 1 orientation, training compliance, and 30-60-90 probation milestone tracking."
-        icon={<Users className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />}
+        description="Post-joining pipeline: Account provisioning, hardware allocation, Day-1 orientation, and milestones."
+        icon={<Users className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
         actions={
           <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="gap-1.5 font-semibold rounded-lg text-xs">
+            <Button asChild variant="outline" size="sm" className="gap-1.5 font-medium rounded-lg text-xs">
               <Link href="/employees">
                 <Users className="h-3.5 w-3.5 text-muted-foreground" />
                 <span>Workforce Directory</span>
@@ -351,10 +351,10 @@ function EmployeeOnboardingContent() {
       {/* Metrics Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* 1. Total Post-Joining */}
-        <div className="rounded-xl bg-card border border-border/80 shadow-xs p-4 flex flex-col justify-between gap-3">
+        <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col justify-between gap-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Post-Joining Total</span>
-            <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
+            <div className="p-2 rounded-lg bg-muted text-muted-foreground">
               <Users className="h-4 w-4" />
             </div>
           </div>
@@ -365,10 +365,10 @@ function EmployeeOnboardingContent() {
         </div>
 
         {/* 2. Needs IT / Email Provisioning */}
-        <div className="rounded-xl bg-card border border-border/80 shadow-xs p-4 flex flex-col justify-between gap-3">
+        <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col justify-between gap-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Pending Account Setup</span>
-            <div className="p-2 rounded-lg bg-cyan-50 dark:bg-cyan-950/50 text-cyan-600 dark:text-cyan-400">
+            <div className="p-2 rounded-lg bg-muted text-muted-foreground">
               <Laptop className="h-4 w-4" />
             </div>
           </div>
@@ -379,10 +379,10 @@ function EmployeeOnboardingContent() {
         </div>
 
         {/* 3. In Day-1 & Orientation */}
-        <div className="rounded-xl bg-card border border-border/80 shadow-xs p-4 flex flex-col justify-between gap-3">
+        <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col justify-between gap-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Active In Orientation</span>
-            <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
+            <div className="p-2 rounded-lg bg-muted text-muted-foreground">
               <HeartHandshake className="h-4 w-4" />
             </div>
           </div>
@@ -393,10 +393,10 @@ function EmployeeOnboardingContent() {
         </div>
 
         {/* 4. Upcoming Probation Reviews */}
-        <div className="rounded-xl bg-card border border-border/80 shadow-xs p-4 flex flex-col justify-between gap-3">
+        <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col justify-between gap-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Probation Check-ins Due</span>
-            <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">
+            <div className="p-2 rounded-lg bg-muted text-muted-foreground">
               <Award className="h-4 w-4" />
             </div>
           </div>
@@ -410,7 +410,7 @@ function EmployeeOnboardingContent() {
       {/* Main Content with Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <TabsList className="bg-muted/40 p-1 rounded-xl h-auto">
+          <TabsList className="bg-muted/40 p-1 rounded-lg h-auto">
             <TabsTrigger value="all" className="rounded-lg text-xs font-semibold py-1.5 px-3">
               All Post-Joining ({postJoiningRecords.length})
             </TabsTrigger>
@@ -456,7 +456,7 @@ function EmployeeOnboardingContent() {
 
         {/* Tab 1: All Post-Joining Table */}
         <TabsContent value="all" className="m-0">
-          <div className="rounded-xl border border-border/80 bg-card shadow-xs overflow-hidden">
+          <div className="rounded-lg border border-border/80 bg-card shadow-xs overflow-hidden">
             {loading ? (
               <div className="py-20 text-center text-xs text-muted-foreground">Loading employee onboardings...</div>
             ) : filteredRecords.length === 0 ? (
@@ -661,7 +661,7 @@ function EmployeeOnboardingContent() {
               const chk = prov?.orientation_checklist;
 
               return (
-                <Card key={r.id} className="rounded-xl border border-border/80 shadow-xs flex flex-col justify-between">
+                <Card key={r.id} className="rounded-lg border border-border/80 shadow-xs flex flex-col justify-between">
                   <CardHeader className="pb-3 border-b border-border/60 bg-muted/20">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm font-bold text-foreground">{r.candidate_name}</CardTitle>
@@ -711,7 +711,7 @@ function EmployeeOnboardingContent() {
               const chk = item.provisioning?.orientation_checklist;
 
               return (
-                <Card key={r.id} className="rounded-xl border border-border/80 shadow-xs">
+                <Card key={r.id} className="rounded-lg border border-border/80 shadow-xs">
                   <CardHeader className="pb-3 border-b border-border/60 bg-muted/20">
                     <div className="flex items-center justify-between">
                       <div>
@@ -763,7 +763,7 @@ function EmployeeOnboardingContent() {
               const chk = item.provisioning?.orientation_checklist;
 
               return (
-                <Card key={r.id} className="rounded-xl border border-border/80 shadow-xs">
+                <Card key={r.id} className="rounded-lg border border-border/80 shadow-xs">
                   <CardHeader className="pb-3 border-b border-border/60 bg-muted/20">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm font-bold">{r.candidate_name}</CardTitle>
@@ -810,7 +810,7 @@ function EmployeeOnboardingContent() {
               const miles = item.provisioning?.probation_milestones;
 
               return (
-                <Card key={r.id} className="rounded-xl border border-border/80 shadow-xs">
+                <Card key={r.id} className="rounded-lg border border-border/80 shadow-xs">
                   <CardHeader className="pb-3 border-b border-border/60 bg-muted/20">
                     <CardTitle className="text-sm font-bold">{r.candidate_name}</CardTitle>
                     <CardDescription className="text-xs">
@@ -860,7 +860,7 @@ function EmployeeOnboardingContent() {
 
       {/* MODAL 1: Account & IT Provisioning */}
       <Dialog open={provisionModalOpen} onOpenChange={setProvisionModalOpen}>
-        <DialogContent className="max-w-md rounded-xl">
+        <DialogContent className="max-w-md rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-sm font-bold flex items-center gap-2">
               <Laptop className="h-4 w-4 text-emerald-600" />
@@ -915,7 +915,7 @@ function EmployeeOnboardingContent() {
 
       {/* MODAL 2: Orientation Checklist */}
       <Dialog open={orientationModalOpen} onOpenChange={setOrientationModalOpen}>
-        <DialogContent className="max-w-lg rounded-xl">
+        <DialogContent className="max-w-lg rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-sm font-bold flex items-center gap-2">
               <HeartHandshake className="h-4 w-4 text-emerald-600" />
@@ -997,7 +997,7 @@ function EmployeeOnboardingContent() {
 
       {/* MODAL 3: Probation Milestone Update */}
       <Dialog open={milestoneModalOpen} onOpenChange={setMilestoneModalOpen}>
-        <DialogContent className="max-w-md rounded-xl">
+        <DialogContent className="max-w-md rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-sm font-bold flex items-center gap-2">
               <Award className="h-4 w-4 text-emerald-600" />
