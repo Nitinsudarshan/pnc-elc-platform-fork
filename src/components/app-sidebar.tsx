@@ -19,6 +19,8 @@ import {
   SlidersHorizontal,
   PenTool,
   Mail,
+  BarChart3,
+  LayoutGrid,
 } from "lucide-react"
 
 import { NavMain, NavItem } from "@/components/nav-main"
@@ -109,17 +111,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       isActive: pathname === "/appraisals",
     },
     {
-      title: "Appraisal Report",
-      url: "/appraisals/report",
-      icon: ClipboardCheck,
-      isActive: pathname.startsWith("/appraisals/report"),
+      title: "Reports",
+      url: "/reports",
+      icon: BarChart3,
+      isActive: pathname.startsWith("/reports"),
     },
     {
       title: "Manage",
-      url: "/manage/letter-templates",
+      url: "/manage",
       icon: Settings,
       isActive: pathname.startsWith("/manage") || pathname.startsWith("/data-management"),
       items: [
+        {
+          title: "Manage Hub",
+          url: "/manage",
+          icon: LayoutGrid,
+          isActive: pathname === "/manage",
+        },
         {
           title: "Letter Templates",
           url: "/manage/letter-templates",
@@ -131,18 +139,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/manage/letters",
           icon: FileCheck2,
           isActive: pathname.startsWith("/manage/letters"),
-        },
-        {
-          title: "Users",
-          url: "/manage/users",
-          icon: Users,
-          isActive: pathname === "/manage/users",
-        },
-        {
-          title: "Data Management",
-          url: "/data-management",
-          icon: DatabaseBackup,
-          isActive: pathname.startsWith("/data-management"),
         },
         {
           title: "Signatories",
@@ -161,6 +157,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/manage/settings",
           icon: SlidersHorizontal,
           isActive: pathname.startsWith("/manage/settings"),
+        },
+        {
+          title: "Users",
+          url: "/manage/users",
+          icon: Users,
+          isActive: pathname === "/manage/users",
+        },
+        {
+          title: "Data Management",
+          url: "/data-management",
+          icon: DatabaseBackup,
+          isActive: pathname.startsWith("/data-management"),
         },
       ],
     },
