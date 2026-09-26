@@ -53,11 +53,6 @@ export function PageBanner({
             </div>
           )}
           <div className="space-y-1">
-            {badge && (
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 w-fit mb-1">
-                {badge}
-              </div>
-            )}
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground transition-all duration-700">
               {title}
             </h1>
