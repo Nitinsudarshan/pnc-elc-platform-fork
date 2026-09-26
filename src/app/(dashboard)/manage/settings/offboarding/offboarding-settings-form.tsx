@@ -54,6 +54,7 @@ export function OffboardingSettingsForm({
     setSettings({
       default_notice_period_days: 30,
       standard_fnf_timeline_days: 30,
+      standard_hold_period_days: 7,
       clearance_reminder_frequency_days: 2,
       escalation_threshold_days: 5,
       require_all_ndc_before_fnf: true,
@@ -130,6 +131,29 @@ export function OffboardingSettingsForm({
                 Target turnaround for disbursement of final dues following the employee’s last working day.
               </p>
             </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold text-foreground">
+                Retention Hold Window (Days)
+              </Label>
+              <Input
+                type="number"
+                min={1}
+                max={30}
+                value={settings.standard_hold_period_days || 7}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    standard_hold_period_days: parseInt(e.target.value) || 7,
+                  })
+                }
+                className="h-9 text-xs"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Duration for Manager & P&C retention discussion window before requiring final resolution (Default: 7 days).
+              </p>
+            </div>
+
 
             <div className="space-y-2">
               <Label className="text-xs font-semibold text-foreground">

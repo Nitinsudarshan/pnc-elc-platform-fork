@@ -17,7 +17,18 @@ import {
   DEFAULT_OFFBOARDING_SETTINGS,
   FullOffboardingData,
   InitiateOffboardingInput,
+  ResignationRequest,
+  ResignationSource,
+  ReviewDecision,
+  EmployeeRetentionResponse,
+  ResignationRequestStatus,
+  SubmitResignationInput,
 } from './types';
+import { assetIntegrationService } from '@/lib/integrations/assets';
+import { attendanceIntegrationService } from '@/lib/integrations/attendance';
+import { leaveIntegrationService } from '@/lib/integrations/leave';
+import { getEmployees } from '@/lib/employees/getEmployees';
+
 
 // ============================================================================
 // DEFAULT CONFIGURATION & RECOVERY SETTINGS
@@ -1189,6 +1200,7 @@ export async function getAllOffboardingCases(): Promise<OffboardingCase[]> {
  * Fetch a single offboarding case by ID with all related records.
  */
 export async function getOffboardingById(id: string): Promise<FullOffboardingData | null> {
+  let fullData: FullOffboardingData | null = null;
   try {
     const supabase = await createServerSupabaseClient();
     const { data: caseRow, error: caseErr } = await supabase
@@ -1212,7 +1224,7 @@ export async function getOffboardingById(id: string): Promise<FullOffboardingDat
         employee_email: caseRow.employees?.email || caseRow.employee_email,
       };
 
-      return {
+      fullData = {
         caseRecord,
         checklist: chkRes.data || [],
         assets: assetRes.data || [],
@@ -1238,8 +1250,28 @@ export async function getOffboardingById(id: string): Promise<FullOffboardingDat
     // Fallback to memory
   }
 
-  return MEMORY_OFFBOARDING_STORE.get(id) || null;
+  if (!fullData) {
+    fullData = MEMORY_OFFBOARDING_STORE.get(id) || null;
+  }
+
+  if (fullData) {
+    try {
+      const [extAssets, extAtt, extLeave] = await Promise.all([
+        assetIntegrationService.getEmployeeAssignedAssets(fullData.caseRecord.employee_id),
+        attendanceIntegrationService.getEmployeeAttendanceSummary(fullData.caseRecord.employee_id),
+        leaveIntegrationService.getEmployeeLeaveSummary(fullData.caseRecord.employee_id),
+      ]);
+      fullData.externalAssetsSummary = extAssets;
+      fullData.externalAttendanceSummary = extAtt;
+      fullData.externalLeaveSummary = extLeave;
+    } catch (err) {
+      console.warn('Could not fetch external integration summary:', err);
+    }
+  }
+
+  return fullData;
 }
+
 
 /**
  * Initiate an employee exit.
@@ -1425,28 +1457,74 @@ export async function initiateOffboardingCase(
       },
     ];
 
+    // Query External Integration APIs to prime clearances and F&F
+    let initialAssets: OffboardingAssetItem[] = [
+      {
+        id: `asset-${Date.now()}-lap`,
+        offboarding_id: caseId,
+        asset_name: 'Company Assigned Laptop & Charger',
+        asset_type: 'laptop',
+        return_status: 'pending_return',
+        condition: 'good',
+        clearance_notes: 'Physical check at campus reception on LWD.',
+        created_at: nowIso,
+        updated_at: nowIso,
+      },
+    ];
+
+    let extAttSummary: any = null;
+    let extLeaveSummary: any = null;
+    let extAssetsSummary: any = null;
+
+    try {
+      const [extAssets, extAtt, extLeave] = await Promise.all([
+        assetIntegrationService.getEmployeeAssignedAssets(input.employee_id),
+        attendanceIntegrationService.getEmployeeAttendanceSummary(input.employee_id),
+        leaveIntegrationService.getEmployeeLeaveSummary(input.employee_id),
+      ]);
+      extAssetsSummary = extAssets;
+      extAttSummary = extAtt;
+      extLeaveSummary = extLeave;
+
+      if (extAssets.assets.length > 0) {
+        initialAssets = extAssets.assets.map((a) => ({
+          id: `ast-${caseId}-${a.asset_id}`,
+          offboarding_id: caseId,
+          asset_name: a.asset_name,
+          asset_tag: a.asset_tag,
+          asset_type: a.asset_type,
+          assigned_date: a.assigned_date,
+          return_status: a.external_return_status === 'returned' ? 'returned' : 'pending_return',
+          condition: a.external_return_status === 'damaged' ? 'damaged' : 'good',
+          recovery_amount: a.estimated_recovery_amount,
+          clearance_notes: `Synced from ${extAssets.source_system}. S/N: ${a.serial_number}`,
+          created_at: nowIso,
+          updated_at: nowIso,
+        }));
+      }
+
+      defaultFnf.payable_days = extAtt.calculated_payable_days;
+      defaultFnf.leave_encashment_days = extLeave.total_encashable_days;
+      defaultFnf.asset_recovery_amount = extAssets.total_recovery_required;
+      defaultFnf.remarks = `External systems synced: Attendance (${extAtt.calculated_payable_days} payable days), Leave (${extLeave.total_encashable_days} encashable days), Asset recovery (₹${extAssets.total_recovery_required.toLocaleString('en-IN')}).`;
+    } catch {
+      // Fallback
+    }
+
     // Save to memory store
     MEMORY_OFFBOARDING_STORE.set(caseId, {
       caseRecord: newCase,
       checklist: defaultChecklist,
-      assets: [
-        {
-          id: `asset-${Date.now()}-lap`,
-          offboarding_id: caseId,
-          asset_name: 'Company Assigned Laptop & Charger',
-          asset_type: 'laptop',
-          return_status: 'pending_return',
-          condition: 'good',
-          clearance_notes: 'Physical check at campus reception on LWD.',
-          created_at: nowIso,
-          updated_at: nowIso,
-        },
-      ],
+      assets: initialAssets,
       ndc: defaultNdc,
       fnf: defaultFnf,
       activityLogs: initialActivity,
       documents: [],
+      externalAssetsSummary: extAssetsSummary,
+      externalAttendanceSummary: extAttSummary,
+      externalLeaveSummary: extLeaveSummary,
     });
+
 
     // Attempt persist to Supabase if tables exist
     try {
@@ -2059,3 +2137,793 @@ export async function updateOffboardingSettings(
   revalidatePath('/manage/settings/offboarding');
   return { success: true };
 }
+
+// ============================================================================
+// STAGE 1: RESIGNATION REQUESTS & DECISION WORKFLOW ENGINE
+// ============================================================================
+
+const MEMORY_RESIGNATION_STORE: Map<string, ResignationRequest> = new Map();
+
+function initResignationSeedScenarios() {
+  if (MEMORY_RESIGNATION_STORE.size > 0) return;
+
+  const now = new Date();
+  const formatYMD = (d: Date) => d.toISOString().split('T')[0];
+  const daysAgo = (n: number) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() - n);
+    return formatYMD(d);
+  };
+  const daysAhead = (n: number) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() + n);
+    return formatYMD(d);
+  };
+
+  const requests: ResignationRequest[] = [
+    // 1. New resignation awaiting Manager/P&C review (Platform)
+    {
+      id: 'res-req-001',
+      employee_id: 'emp-divya-sharma',
+      employee_name: 'Divya Sharma',
+      employee_email: 'divya.sharma@navgurukul.org',
+      employee_designation: 'Senior Curriculum Associate',
+      employee_department: 'Academia',
+      manager_name: 'Ananya Sen',
+      source: 'platform',
+      resignation_date: daysAgo(1),
+      proposed_lwd: daysAhead(29),
+      notice_period_days: 30,
+      reason: 'Relocating to home state for family care',
+      reason_details: 'Need to support elderly family members in Bhopal; looking for remote or regional opportunities.',
+      employee_comments: 'Grateful for the incredible learning and mentorship over the past 2 years at NavGurukul.',
+      manager_decision: 'pending',
+      pnc_decision: 'pending',
+      employee_retention_response: 'pending',
+      status: 'submitted',
+      created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+      updated_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+    },
+    // 2. Manager accepted, P&C pending (Platform)
+    {
+      id: 'res-req-002',
+      employee_id: 'emp-arjun-nair',
+      employee_name: 'Arjun Nair',
+      employee_email: 'arjun.nair@navgurukul.org',
+      employee_designation: 'Full Stack Coding Mentor',
+      employee_department: 'School of Programming',
+      manager_name: 'Rohit Kulkarni',
+      source: 'platform',
+      resignation_date: daysAgo(3),
+      proposed_lwd: daysAhead(27),
+      notice_period_days: 30,
+      reason: 'Pursuing higher studies (M.Tech in CS)',
+      reason_details: 'GATE qualifying rank secured; joining IISc Bengaluru next semester.',
+      employee_comments: 'Will ensure comprehensive sprint handover to junior mentors before departure.',
+      manager_decision: 'accepted',
+      manager_decision_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+      manager_decision_by: 'Rohit Kulkarni (Engineering Lead)',
+      manager_notes: 'Discussed with Arjun. Valid educational aspiration; support transition with standard 30-day notice.',
+      pnc_decision: 'pending',
+      employee_retention_response: 'pending',
+      status: 'pnc_pending',
+      created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+      updated_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    },
+    // 3. P&C accepted, Manager pending (P&C Entry)
+    {
+      id: 'res-req-003',
+      employee_id: 'emp-meera-joshi',
+      employee_name: 'Meera Joshi',
+      employee_email: 'meera.joshi@navgurukul.org',
+      employee_designation: 'Admissions & Outreach Specialist',
+      employee_department: 'Operations',
+      manager_name: 'Manish Rawat',
+      source: 'pnc',
+      resignation_date: daysAgo(4),
+      proposed_lwd: daysAhead(26),
+      notice_period_days: 30,
+      reason: 'Career pivot into civil services preparation',
+      reason_details: 'Enrolling in full-time UPSC civil services fellowship academy.',
+      employee_comments: 'Verbal notice provided to P&C partner during 1:1 sync.',
+      manager_decision: 'pending',
+      pnc_decision: 'accepted',
+      pnc_decision_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+      pnc_decision_by: 'P&C Operations Partner',
+      pnc_notes: 'Acknowledged verbal notice; manager review pending.',
+      employee_retention_response: 'pending',
+      status: 'manager_pending',
+      created_at: new Date(Date.now() - 86400000 * 4).toISOString(),
+      updated_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+    },
+    // 4. Both accepted -> Offboarding initiated (Linked to existing Case A: Vikram Patel)
+    {
+      id: 'res-req-004',
+      employee_id: 'emp-vikram-patel',
+      employee_name: 'Vikram Patel',
+      employee_email: 'vikram.patel@navgurukul.org',
+      employee_designation: 'Lead Pedagogical Designer',
+      employee_department: 'Academia',
+      manager_name: 'Ananya Sen',
+      source: 'platform',
+      resignation_date: daysAgo(20),
+      proposed_lwd: daysAhead(10),
+      notice_period_days: 30,
+      reason: 'Pursuing higher education / Ph.D. opportunity abroad',
+      reason_details: 'Doctoral fellowship in education technology in Europe commencing autumn.',
+      employee_comments: 'Submitting notice as discussed with leadership.',
+      manager_decision: 'accepted',
+      manager_decision_at: daysAgo(19),
+      manager_decision_by: 'Ananya Sen',
+      manager_notes: 'Approved. Ph.D. fellowship validated.',
+      pnc_decision: 'accepted',
+      pnc_decision_at: daysAgo(19),
+      pnc_decision_by: 'P&C Operations',
+      pnc_notes: 'Resignation accepted. Offboarding case generated.',
+      employee_retention_response: 'pending',
+      status: 'resignation_accepted',
+      offboarding_case_id: 'off-case-001-vikram-patel',
+      created_at: new Date(Date.now() - 86400000 * 20).toISOString(),
+      updated_at: new Date(Date.now() - 86400000 * 19).toISOString(),
+    },
+    // 5. On hold -> 7-day retention window
+    {
+      id: 'res-req-005',
+      employee_id: 'emp-rohit-kulkarni',
+      employee_name: 'Rohit Kulkarni',
+      employee_email: 'rohit.kulkarni@navgurukul.org',
+      employee_designation: 'Engineering Operations Lead',
+      employee_department: 'Engineering',
+      manager_name: 'Ananya Sen',
+      source: 'platform',
+      resignation_date: daysAgo(2),
+      proposed_lwd: daysAhead(28),
+      notice_period_days: 30,
+      reason: 'Exhaustion & burnout from recent campus expansion sprints',
+      reason_details: 'Feeling stretched across multi-campus infrastructure rollout.',
+      employee_comments: 'Would love to stay if workload balancing can be achieved.',
+      manager_decision: 'on_hold',
+      manager_decision_at: daysAgo(1),
+      manager_decision_by: 'Ananya Sen',
+      manager_notes: 'Requested 7-day hold window to restructure engineering pods and explore sabbatical/workload balance.',
+      pnc_decision: 'pending',
+      hold_until_date: daysAhead(5),
+      retention_notes: '7-day retention discussion active. Meeting scheduled for Friday with Head of Org.',
+      employee_retention_response: 'pending',
+      status: 'on_hold',
+      created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+      updated_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+    },
+    // 6. Retention proposed -> Employee decision pending
+    {
+      id: 'res-req-006',
+      employee_id: 'emp-sneha-reddy',
+      employee_name: 'Sneha Reddy',
+      employee_email: 'sneha.reddy@navgurukul.org',
+      employee_designation: 'Student Placement & Corporate Partnerships Manager',
+      employee_department: 'Placement Cell',
+      manager_name: 'Manish Rawat',
+      source: 'platform',
+      resignation_date: daysAgo(5),
+      proposed_lwd: daysAhead(25),
+      notice_period_days: 30,
+      reason: 'External offer from tech corporate placement agency',
+      reason_details: 'Higher compensation offer received.',
+      employee_comments: 'Open to discussing if NavGurukul can match career roadmap.',
+      manager_decision: 'retention_proposed',
+      manager_decision_at: daysAgo(3),
+      manager_decision_by: 'Manish Rawat',
+      manager_notes: 'High performer. Proposing band progression + leadership over corporate CSR alliances.',
+      pnc_decision: 'retention_proposed',
+      pnc_decision_at: daysAgo(2),
+      pnc_decision_by: 'P&C Leadership',
+      pnc_notes: 'Retention package drafted: 18% band revision + title elevation to Associate Director.',
+      retention_notes: 'Formal retention offer sent to employee. Awaiting Sneha\'s confirmation.',
+      employee_retention_response: 'pending',
+      status: 'withdrawal_proposed',
+      created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+      updated_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    },
+    // 7. Employee accepts withdrawal -> Resignation closed (Employee remains active!)
+    {
+      id: 'res-req-007',
+      employee_id: 'emp-karan-singh',
+      employee_name: 'Karan Singh',
+      employee_email: 'karan.singh@navgurukul.org',
+      employee_designation: 'Campus Network & Systems Admin',
+      employee_department: 'IT Infrastructure',
+      manager_name: 'Rohit Kulkarni',
+      source: 'platform',
+      resignation_date: daysAgo(10),
+      proposed_lwd: daysAhead(20),
+      notice_period_days: 30,
+      reason: 'Commute distance and work-life balance',
+      employee_comments: 'Daily commute of 3 hours to Dharamshala center was difficult.',
+      manager_decision: 'retention_proposed',
+      manager_decision_at: daysAgo(8),
+      manager_decision_by: 'Rohit Kulkarni',
+      manager_notes: 'Proposed 3-day hybrid remote schedule + campus accommodation allowance.',
+      pnc_decision: 'retention_proposed',
+      pnc_decision_at: daysAgo(7),
+      pnc_decision_by: 'P&C Operations',
+      pnc_notes: 'Retention package ratified.',
+      employee_retention_response: 'accepted_withdrawal',
+      employee_response_at: daysAgo(6),
+      employee_response_notes: 'I accept the hybrid remote arrangement and withdraw my resignation with gratitude.',
+      status: 'withdrawn_by_employee',
+      created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+      updated_at: daysAgo(6),
+    },
+    // 8. Employee declines withdrawal -> Resignation accepted -> Offboarding initiated
+    {
+      id: 'res-req-008',
+      employee_id: 'emp-tanya-bhatia',
+      employee_name: 'Tanya Bhatia',
+      employee_email: 'tanya.bhatia@navgurukul.org',
+      employee_designation: 'Data Science & Python Faculty',
+      employee_department: 'Academia',
+      manager_name: 'Ananya Sen',
+      source: 'platform',
+      resignation_date: daysAgo(14),
+      proposed_lwd: daysAhead(16),
+      notice_period_days: 30,
+      reason: 'Starting an independent AI ed-tech venture',
+      manager_decision: 'retention_proposed',
+      manager_decision_at: daysAgo(12),
+      manager_decision_by: 'Ananya Sen',
+      manager_notes: 'Offered adjunct fellow role.',
+      pnc_decision: 'retention_proposed',
+      pnc_decision_at: daysAgo(11),
+      pnc_decision_by: 'P&C Leadership',
+      pnc_notes: 'Retention package offered.',
+      employee_retention_response: 'declined_withdrawal',
+      employee_response_at: daysAgo(10),
+      employee_response_notes: 'Appreciate the generous offer, but I have already committed to starting my venture.',
+      status: 'resignation_accepted',
+      offboarding_case_id: 'off-case-006-tanya-bhatia',
+      created_at: new Date(Date.now() - 86400000 * 14).toISOString(),
+      updated_at: daysAgo(10),
+    },
+    // 9. Manager/P&C Disagreement -> Decision Pending / P&C Resolution
+    {
+      id: 'res-req-009',
+      employee_id: 'emp-aditi-rao',
+      employee_name: 'Aditi Rao',
+      employee_email: 'aditi.rao@navgurukul.org',
+      employee_designation: 'Community Evangelist & Campus Culture Lead',
+      employee_department: 'Community',
+      manager_name: 'Manish Rawat',
+      source: 'platform',
+      resignation_date: daysAgo(4),
+      proposed_lwd: daysAhead(26),
+      notice_period_days: 30,
+      reason: 'Seeking higher role in global non-profit',
+      manager_decision: 'accepted',
+      manager_decision_at: daysAgo(3),
+      manager_decision_by: 'Manish Rawat',
+      manager_notes: 'Manager accepted. Valid progression opportunity.',
+      pnc_decision: 'retention_proposed',
+      pnc_decision_at: daysAgo(2),
+      pnc_decision_by: 'P&C Operations',
+      pnc_notes: 'P&C recommends retention: Upcoming winter student batch onboarding needs her campus leadership.',
+      status: 'decision_pending',
+      retention_notes: 'Disagreement between Manager acceptance and P&C retention proposal. P&C Lead review needed.',
+      employee_retention_response: 'pending',
+      created_at: new Date(Date.now() - 86400000 * 4).toISOString(),
+      updated_at: daysAgo(2),
+    },
+    // 10. Email-originated resignation (with complete email headers and body)
+    {
+      id: 'res-req-010',
+      employee_id: 'emp-sanjay-gupta',
+      employee_name: 'Sanjay Gupta',
+      employee_email: 'sanjay.gupta@navgurukul.org',
+      employee_designation: 'Cloud Infrastructure & DevOps Engineer',
+      employee_department: 'Engineering',
+      manager_name: 'Rohit Kulkarni',
+      source: 'email',
+      resignation_date: daysAgo(2),
+      proposed_lwd: daysAhead(28),
+      notice_period_days: 30,
+      reason: 'Offer from open-source foundation (Remote EU team)',
+      reason_details: 'Accepted offer as Core Infrastructure Maintainer.',
+      email_subject: 'Resignation Notice & Transition Timeline — Sanjay Gupta (DevOps)',
+      email_sender: 'sanjay.gupta@navgurukul.org',
+      email_received_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+      email_body: `Dear Rohit and People & Culture Team,\n\nPlease accept this email as formal notification that I am resigning from my position as Cloud Infrastructure & DevOps Engineer at NavGurukul. As per my employment terms, my standard notice period is 30 days, placing my proposed last working day on ${daysAhead(28)}.\n\nI want to express my deepest gratitude for the opportunities I have had over the last two years. Working with the student engineers and automating our campus labs has been one of the most rewarding periods of my career.\n\nI am fully committed to ensuring a smooth transition of all AWS architecture, Kubernetes clusters, and monitoring scripts to the team over the next 4 weeks.\n\nSincerely,\nSanjay Gupta\nDevOps Engineering Team`,
+      manager_decision: 'pending',
+      pnc_decision: 'pending',
+      employee_retention_response: 'pending',
+      status: 'submitted',
+      created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+      updated_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    },
+    // 11. P&C-originated resignation
+    {
+      id: 'res-req-011',
+      employee_id: 'emp-kavita-mishra',
+      employee_name: 'Kavita Mishra',
+      employee_email: 'kavita.mishra@navgurukul.org',
+      employee_designation: 'Fellowship Program Associate',
+      employee_department: 'Operations',
+      manager_name: 'Manish Rawat',
+      source: 'pnc',
+      resignation_date: daysAgo(3),
+      proposed_lwd: daysAhead(27),
+      notice_period_days: 30,
+      reason: 'Personal and family medical circumstances',
+      reason_details: 'Direct verbal resignation logged by P&C Partner during campus visit.',
+      manager_decision: 'pending',
+      pnc_decision: 'accepted',
+      pnc_decision_at: daysAgo(2),
+      pnc_decision_by: 'P&C Operations Partner',
+      pnc_notes: 'Direct intake recorded. Awaiting reporting manager sign-off.',
+      employee_retention_response: 'pending',
+      status: 'manager_pending',
+      created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+      updated_at: daysAgo(2),
+    },
+    // 12. Platform-originated resignation
+    {
+      id: 'res-req-012',
+      employee_id: 'emp-harish-kumar',
+      employee_name: 'Harish Kumar',
+      employee_email: 'harish.kumar@navgurukul.org',
+      employee_designation: 'Mobile Development Educator',
+      employee_department: 'Academia',
+      manager_name: 'Ananya Sen',
+      source: 'platform',
+      resignation_date: daysAgo(1),
+      proposed_lwd: daysAhead(29),
+      notice_period_days: 30,
+      reason: 'Joining a fintech startup as Lead Flutter Architect',
+      employee_comments: 'Will document all Flutter and React Native cohort curriculum before leaving.',
+      manager_decision: 'pending',
+      pnc_decision: 'pending',
+      employee_retention_response: 'pending',
+      status: 'submitted',
+      created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+      updated_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+    },
+  ];
+
+  for (const r of requests) {
+    MEMORY_RESIGNATION_STORE.set(r.id, r);
+  }
+}
+
+/**
+ * Fetch all resignation requests.
+ */
+export async function getAllResignationRequests(): Promise<ResignationRequest[]> {
+  initResignationSeedScenarios();
+  initSeedScenarios();
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from('resignation_requests')
+      .select('*, employees(name, email, team)')
+      .order('created_at', { ascending: false });
+
+    if (!error && data && data.length > 0) {
+      return data.map((row: any) => ({
+        ...row,
+        employee_name: row.employees?.name || row.employee_name,
+        employee_email: row.employees?.email || row.employee_email,
+      }));
+    }
+  } catch {
+    // Fallback to memory
+  }
+
+  return Array.from(MEMORY_RESIGNATION_STORE.values()).sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+}
+
+/**
+ * Fetch a single resignation request by ID.
+ */
+export async function getResignationRequestById(id: string): Promise<ResignationRequest | null> {
+  initResignationSeedScenarios();
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from('resignation_requests')
+      .select('*, employees(*)')
+      .eq('id', id)
+      .single();
+
+    if (!error && data) {
+      return {
+        ...data,
+        employee_name: data.employees?.name || data.employee_name,
+        employee_email: data.employees?.email || data.employee_email,
+      };
+    }
+  } catch {
+    // Fallback
+  }
+
+  return MEMORY_RESIGNATION_STORE.get(id) || null;
+}
+
+/**
+ * Submit a Resignation Request (Entry Points: Platform, Ingested Email, or P&C Manual Entry).
+ * Does NOT create an Offboarding Case!
+ */
+export async function submitResignationRequest(
+  input: SubmitResignationInput
+): Promise<{ success: boolean; request?: ResignationRequest; error?: string }> {
+  initResignationSeedScenarios();
+
+  try {
+    const allEmployees = await getEmployees();
+    const emp = allEmployees.find((e) => e.id === input.employee_id);
+
+    const nowIso = new Date().toISOString();
+    const requestId = `res-req-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+
+    const newRequest: ResignationRequest = {
+      id: requestId,
+      employee_id: input.employee_id,
+      employee_name: emp?.name || 'NavGurukul Member',
+      employee_email: emp?.email || 'member@navgurukul.org',
+      employee_designation: emp?.employee_type || 'Team Member',
+      employee_department: emp?.team || 'Operations',
+      manager_name: 'Reporting Manager',
+      source: input.source,
+      resignation_date: input.resignation_date || nowIso.split('T')[0],
+      proposed_lwd: input.proposed_lwd,
+      notice_period_days: input.notice_period_days || 30,
+      reason: input.reason,
+      reason_details: input.reason_details,
+      employee_comments: input.employee_comments,
+      email_subject: input.email_subject,
+      email_sender: input.email_sender,
+      email_body: input.email_body,
+      email_received_at: input.source === 'email' ? nowIso : null,
+      manager_decision: 'pending',
+      pnc_decision: input.source === 'pnc' ? 'accepted' : 'pending',
+      pnc_decision_at: input.source === 'pnc' ? nowIso : null,
+      pnc_decision_by: input.source === 'pnc' ? 'P&C Operations Partner' : null,
+      employee_retention_response: 'pending',
+      status: input.source === 'pnc' ? 'manager_pending' : 'submitted',
+      created_at: nowIso,
+      updated_at: nowIso,
+    };
+
+    MEMORY_RESIGNATION_STORE.set(requestId, newRequest);
+
+    // Attempt persist to Supabase
+    try {
+      const supabase = await createServerSupabaseClient();
+      await supabase.from('resignation_requests').insert({
+        id: newRequest.id,
+        employee_id: newRequest.employee_id,
+        source: newRequest.source,
+        resignation_date: newRequest.resignation_date,
+        proposed_lwd: newRequest.proposed_lwd,
+        notice_period_days: newRequest.notice_period_days,
+        reason: newRequest.reason,
+        reason_details: newRequest.reason_details,
+        employee_comments: newRequest.employee_comments,
+        email_subject: newRequest.email_subject,
+        email_sender: newRequest.email_sender,
+        email_body: newRequest.email_body,
+        email_received_at: newRequest.email_received_at,
+        manager_decision: newRequest.manager_decision,
+        pnc_decision: newRequest.pnc_decision,
+        status: newRequest.status,
+      });
+    } catch {
+      // Memory fallback handles it
+    }
+
+    // Global audit trail
+    await recordAuditLog('resignation_requests', requestId, 'insert', {
+      source: input.source,
+      employee_id: input.employee_id,
+      employee_name: newRequest.employee_name,
+      proposed_lwd: input.proposed_lwd,
+    });
+
+    // Notify Manager + P&C of new submission
+    try {
+      await sendEmail(
+        'offboarding_resignation_ack',
+        {
+          subject: `Resignation Request Received: ${newRequest.employee_name} (${input.source.toUpperCase()})`,
+          employee_name: newRequest.employee_name,
+          resignation_date: newRequest.resignation_date,
+          notice_period_duration: `${newRequest.notice_period_days} Days`,
+          last_working_day: newRequest.proposed_lwd,
+          offboarding_portal_link: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/offboarding?tab=resignations`,
+          hr_poc_name: 'People & Culture Review Board',
+        },
+        newRequest.employee_email
+      );
+    } catch (mailErr) {
+      console.warn('Could not dispatch resignation notification email:', mailErr);
+    }
+
+    revalidatePath('/offboarding');
+    return { success: true, request: newRequest };
+  } catch (err: any) {
+    console.error('Error submitting resignation request:', err);
+    return { success: false, error: err?.message || 'Failed to submit resignation request' };
+  }
+}
+
+/**
+ * Record Manager or P&C Decision on a Resignation Request.
+ * Decisions: 'accepted' | 'retention_proposed' | 'on_hold'.
+ */
+export async function submitReviewDecision(
+  requestId: string,
+  reviewerRole: 'manager' | 'pnc',
+  decision: ReviewDecision,
+  notes?: string,
+  holdDays?: number
+): Promise<{ success: boolean; request?: ResignationRequest; error?: string }> {
+  initResignationSeedScenarios();
+  const req = MEMORY_RESIGNATION_STORE.get(requestId);
+  if (!req) return { success: false, error: 'Resignation request not found' };
+
+  const nowIso = new Date().toISOString();
+  const formatYMD = (d: Date) => d.toISOString().split('T')[0];
+
+  // Update specific reviewer decision
+  if (reviewerRole === 'manager') {
+    req.manager_decision = decision;
+    req.manager_decision_at = nowIso;
+    req.manager_decision_by = 'Reporting Manager';
+    req.manager_notes = notes || null;
+  } else {
+    req.pnc_decision = decision;
+    req.pnc_decision_at = nowIso;
+    req.pnc_decision_by = 'P&C Operations';
+    req.pnc_notes = notes || null;
+  }
+
+  // Lifecycle state evaluation
+  if (decision === 'on_hold' || req.manager_decision === 'on_hold' || req.pnc_decision === 'on_hold') {
+    const days = holdDays || MEMORY_SETTINGS.standard_hold_period_days || 7;
+    const holdDate = new Date();
+    holdDate.setDate(holdDate.getDate() + days);
+    req.hold_until_date = formatYMD(holdDate);
+    req.status = 'on_hold';
+    req.retention_notes = notes ? `Hold Reason: ${notes}` : `7-day retention discussion window initiated.`;
+  } else if (req.manager_decision === 'accepted' && req.pnc_decision === 'accepted') {
+    // BOTH ACCEPTED -> Transition to Resignation Accepted & Activate Offboarding Case!
+    req.status = 'resignation_accepted';
+
+    // Activate the downstream offboarding case
+    const initRes = await initiateOffboardingCase({
+      employee_id: req.employee_id,
+      employee_name: req.employee_name,
+      employee_email: req.employee_email,
+      employee_designation: req.employee_designation,
+      employee_department: req.employee_department,
+      employee_type: 'Full-Time Employee',
+      manager_name: req.manager_name || 'Reporting Manager',
+      exit_type: 'resignation',
+      initiated_date: req.resignation_date,
+      initiated_by: `Approved by Manager & P&C (Request ${req.id})`,
+      proposed_lwd: req.proposed_lwd,
+      notice_period_days: req.notice_period_days,
+      reason: req.reason,
+      reason_details: req.reason_details || undefined,
+    });
+
+    if (initRes.success && initRes.caseId) {
+      req.offboarding_case_id = initRes.caseId;
+    }
+  } else if (req.manager_decision === 'retention_proposed' && req.pnc_decision === 'retention_proposed') {
+    // BOTH PROPOSE RETENTION -> Surface retention proposal to employee
+    req.status = 'withdrawal_proposed';
+    req.retention_notes = notes || 'Management proposes retention dialogue and resignation withdrawal.';
+  } else if (
+    (req.manager_decision === 'accepted' && req.pnc_decision === 'retention_proposed') ||
+    (req.manager_decision === 'retention_proposed' && req.pnc_decision === 'accepted')
+  ) {
+    // DISAGREEMENT -> Decision Pending / P&C Resolution
+    req.status = 'decision_pending';
+    req.retention_notes = `Disagreement between Manager (${req.manager_decision}) and P&C (${req.pnc_decision}). Resolution required.`;
+  } else if (req.manager_decision === 'accepted' && req.pnc_decision === 'pending') {
+    req.status = 'pnc_pending';
+  } else if (req.pnc_decision === 'accepted' && req.manager_decision === 'pending') {
+    req.status = 'manager_pending';
+  } else if (req.manager_decision === 'retention_proposed' || req.pnc_decision === 'retention_proposed') {
+    req.status = 'withdrawal_proposed';
+    req.retention_notes = notes || 'Retention proposed. Awaiting employee feedback.';
+  }
+
+  req.updated_at = nowIso;
+  MEMORY_RESIGNATION_STORE.set(requestId, req);
+
+  // Update Supabase if available
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase.from('resignation_requests').update({
+      manager_decision: req.manager_decision,
+      manager_decision_at: req.manager_decision_at,
+      manager_decision_by: req.manager_decision_by,
+      manager_notes: req.manager_notes,
+      pnc_decision: req.pnc_decision,
+      pnc_decision_at: req.pnc_decision_at,
+      pnc_decision_by: req.pnc_decision_by,
+      pnc_notes: req.pnc_notes,
+      hold_until_date: req.hold_until_date,
+      retention_notes: req.retention_notes,
+      status: req.status,
+      offboarding_case_id: req.offboarding_case_id,
+      updated_at: nowIso,
+    }).eq('id', requestId);
+  } catch {
+    // fallback
+  }
+
+  await recordAuditLog('resignation_requests', requestId, 'update', {
+    reviewerRole,
+    decision,
+    newStatus: req.status,
+    notes,
+  });
+
+  revalidatePath('/offboarding');
+  return { success: true, request: req };
+}
+
+/**
+ * Handle Employee Response to Retention Proposal:
+ * - 'accepted_withdrawal': Employee agrees to stay! Resignation closed. Employee remains Active. No offboarding case created!
+ * - 'declined_withdrawal': Employee still wants to leave! Resignation accepted -> Offboarding case created.
+ */
+export async function respondToRetention(
+  requestId: string,
+  response: 'accepted_withdrawal' | 'declined_withdrawal',
+  notes?: string
+): Promise<{ success: boolean; request?: ResignationRequest; error?: string }> {
+  initResignationSeedScenarios();
+  const req = MEMORY_RESIGNATION_STORE.get(requestId);
+  if (!req) return { success: false, error: 'Resignation request not found' };
+
+  const nowIso = new Date().toISOString();
+  req.employee_retention_response = response;
+  req.employee_response_at = nowIso;
+  req.employee_response_notes = notes || null;
+  req.updated_at = nowIso;
+
+  if (response === 'accepted_withdrawal') {
+    // Employee stays! Resignation closed. Employee remains active.
+    req.status = 'withdrawn_by_employee';
+    req.retention_notes = notes ? `Withdrawal Accepted: ${notes}` : 'Employee agreed to retention proposal and withdrew resignation.';
+  } else {
+    // Employee declines retention -> Proceed to Exit Initiated!
+    req.status = 'resignation_accepted';
+
+    const initRes = await initiateOffboardingCase({
+      employee_id: req.employee_id,
+      employee_name: req.employee_name,
+      employee_email: req.employee_email,
+      employee_designation: req.employee_designation,
+      employee_department: req.employee_department,
+      employee_type: 'Full-Time Employee',
+      manager_name: req.manager_name || 'Reporting Manager',
+      exit_type: 'resignation',
+      initiated_date: req.resignation_date,
+      initiated_by: `Employee Declined Retention (Request ${req.id})`,
+      proposed_lwd: req.proposed_lwd,
+      notice_period_days: req.notice_period_days,
+      reason: req.reason,
+      reason_details: req.reason_details || undefined,
+    });
+
+    if (initRes.success && initRes.caseId) {
+      req.offboarding_case_id = initRes.caseId;
+    }
+  }
+
+  MEMORY_RESIGNATION_STORE.set(requestId, req);
+
+  // Update Supabase if available
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase.from('resignation_requests').update({
+      employee_retention_response: req.employee_retention_response,
+      employee_response_at: req.employee_response_at,
+      employee_response_notes: req.employee_response_notes,
+      status: req.status,
+      offboarding_case_id: req.offboarding_case_id,
+      retention_notes: req.retention_notes,
+      updated_at: nowIso,
+    }).eq('id', requestId);
+  } catch {
+    // fallback
+  }
+
+  await recordAuditLog('resignation_requests', requestId, 'update', {
+    employee_response: response,
+    newStatus: req.status,
+    notes,
+  });
+
+  revalidatePath('/offboarding');
+  return { success: true, request: req };
+}
+
+/**
+ * Resolve Disagreement between Manager and P&C (by Authorized P&C Role).
+ */
+export async function resolveDisagreement(
+  requestId: string,
+  resolvedDecision: 'accepted' | 'retention_proposed',
+  notes?: string
+): Promise<{ success: boolean; request?: ResignationRequest; error?: string }> {
+  initResignationSeedScenarios();
+  const req = MEMORY_RESIGNATION_STORE.get(requestId);
+  if (!req) return { success: false, error: 'Resignation request not found' };
+
+  const nowIso = new Date().toISOString();
+  req.updated_at = nowIso;
+  req.retention_notes = notes || `Disagreement formally resolved by P&C Authority to: ${resolvedDecision.toUpperCase()}`;
+
+  if (resolvedDecision === 'accepted') {
+    req.manager_decision = 'accepted';
+    req.pnc_decision = 'accepted';
+    req.status = 'resignation_accepted';
+
+    const initRes = await initiateOffboardingCase({
+      employee_id: req.employee_id,
+      employee_name: req.employee_name,
+      employee_email: req.employee_email,
+      employee_designation: req.employee_designation,
+      employee_department: req.employee_department,
+      employee_type: 'Full-Time Employee',
+      manager_name: req.manager_name || 'Reporting Manager',
+      exit_type: 'resignation',
+      initiated_date: req.resignation_date,
+      initiated_by: `P&C Disagreement Resolution (Request ${req.id})`,
+      proposed_lwd: req.proposed_lwd,
+      notice_period_days: req.notice_period_days,
+      reason: req.reason,
+      reason_details: req.reason_details || undefined,
+    });
+
+    if (initRes.success && initRes.caseId) {
+      req.offboarding_case_id = initRes.caseId;
+    }
+  } else {
+    req.status = 'withdrawal_proposed';
+  }
+
+  MEMORY_RESIGNATION_STORE.set(requestId, req);
+
+  // Update Supabase if available
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase.from('resignation_requests').update({
+      manager_decision: req.manager_decision,
+      pnc_decision: req.pnc_decision,
+      status: req.status,
+      offboarding_case_id: req.offboarding_case_id,
+      retention_notes: req.retention_notes,
+      updated_at: nowIso,
+    }).eq('id', requestId);
+  } catch {
+    // fallback
+  }
+
+  await recordAuditLog('resignation_requests', requestId, 'update', {
+    resolvedDecision,
+    newStatus: req.status,
+    notes,
+  });
+
+  revalidatePath('/offboarding');
+  return { success: true, request: req };
+}
+
