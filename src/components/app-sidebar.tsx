@@ -21,6 +21,7 @@ import {
   Mail,
   BarChart3,
   LayoutGrid,
+  UserMinus,
 } from "lucide-react"
 
 import { NavMain, NavItem } from "@/components/nav-main"
@@ -103,6 +104,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           isActive: pathname.startsWith("/onboarding/employee"),
         },
       ],
+    },
+    {
+      title: "Offboarding",
+      url: "/offboarding",
+      icon: UserMinus,
+      isActive: pathname.startsWith("/offboarding"),
     },
     {
       title: "Appraisals",
