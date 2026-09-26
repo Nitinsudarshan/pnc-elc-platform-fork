@@ -45,19 +45,19 @@ export function PageBanner({
       />
 
       {/* Foreground Content */}
-      <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-card/70 backdrop-blur-md p-5 rounded-lg border border-border/60 shadow-xs transition-all duration-700">
-        <div className="flex items-center gap-6">
+      <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-card/70 backdrop-blur-md p-5 rounded-lg border border-border/60 shadow-xs transition-all duration-700">
+        <div className="flex items-center gap-4 sm:gap-6 min-w-0 flex-1">
           {IconOrNode && (
             <div className="bg-muted/60 dark:bg-muted/40 p-3.5 rounded-lg shrink-0 shadow-inner border border-border group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
               {renderIcon()}
             </div>
           )}
-          <div className="space-y-1">
-            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground transition-all duration-700">
+          <div className="space-y-1 min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground transition-all duration-700 truncate">
               {title}
             </h1>
             {description && (
-              <div className="text-muted-foreground text-sm sm:text-base font-medium leading-relaxed max-w-4xl xl:max-w-none transition-all duration-700">
+              <div className="text-muted-foreground text-sm sm:text-base font-medium truncate whitespace-nowrap block transition-all duration-700">
                 {description}
               </div>
             )}
