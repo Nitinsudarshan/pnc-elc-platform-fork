@@ -16,6 +16,9 @@ import {
   BadgeCheck,
   FileText,
   FileCheck2,
+  SlidersHorizontal,
+  PenTool,
+  Mail,
 } from "lucide-react"
 
 import { NavMain, NavItem } from "@/components/nav-main"
@@ -140,6 +143,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/data-management",
           icon: DatabaseBackup,
           isActive: pathname.startsWith("/data-management"),
+        },
+        {
+          title: "Signatories",
+          url: "/manage/signatories",
+          icon: PenTool,
+          isActive: pathname.startsWith("/manage/signatories"),
+        },
+        {
+          title: "Emails",
+          url: "/manage/emails",
+          icon: Mail,
+          isActive: pathname.startsWith("/manage/emails"),
+        },
+        {
+          title: "Platform Settings",
+          url: "/manage/settings",
+          icon: SlidersHorizontal,
+          isActive: pathname.startsWith("/manage/settings"),
         },
       ],
     },

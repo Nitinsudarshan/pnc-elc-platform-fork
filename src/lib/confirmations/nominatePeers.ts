@@ -2,6 +2,7 @@
 
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/email/sendEmail'
+import { getNotificationSettings } from '@/lib/settings/service'
 
 export async function nominatePeers(
   confirmationId: string,
@@ -26,6 +27,9 @@ export async function nominatePeers(
     return null
   }
 
+  const notificationSettings = await getNotificationSettings().catch(() => null)
+  const subject = notificationSettings?.peer_request_subject || 'Peer Feedback Requested'
+
   // Send notification email to each peer that has an email address
   for (let i = 0; i < peers.length; i++) {
     const peer = peers[i]
@@ -37,7 +41,7 @@ export async function nominatePeers(
       await sendEmail(
         'peer_feedback_request',
         {
-          subject: 'Peer Feedback Requested',
+          subject,
           body: `<p>Hi ${peer.name},</p><p>You've been nominated to provide feedback as part of a confirmation review. Please share your feedback using the link below:</p><p><a href="${feedbackLink}">${feedbackLink}</a></p><p>Thank you!</p>`,
         },
         peer.email

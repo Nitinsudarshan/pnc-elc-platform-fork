@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { DataTablePagination } from '@/components/shared/data-table-pagination';
 import {
   Table,
   TableBody,
@@ -48,6 +49,8 @@ export default function LettersLibraryPage() {
   const [letters, setLetters] = useState<CandidateLetter[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedLetter, setSelectedLetter] = useState<CandidateLetter | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
 
@@ -91,6 +94,11 @@ export default function LettersLibraryPage() {
     );
   });
 
+  const paginatedLetters = filteredLetters.slice(
+    (pageIndex - 1) * pageSize,
+    pageIndex * pageSize
+  );
+
   return (
     <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-20 animate-in fade-in duration-300">
       {/* Header Banner */}
@@ -124,7 +132,10 @@ export default function LettersLibraryPage() {
             <Input
               placeholder="Search by candidate, letter name, or type..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPageIndex(1);
+              }}
               className="pl-8.5 h-8.5 text-xs rounded-lg"
             />
           </div>
@@ -161,7 +172,7 @@ export default function LettersLibraryPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredLetters.map((l) => (
+                {paginatedLetters.map((l) => (
                   <TableRow key={l.id} className="hover:bg-muted/30 transition-colors">
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -263,6 +274,18 @@ export default function LettersLibraryPage() {
                 ))}
               </TableBody>
             </Table>
+            <DataTablePagination
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              totalItems={filteredLetters.length}
+              pageSizeOptions={[10, 25, 50]}
+              onPageChange={setPageIndex}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPageIndex(1);
+              }}
+              itemLabel="letters"
+            />
           </div>
         )}
       </div>
