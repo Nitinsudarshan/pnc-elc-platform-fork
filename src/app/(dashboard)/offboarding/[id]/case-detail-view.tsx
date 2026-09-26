@@ -818,6 +818,41 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
         {/* TAB 3: ASSET CLEARANCES */}
         {/* ================================================================= */}
         <TabsContent value="assets" className="space-y-4 mt-4">
+          {/* External Asset System Integration Boundary Banner */}
+          <div className="p-3.5 rounded-xl border border-indigo-500/30 bg-indigo-50/50 dark:bg-indigo-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                <Laptop className="size-4" />
+              </div>
+              <div>
+                <div className="font-semibold text-foreground flex items-center gap-2">
+                  <span>External Asset Management API</span>
+                  <Badge variant="outline" className="text-[10px] border-indigo-500 text-indigo-600">
+                    Source of Truth
+                  </Badge>
+                </div>
+                <div className="text-[11px] text-muted-foreground mt-0.5">
+                  ELC consumes asset assignments and recovery rules live. Local clearances act as workflow verification.
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <span className="text-[10px] text-muted-foreground block">Assigned Count</span>
+                <span className="font-bold text-foreground">
+                  {data.externalAssetsSummary?.total_assigned_count || data.assets.length} Assets
+                </span>
+              </div>
+              <div className="text-right border-l border-border/80 pl-3">
+                <span className="text-[10px] text-muted-foreground block">External Recovery Flag</span>
+                <span className="font-bold text-rose-600 dark:text-rose-400">
+                  ₹{(data.externalAssetsSummary?.total_recovery_required ?? data.fnf.asset_recovery_amount ?? 0).toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </div>
+
           <Card className="rounded-xl border border-border bg-card shadow-xs">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -835,6 +870,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
                 </span>
               </div>
             </CardHeader>
+
             <CardContent>
               <div className="overflow-x-auto">
                 <Table>
@@ -1030,8 +1066,72 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
         {/* TAB 5: F&F SETTLEMENT */}
         {/* ================================================================= */}
         <TabsContent value="fnf" className="space-y-4 mt-4">
+          {/* External Integrations Boundary for F&F: Attendance & Leave APIs */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Attendance API Source */}
+            <Card className="rounded-xl border border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20 p-3.5 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 font-bold text-blue-700 dark:text-blue-300">
+                  <Clock className="size-3.5" />
+                  <span>External Attendance Cloud API</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] border-blue-500 text-blue-600 bg-background">
+                  Source of Truth
+                </Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Consumes verified biometric swipe logs to determine actual payable days for final settlement.
+              </p>
+              <div className="grid grid-cols-2 gap-2 pt-1 border-t border-blue-500/20 text-xs">
+                <div>
+                  <span className="text-[10px] text-muted-foreground block">Last Recorded Swipe:</span>
+                  <span className="font-semibold text-foreground">
+                    {data.externalAttendanceSummary?.last_recorded_swipe_date || caseRec.actual_lwd || caseRec.proposed_lwd}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-muted-foreground block">Calculated Payable Days:</span>
+                  <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                    {data.externalAttendanceSummary?.calculated_payable_days ?? data.fnf.payable_days} Days
+                  </span>
+                </div>
+              </div>
+            </Card>
+
+            {/* Leave API Source */}
+            <Card className="rounded-xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 p-3.5 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 font-bold text-emerald-700 dark:text-emerald-300">
+                  <Calendar className="size-3.5" />
+                  <span>External Enterprise HRMS Leave API</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] border-emerald-500 text-emerald-600 bg-background">
+                  Source of Truth
+                </Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Consumes earned privilege leave balances to compute statutory encashment credit.
+              </p>
+              <div className="grid grid-cols-2 gap-2 pt-1 border-t border-emerald-500/20 text-xs">
+                <div>
+                  <span className="text-[10px] text-muted-foreground block">Encashable Days:</span>
+                  <span className="font-semibold text-foreground">
+                    {data.externalLeaveSummary?.total_encashable_days ?? data.fnf.leave_encashment_days} Days
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-muted-foreground block">Per-Day Encashment Rate:</span>
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                    ₹{(data.externalLeaveSummary?.per_day_encashment_rate_inr ?? 2500).toLocaleString()} / day
+                  </span>
+                </div>
+              </div>
+            </Card>
+          </div>
+
           <Card className="rounded-xl border border-border bg-card shadow-xs">
             <CardHeader>
+
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
