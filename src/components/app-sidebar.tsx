@@ -118,16 +118,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     {
       title: "Manage",
-      url: "/manage",
+      url: "/manage/letter-templates",
       icon: Settings,
       isActive: pathname.startsWith("/manage") || pathname.startsWith("/data-management"),
       items: [
-        {
-          title: "Manage Hub",
-          url: "/manage",
-          icon: LayoutGrid,
-          isActive: pathname === "/manage",
-        },
         {
           title: "Letter Templates",
           url: "/manage/letter-templates",

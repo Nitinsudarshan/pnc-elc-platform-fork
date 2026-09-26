@@ -6,7 +6,7 @@ import {
   TrendingUp,
   UserCheck,
   BarChart3,
-  Settings,
+  Database,
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
@@ -76,11 +76,11 @@ export default function DashboardPage() {
       arrowHover: "group-hover:text-purple-600 dark:group-hover:text-purple-400",
     },
     {
-      title: "Management Hub",
-      description: "Administrative controls for letter templates, authorized signers, email quotas, and platform configurations.",
-      href: "/manage",
-      icon: Settings,
-      badge: "Admin Hub",
+      title: "Data Management",
+      description: "Batch CSV/XLSX imports, audit tracking, profile change logs, and database rollbacks.",
+      href: "/data-management",
+      icon: Database,
+      badge: "System Data",
       gradient: "from-indigo-500/10 via-violet-500/5 to-transparent",
       iconBg: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white border-indigo-500/20",
       badgeStyle: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900/50",
