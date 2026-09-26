@@ -1,0 +1,2061 @@
+'use server';
+
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { revalidatePath } from 'next/cache';
+import { sendEmail } from '@/lib/email/sendEmail';
+import {
+  ExitType,
+  OffboardingStatus,
+  OffboardingCase,
+  OffboardingChecklistItem,
+  OffboardingAssetItem,
+  OffboardingNDCDepartment,
+  OffboardingFnF,
+  OffboardingActivityLog,
+  ExitDocument,
+  OffboardingSettings,
+  DEFAULT_OFFBOARDING_SETTINGS,
+  FullOffboardingData,
+  InitiateOffboardingInput,
+} from './types';
+
+// ============================================================================
+// DEFAULT CONFIGURATION & RECOVERY SETTINGS
+// ============================================================================
+
+let MEMORY_SETTINGS = { ...DEFAULT_OFFBOARDING_SETTINGS };
+
+// ============================================================================
+// REALISTIC SEED DATA COVERING ALL 7 REQUIRED SCENARIOS
+// ============================================================================
+
+const MEMORY_OFFBOARDING_STORE: Map<string, FullOffboardingData> = new Map();
+
+function initSeedScenarios() {
+  if (MEMORY_OFFBOARDING_STORE.size > 0) return;
+
+  const now = new Date();
+  const formatYMD = (d: Date) => d.toISOString().split('T')[0];
+
+  // Helper date generators
+  const daysAgo = (n: number) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() - n);
+    return formatYMD(d);
+  };
+
+  const daysAhead = (n: number) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() + n);
+    return formatYMD(d);
+  };
+
+  // --------------------------------------------------------------------------
+  // SCENARIO A: Normal Resignation (in notice period, approaching LWD)
+  // --------------------------------------------------------------------------
+  const caseAId = 'off-case-001-vikram-patel';
+  const caseA: OffboardingCase = {
+    id: caseAId,
+    employee_id: 'emp-vikram-patel',
+    employee_name: 'Vikram Patel',
+    employee_email: 'vikram.patel@navgurukul.org',
+    employee_designation: 'Lead Pedagogical Designer',
+    employee_department: 'Academia',
+    employee_type: 'Full-Time Employee',
+    manager_name: 'Ananya Sen',
+    exit_type: 'resignation',
+    initiated_date: daysAgo(20),
+    initiated_by: 'Vikram Patel (Self-Resignation)',
+    proposed_lwd: daysAhead(10),
+    actual_lwd: null,
+    notice_period_days: 30,
+    notice_period_waived: false,
+    reason: 'Pursuing higher education / Ph.D. opportunity abroad',
+    reason_details: 'Admitted to education technology doctoral fellowship commencing next semester.',
+    status: 'notice_period',
+    immediate_relieving: false,
+    created_at: new Date(Date.now() - 86400000 * 20).toISOString(),
+    updated_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+  };
+
+  const checklistA: OffboardingChecklistItem[] = [
+    {
+      id: 'chk-a-1',
+      offboarding_id: caseAId,
+      title: 'Curriculum & Pedagogy Handover Documentation',
+      description: 'Transfer Google Drive teaching repos, curriculum lesson plans, and sprint milestones.',
+      category: 'knowledge_transfer',
+      owner_role: 'employee',
+      assigned_to_name: 'Vikram Patel',
+      status: 'in_progress',
+      is_mandatory: true,
+      due_date: daysAhead(5),
+      notes: '70% curriculum guides uploaded to shared team folder.',
+      created_at: caseA.created_at,
+      updated_at: caseA.updated_at,
+    },
+    {
+      id: 'chk-a-2',
+      offboarding_id: caseAId,
+      title: 'Primary Handover Review & Acceptance',
+      description: 'Manager validates transition repository and team onboarding.',
+      category: 'knowledge_transfer',
+      owner_role: 'manager',
+      assigned_to_name: 'Ananya Sen',
+      status: 'pending',
+      is_mandatory: true,
+      due_date: daysAhead(7),
+      notes: 'Scheduled sprint transition review for upcoming Tuesday.',
+      created_at: caseA.created_at,
+      updated_at: caseA.updated_at,
+    },
+    {
+      id: 'chk-a-3',
+      offboarding_id: caseAId,
+      title: 'Company Laptop & Peripheral Return',
+      description: 'Hand over MacBook Air M2, charger, and display adapter to IT operations.',
+      category: 'asset_return',
+      owner_role: 'it_admin',
+      assigned_to_name: 'IT Helpdesk Team',
+      status: 'pending',
+      is_mandatory: true,
+      due_date: daysAhead(9),
+      notes: 'IT desk booked return inspection slot on LWD-1.',
+      created_at: caseA.created_at,
+      updated_at: caseA.updated_at,
+    },
+    {
+      id: 'chk-a-4',
+      offboarding_id: caseAId,
+      title: 'Confidential Exit Interview Questionnaire',
+      description: 'Complete exit survey covering workplace culture and feedback.',
+      category: 'exit_interview',
+      owner_role: 'employee',
+      assigned_to_name: 'Vikram Patel',
+      status: 'completed',
+      is_mandatory: true,
+      due_date: daysAhead(3),
+      completed_at: daysAgo(2),
+      completed_by: 'Vikram Patel',
+      notes: 'Questionnaire completed and submitted via employee portal.',
+      created_at: caseA.created_at,
+      updated_at: caseA.updated_at,
+    },
+    {
+      id: 'chk-a-5',
+      offboarding_id: caseAId,
+      title: 'Expense Claims & Outstanding Travel Settlement',
+      description: 'Submit pending campus travel expense receipts for final reimbursement.',
+      category: 'finance',
+      owner_role: 'finance',
+      assigned_to_name: 'Finance Desk',
+      status: 'in_progress',
+      is_mandatory: true,
+      due_date: daysAhead(6),
+      notes: 'Campus visit claims under verification.',
+      created_at: caseA.created_at,
+      updated_at: caseA.updated_at,
+    },
+  ];
+
+  const assetsA: OffboardingAssetItem[] = [
+    {
+      id: 'asset-a-1',
+      offboarding_id: caseAId,
+      asset_name: 'MacBook Air M2 (13-inch, 16GB RAM)',
+      asset_tag: 'NG-LAP-2026-042',
+      asset_type: 'laptop',
+      assigned_date: '2024-03-15',
+      return_status: 'pending_return',
+      condition: 'good',
+      recovery_amount: 0,
+      clearance_notes: 'Physical verification scheduled at Bangalore campus.',
+      created_at: caseA.created_at,
+      updated_at: caseA.updated_at,
+    },
+    {
+      id: 'asset-a-2',
+      offboarding_id: caseAId,
+      asset_name: 'Campus Access Smartcard & ID Badge',
+      asset_tag: 'NG-ID-00412',
+      asset_type: 'id_card',
+      assigned_date: '2024-03-15',
+      return_status: 'pending_return',
+      clearance_notes: 'To be deposited at security reception on LWD.',
+      created_at: caseA.created_at,
+      updated_at: caseA.updated_at,
+    },
+  ];
+
+  const ndcA: OffboardingNDCDepartment[] = [
+    {
+      id: 'ndc-a-1',
+      offboarding_id: caseAId,
+      department: 'manager',
+      department_label: 'Reporting Manager (Academia)',
+      status: 'under_review',
+      remarks: 'Handover underway; awaiting completion of curriculum doc transfer.',
+      created_at: caseA.created_at,
+      updated_at: caseA.updated_at,
+    },
+    {
+      id: 'ndc-a-2',
+      offboarding_id: caseAId,
+      department: 'it_admin',
+      department_label: 'IT & Asset Operations',
+      status: 'pending',
+      remarks: 'Pending physical laptop return inspection.',
+      created_at: caseA.created_at,
+      updated_at: caseA.updated_at,
+    },
+    {
+      id: 'ndc-a-3',
+      offboarding_id: caseAId,
+      department: 'finance',
+      department_label: 'Finance & Accounts',
+      status: 'under_review',
+      remarks: 'Expense claims submitted, pending approval.',
+      created_at: caseA.created_at,
+      updated_at: caseA.updated_at,
+    },
+    {
+      id: 'ndc-a-4',
+      offboarding_id: caseAId,
+      department: 'pnc',
+      department_label: 'People & Culture',
+      status: 'pending',
+      remarks: 'Awaiting departmental sign-offs prior to issuing NDC.',
+      created_at: caseA.created_at,
+      updated_at: caseA.updated_at,
+    },
+  ];
+
+  const fnfA: OffboardingFnF = {
+    id: 'fnf-a-1',
+    offboarding_id: caseAId,
+    status: 'awaiting_clearance',
+    payable_days: 20,
+    leave_encashment_days: 4.5,
+    gratuity_eligible: false,
+    asset_recovery_amount: 0,
+    other_deductions: 0,
+    net_payable_estimate: '₹62,400 (Pending finalized days)',
+    remarks: 'Awaiting LWD confirmation and all departmental clearances.',
+    blocked_reasons: ['Department clearances in progress', 'Asset return pending'],
+    created_at: caseA.created_at,
+    updated_at: caseA.updated_at,
+  };
+
+  const logsA: OffboardingActivityLog[] = [
+    {
+      id: 'log-a-1',
+      offboarding_id: caseAId,
+      actor_name: 'Vikram Patel',
+      actor_role: 'employee',
+      action: 'Resignation Initiated',
+      description: 'Employee submitted formal resignation with 30-day notice period.',
+      created_at: caseA.created_at,
+    },
+    {
+      id: 'log-a-2',
+      offboarding_id: caseAId,
+      actor_name: 'P&C Operations',
+      actor_role: 'pnc',
+      action: 'Notice Period Confirmed',
+      description: `Formal acknowledgment sent with proposed LWD as ${caseA.proposed_lwd}.`,
+      created_at: new Date(Date.now() - 86400000 * 19).toISOString(),
+    },
+    {
+      id: 'log-a-3',
+      offboarding_id: caseAId,
+      actor_name: 'Vikram Patel',
+      actor_role: 'employee',
+      action: 'Exit Survey Completed',
+      description: 'Employee completed confidential exit questionnaire.',
+      created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    },
+  ];
+
+  MEMORY_OFFBOARDING_STORE.set(caseAId, {
+    caseRecord: caseA,
+    checklist: checklistA,
+    assets: assetsA,
+    ndc: ndcA,
+    fnf: fnfA,
+    activityLogs: logsA,
+    documents: [],
+  });
+
+  // --------------------------------------------------------------------------
+  // SCENARIO B: Exit with Pending Asset & Damage Exception (Blocked Clearance)
+  // --------------------------------------------------------------------------
+  const caseBId = 'off-case-002-siddharth-sharma';
+  const caseB: OffboardingCase = {
+    id: caseBId,
+    employee_id: 'emp-siddharth-sharma',
+    employee_name: 'Siddharth Sharma',
+    employee_email: 'siddharth.s@navgurukul.org',
+    employee_designation: 'Senior Frontend Developer',
+    employee_department: 'Technology',
+    employee_type: 'Full-Time Employee',
+    manager_name: 'Karan Mehra',
+    exit_type: 'resignation',
+    initiated_date: daysAgo(28),
+    initiated_by: 'Siddharth Sharma',
+    proposed_lwd: daysAhead(2),
+    actual_lwd: null,
+    notice_period_days: 30,
+    notice_period_waived: false,
+    reason: 'Better career growth opportunity',
+    status: 'clearance_in_progress',
+    immediate_relieving: false,
+    exception_notes: 'MacBook display cracked during remote work transit. Repair assessment underway.',
+    created_at: new Date(Date.now() - 86400000 * 28).toISOString(),
+    updated_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+  };
+
+  const checklistB: OffboardingChecklistItem[] = [
+    {
+      id: 'chk-b-1',
+      offboarding_id: caseBId,
+      title: 'GitHub & AWS Repository Access Revocation Scheduled',
+      category: 'admin',
+      owner_role: 'it_admin',
+      assigned_to_name: 'IT Admin Desk',
+      status: 'in_progress',
+      is_mandatory: true,
+      due_date: daysAhead(2),
+      notes: 'Scheduled for 6:00 PM on LWD.',
+      created_at: caseB.created_at,
+      updated_at: caseB.updated_at,
+    },
+    {
+      id: 'chk-b-2',
+      offboarding_id: caseBId,
+      title: 'Asset Return & Physical Damage Assessment',
+      category: 'asset_return',
+      owner_role: 'it_admin',
+      assigned_to_name: 'IT Asset Lead',
+      status: 'blocked',
+      is_mandatory: true,
+      due_date: daysAgo(1),
+      notes: 'Laptop screen damaged. Awaiting policy exception or deduction confirmation.',
+      created_at: caseB.created_at,
+      updated_at: caseB.updated_at,
+    },
+    {
+      id: 'chk-b-3',
+      offboarding_id: caseBId,
+      title: 'Frontend Code Handover & Documentation',
+      category: 'knowledge_transfer',
+      owner_role: 'manager',
+      assigned_to_name: 'Karan Mehra',
+      status: 'completed',
+      is_mandatory: true,
+      completed_at: daysAgo(3),
+      completed_by: 'Karan Mehra',
+      notes: 'All PRs reviewed and merged. Handover completed smoothly.',
+      created_at: caseB.created_at,
+      updated_at: caseB.updated_at,
+    },
+  ];
+
+  const assetsB: OffboardingAssetItem[] = [
+    {
+      id: 'asset-b-1',
+      offboarding_id: caseBId,
+      asset_name: 'MacBook Pro 14" M3 (512GB SSD)',
+      asset_tag: 'NG-LAP-2025-019',
+      asset_type: 'laptop',
+      assigned_date: '2025-01-10',
+      return_status: 'under_recovery',
+      condition: 'damaged',
+      recovery_amount: 8500,
+      clearance_notes: 'Display screen cracked. Authorized repair quote is ₹8,500. Under P&C recovery review.',
+      verified_by: 'IT Admin Desk',
+      verified_at: daysAgo(2),
+      created_at: caseB.created_at,
+      updated_at: caseB.updated_at,
+    },
+  ];
+
+  const ndcB: OffboardingNDCDepartment[] = [
+    {
+      id: 'ndc-b-1',
+      offboarding_id: caseBId,
+      department: 'manager',
+      department_label: 'Reporting Manager (Technology)',
+      status: 'cleared',
+      cleared_by: 'Karan Mehra',
+      cleared_at: daysAgo(3),
+      remarks: 'KT handover fully completed and validated.',
+      created_at: caseB.created_at,
+      updated_at: caseB.updated_at,
+    },
+    {
+      id: 'ndc-b-2',
+      offboarding_id: caseBId,
+      department: 'it_admin',
+      department_label: 'IT & Asset Operations',
+      status: 'blocked',
+      remarks: 'Asset clearance blocked due to laptop damage recovery pending.',
+      blocker_reason: 'Asset damaged: ₹8,500 recovery pending settlement approval.',
+      created_at: caseB.created_at,
+      updated_at: caseB.updated_at,
+    },
+    {
+      id: 'ndc-b-3',
+      offboarding_id: caseBId,
+      department: 'finance',
+      department_label: 'Finance & Accounts',
+      status: 'pending',
+      remarks: 'Awaiting IT clearance and recovery amount sign-off.',
+      created_at: caseB.created_at,
+      updated_at: caseB.updated_at,
+    },
+    {
+      id: 'ndc-b-4',
+      offboarding_id: caseBId,
+      department: 'pnc',
+      department_label: 'People & Culture',
+      status: 'blocked',
+      remarks: 'Asset recovery decision required before final clearance.',
+      created_at: caseB.created_at,
+      updated_at: caseB.updated_at,
+    },
+  ];
+
+  const fnfB: OffboardingFnF = {
+    id: 'fnf-b-1',
+    offboarding_id: caseBId,
+    status: 'blocked',
+    payable_days: 28,
+    leave_encashment_days: 6.0,
+    gratuity_eligible: false,
+    asset_recovery_amount: 8500,
+    other_deductions: 0,
+    net_payable_estimate: '₹84,200 (Subject to ₹8,500 asset deduction)',
+    remarks: 'Held pending employee confirmation of asset recovery amount.',
+    blocked_reasons: ['IT Asset clearance blocked', 'Recovery amount confirmation needed'],
+    created_at: caseB.created_at,
+    updated_at: caseB.updated_at,
+  };
+
+  const logsB: OffboardingActivityLog[] = [
+    {
+      id: 'log-b-1',
+      offboarding_id: caseBId,
+      actor_name: 'IT Asset Desk',
+      actor_role: 'it_admin',
+      action: 'Asset Return Exception Flagged',
+      description: 'MacBook Pro returned with damaged display screen. Assessed repair cost ₹8,500.',
+      created_at: daysAgo(2),
+    },
+  ];
+
+  MEMORY_OFFBOARDING_STORE.set(caseBId, {
+    caseRecord: caseB,
+    checklist: checklistB,
+    assets: assetsB,
+    ndc: ndcB,
+    fnf: fnfB,
+    activityLogs: logsB,
+    documents: [],
+  });
+
+  // --------------------------------------------------------------------------
+  // SCENARIO C: Exit with Pending Knowledge Transfer (KT Handover Blocker)
+  // --------------------------------------------------------------------------
+  const caseCId = 'off-case-003-priya-shukla';
+  const caseC: OffboardingCase = {
+    id: caseCId,
+    employee_id: 'emp-priya-shukla',
+    employee_name: 'Priya Shukla',
+    employee_email: 'priya.shukla@navgurukul.org',
+    employee_designation: 'Operations Coordinator',
+    employee_department: 'Operations',
+    employee_type: 'Full-Time Consultant',
+    manager_name: 'Manish Rawat',
+    exit_type: 'resignation',
+    initiated_date: daysAgo(25),
+    initiated_by: 'Priya Shukla',
+    proposed_lwd: daysAhead(5),
+    actual_lwd: null,
+    notice_period_days: 30,
+    notice_period_waived: false,
+    reason: 'Relocating to hometown for family commitments',
+    status: 'notice_period',
+    immediate_relieving: false,
+    created_at: new Date(Date.now() - 86400000 * 25).toISOString(),
+    updated_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+  };
+
+  const checklistC: OffboardingChecklistItem[] = [
+    {
+      id: 'chk-c-1',
+      offboarding_id: caseCId,
+      title: 'Dharamshala Campus Operations SOP & Vendor Directory',
+      category: 'knowledge_transfer',
+      owner_role: 'employee',
+      assigned_to_name: 'Priya Shukla',
+      status: 'blocked',
+      is_mandatory: true,
+      due_date: daysAgo(2),
+      notes: 'Vendor contracts and lease agreement handover overdue by 2 days.',
+      created_at: caseC.created_at,
+      updated_at: caseC.updated_at,
+    },
+    {
+      id: 'chk-c-2',
+      offboarding_id: caseCId,
+      title: 'Handover Acceptance by Successor Coordinator',
+      category: 'knowledge_transfer',
+      owner_role: 'manager',
+      assigned_to_name: 'Manish Rawat',
+      status: 'pending',
+      is_mandatory: true,
+      due_date: daysAhead(3),
+      notes: 'Awaiting complete vendor audit before signing off.',
+      created_at: caseC.created_at,
+      updated_at: caseC.updated_at,
+    },
+    {
+      id: 'chk-c-3',
+      offboarding_id: caseCId,
+      title: 'Office Keys & Petty Cash Reconciliation',
+      category: 'finance',
+      owner_role: 'finance',
+      assigned_to_name: 'Finance Desk',
+      status: 'completed',
+      is_mandatory: true,
+      completed_at: daysAgo(1),
+      completed_by: 'Finance Operations',
+      notes: 'Petty cash balance ₹4,200 deposited and verified.',
+      created_at: caseC.created_at,
+      updated_at: caseC.updated_at,
+    },
+  ];
+
+  const ndcC: OffboardingNDCDepartment[] = [
+    {
+      id: 'ndc-c-1',
+      offboarding_id: caseCId,
+      department: 'manager',
+      department_label: 'Reporting Manager (Operations)',
+      status: 'blocked',
+      blocker_reason: 'Knowledge transfer incomplete: Campus vendor directory and active agreements pending.',
+      remarks: 'Overdue handover documents must be transferred before approval.',
+      created_at: caseC.created_at,
+      updated_at: caseC.updated_at,
+    },
+    {
+      id: 'ndc-c-2',
+      offboarding_id: caseCId,
+      department: 'it_admin',
+      department_label: 'IT & Asset Operations',
+      status: 'cleared',
+      cleared_by: 'IT Admin Desk',
+      cleared_at: daysAgo(3),
+      remarks: 'Asset returned in pristine condition.',
+      created_at: caseC.created_at,
+      updated_at: caseC.updated_at,
+    },
+    {
+      id: 'ndc-c-3',
+      offboarding_id: caseCId,
+      department: 'finance',
+      department_label: 'Finance & Accounts',
+      status: 'cleared',
+      cleared_by: 'Finance Desk',
+      cleared_at: daysAgo(1),
+      remarks: 'Petty cash reconciled and settled.',
+      created_at: caseC.created_at,
+      updated_at: caseC.updated_at,
+    },
+    {
+      id: 'ndc-c-4',
+      offboarding_id: caseCId,
+      department: 'pnc',
+      department_label: 'People & Culture',
+      status: 'pending',
+      remarks: 'Awaiting Manager KT sign-off.',
+      created_at: caseC.created_at,
+      updated_at: caseC.updated_at,
+    },
+  ];
+
+  MEMORY_OFFBOARDING_STORE.set(caseCId, {
+    caseRecord: caseC,
+    checklist: checklistC,
+    assets: [
+      {
+        id: 'asset-c-1',
+        offboarding_id: caseCId,
+        asset_name: 'Dell Latitude 5420 Laptop',
+        asset_tag: 'NG-LAP-2024-008',
+        asset_type: 'laptop',
+        assigned_date: '2024-06-01',
+        return_status: 'cleared',
+        condition: 'good',
+        verified_by: 'IT Desk',
+        verified_at: daysAgo(3),
+        created_at: caseC.created_at,
+        updated_at: caseC.updated_at,
+      },
+    ],
+    ndc: ndcC,
+    fnf: {
+      id: 'fnf-c-1',
+      offboarding_id: caseCId,
+      status: 'awaiting_clearance',
+      payable_days: 25,
+      leave_encashment_days: 3,
+      gratuity_eligible: false,
+      asset_recovery_amount: 0,
+      other_deductions: 0,
+      net_payable_estimate: '₹52,000',
+      blocked_reasons: ['Manager KT clearance pending'],
+      created_at: caseC.created_at,
+      updated_at: caseC.updated_at,
+    },
+    activityLogs: [
+      {
+        id: 'log-c-1',
+        offboarding_id: caseCId,
+        actor_name: 'System Reminder',
+        actor_role: 'system',
+        action: 'Overdue Task Reminder Sent',
+        description: 'Automated reminder dispatched to Priya Shukla for Campus Operations SOP.',
+        created_at: daysAgo(1),
+      },
+    ],
+    documents: [],
+  });
+
+  // --------------------------------------------------------------------------
+  // SCENARIO D: Exit with Pending NDC Sign-Offs (Department Clearances Underway)
+  // --------------------------------------------------------------------------
+  const caseDId = 'off-case-004-arjun-nair';
+  const caseD: OffboardingCase = {
+    id: caseDId,
+    employee_id: 'emp-arjun-nair',
+    employee_name: 'Arjun Nair',
+    employee_email: 'arjun.nair@navgurukul.org',
+    employee_designation: 'Senior DevOps Engineer',
+    employee_department: 'Infrastructure',
+    employee_type: 'Full-Time Employee',
+    manager_name: 'Rohit Verma',
+    exit_type: 'resignation',
+    initiated_date: daysAgo(29),
+    initiated_by: 'Arjun Nair',
+    proposed_lwd: daysAhead(1),
+    actual_lwd: null,
+    notice_period_days: 30,
+    notice_period_waived: false,
+    reason: 'Joining multinational technology consulting firm',
+    status: 'clearance_in_progress',
+    immediate_relieving: false,
+    created_at: new Date(Date.now() - 86400000 * 29).toISOString(),
+    updated_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+  };
+
+  const ndcD: OffboardingNDCDepartment[] = [
+    {
+      id: 'ndc-d-1',
+      offboarding_id: caseDId,
+      department: 'manager',
+      department_label: 'Reporting Manager (Infra)',
+      status: 'cleared',
+      cleared_by: 'Rohit Verma',
+      cleared_at: daysAgo(2),
+      remarks: 'Kubernetes and CI/CD cluster credentials transferred.',
+      created_at: caseD.created_at,
+      updated_at: caseD.updated_at,
+    },
+    {
+      id: 'ndc-d-2',
+      offboarding_id: caseDId,
+      department: 'it_admin',
+      department_label: 'IT & Asset Operations',
+      status: 'cleared',
+      cleared_by: 'IT Helpdesk',
+      cleared_at: daysAgo(1),
+      remarks: 'ThinkPad T14 and monitor returned in good working order.',
+      created_at: caseD.created_at,
+      updated_at: caseD.updated_at,
+    },
+    {
+      id: 'ndc-d-3',
+      offboarding_id: caseDId,
+      department: 'finance',
+      department_label: 'Finance & Accounts',
+      status: 'under_review',
+      remarks: 'Verifying broadband reimbursement claim for August-September.',
+      created_at: caseD.created_at,
+      updated_at: caseD.updated_at,
+    },
+    {
+      id: 'ndc-d-4',
+      offboarding_id: caseDId,
+      department: 'pnc',
+      department_label: 'People & Culture',
+      status: 'pending',
+      remarks: 'Final sign-off scheduled for tomorrow upon Finance clearance.',
+      created_at: caseD.created_at,
+      updated_at: caseD.updated_at,
+    },
+  ];
+
+  MEMORY_OFFBOARDING_STORE.set(caseDId, {
+    caseRecord: caseD,
+    checklist: [],
+    assets: [],
+    ndc: ndcD,
+    fnf: {
+      id: 'fnf-d-1',
+      offboarding_id: caseDId,
+      status: 'computation_pending',
+      payable_days: 30,
+      leave_encashment_days: 8.5,
+      gratuity_eligible: false,
+      asset_recovery_amount: 0,
+      other_deductions: 0,
+      net_payable_estimate: '₹1,18,000',
+      blocked_reasons: ['Finance department NDC verification pending'],
+      created_at: caseD.created_at,
+      updated_at: caseD.updated_at,
+    },
+    activityLogs: [],
+    documents: [],
+  });
+
+  // --------------------------------------------------------------------------
+  // SCENARIO E: F&F Settlement In Progress (All Clearances Complete)
+  // --------------------------------------------------------------------------
+  const caseEId = 'off-case-005-neha-deshmukh';
+  const caseE: OffboardingCase = {
+    id: caseEId,
+    employee_id: 'emp-neha-deshmukh',
+    employee_name: 'Neha Deshmukh',
+    employee_email: 'neha.d@navgurukul.org',
+    employee_designation: 'Staff Accountant',
+    employee_department: 'Finance',
+    employee_type: 'Full-Time Employee',
+    manager_name: 'Pooja Bhatt',
+    exit_type: 'resignation',
+    initiated_date: daysAgo(35),
+    initiated_by: 'Neha Deshmukh',
+    proposed_lwd: daysAgo(5),
+    actual_lwd: daysAgo(5),
+    notice_period_days: 30,
+    notice_period_waived: false,
+    reason: 'Higher studies preparation',
+    status: 'settlement_pending',
+    immediate_relieving: false,
+    created_at: new Date(Date.now() - 86400000 * 35).toISOString(),
+    updated_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+  };
+
+  const ndcE: OffboardingNDCDepartment[] = [
+    {
+      id: 'ndc-e-1',
+      offboarding_id: caseEId,
+      department: 'manager',
+      department_label: 'Reporting Manager',
+      status: 'cleared',
+      cleared_by: 'Pooja Bhatt',
+      cleared_at: daysAgo(7),
+      remarks: 'All ledger books and GST documentation reconciled.',
+      created_at: caseE.created_at,
+      updated_at: caseE.updated_at,
+    },
+    {
+      id: 'ndc-e-2',
+      offboarding_id: caseEId,
+      department: 'it_admin',
+      department_label: 'IT & Assets',
+      status: 'cleared',
+      cleared_by: 'IT Admin',
+      cleared_at: daysAgo(6),
+      remarks: 'HP EliteBook returned and verified.',
+      created_at: caseE.created_at,
+      updated_at: caseE.updated_at,
+    },
+    {
+      id: 'ndc-e-3',
+      offboarding_id: caseEId,
+      department: 'finance',
+      department_label: 'Finance & Accounts',
+      status: 'cleared',
+      cleared_by: 'Finance Lead',
+      cleared_at: daysAgo(5),
+      remarks: 'No financial dues outstanding.',
+      created_at: caseE.created_at,
+      updated_at: caseE.updated_at,
+    },
+    {
+      id: 'ndc-e-4',
+      offboarding_id: caseEId,
+      department: 'pnc',
+      department_label: 'People & Culture',
+      status: 'cleared',
+      cleared_by: 'P&C Operations',
+      cleared_at: daysAgo(5),
+      remarks: 'All clearance criteria fulfilled.',
+      created_at: caseE.created_at,
+      updated_at: caseE.updated_at,
+    },
+  ];
+
+  const fnfE: OffboardingFnF = {
+    id: 'fnf-e-1',
+    offboarding_id: caseEId,
+    status: 'under_review',
+    payable_days: 25,
+    leave_encashment_days: 5.0,
+    gratuity_eligible: false,
+    asset_recovery_amount: 0,
+    other_deductions: 0,
+    net_payable_estimate: '₹58,450',
+    remarks: 'Settlement sheet computed; awaiting final finance disbursement approval.',
+    blocked_reasons: [],
+    created_at: caseE.created_at,
+    updated_at: caseE.updated_at,
+  };
+
+  MEMORY_OFFBOARDING_STORE.set(caseEId, {
+    caseRecord: caseE,
+    checklist: [],
+    assets: [],
+    ndc: ndcE,
+    fnf: fnfE,
+    activityLogs: [
+      {
+        id: 'log-e-1',
+        offboarding_id: caseEId,
+        actor_name: 'P&C Operations',
+        actor_role: 'pnc',
+        action: 'NDC Certificate Formally Cleared',
+        description: 'All 4 departments signed off on No Dues Certificate.',
+        created_at: daysAgo(5),
+      },
+    ],
+    documents: [
+      {
+        id: 'doc-e-ndc',
+        offboarding_id: caseEId,
+        document_type: 'ndc',
+        document_name: 'No Dues Certificate — Neha Deshmukh.pdf',
+        status: 'signed',
+        generated_at: daysAgo(5),
+      },
+    ],
+  });
+
+  // --------------------------------------------------------------------------
+  // SCENARIO F: Immediate Relieving / Special Exception Case (Notice Waived)
+  // --------------------------------------------------------------------------
+  const caseFId = 'off-case-006-tarun-kapoor';
+  const caseF: OffboardingCase = {
+    id: caseFId,
+    employee_id: 'emp-tarun-kapoor',
+    employee_name: 'Tarun Kapoor',
+    employee_email: 'tarun.kapoor@navgurukul.org',
+    employee_designation: 'Associate Partner — Admissions',
+    employee_department: 'Admissions & Partnerships',
+    employee_type: 'Full-Time Consultant',
+    manager_name: 'Shreya Ghosh',
+    exit_type: 'immediate_relieving',
+    initiated_date: daysAgo(3),
+    initiated_by: 'Leadership Approval (Mutual Separation)',
+    proposed_lwd: daysAgo(3),
+    actual_lwd: daysAgo(3),
+    notice_period_days: 0,
+    notice_period_waived: true,
+    reason: 'Family medical emergency requiring immediate relocation',
+    status: 'settlement_pending',
+    immediate_relieving: true,
+    exception_notes: 'Notice period of 30 days waived by Executive Director due to compassionate medical grounds.',
+    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+    updated_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+  };
+
+  MEMORY_OFFBOARDING_STORE.set(caseFId, {
+    caseRecord: caseF,
+    checklist: [],
+    assets: [
+      {
+        id: 'asset-f-1',
+        offboarding_id: caseFId,
+        asset_name: 'Lenovo ThinkPad E14',
+        asset_tag: 'NG-LAP-2025-081',
+        asset_type: 'laptop',
+        assigned_date: '2025-05-10',
+        return_status: 'returned',
+        condition: 'good',
+        verified_by: 'IT Admin',
+        verified_at: daysAgo(2),
+        created_at: caseF.created_at,
+        updated_at: caseF.updated_at,
+      },
+    ],
+    ndc: [
+      {
+        id: 'ndc-f-1',
+        offboarding_id: caseFId,
+        department: 'manager',
+        department_label: 'Manager (Partnerships)',
+        status: 'cleared',
+        cleared_by: 'Shreya Ghosh',
+        cleared_at: daysAgo(2),
+        remarks: 'Emergency handover accepted.',
+        created_at: caseF.created_at,
+        updated_at: caseF.updated_at,
+      },
+      {
+        id: 'ndc-f-2',
+        offboarding_id: caseFId,
+        department: 'it_admin',
+        department_label: 'IT & Assets',
+        status: 'cleared',
+        cleared_by: 'IT Admin',
+        cleared_at: daysAgo(2),
+        remarks: 'Laptop received and accounts deprovisioned.',
+        created_at: caseF.created_at,
+        updated_at: caseF.updated_at,
+      },
+      {
+        id: 'ndc-f-3',
+        offboarding_id: caseFId,
+        department: 'finance',
+        department_label: 'Finance & Accounts',
+        status: 'cleared',
+        cleared_by: 'Finance Lead',
+        cleared_at: daysAgo(2),
+        remarks: 'Notice waiver approved; pro-rated consultancy fee calculated.',
+        created_at: caseF.created_at,
+        updated_at: caseF.updated_at,
+      },
+      {
+        id: 'ndc-f-4',
+        offboarding_id: caseFId,
+        department: 'pnc',
+        department_label: 'People & Culture',
+        status: 'cleared',
+        cleared_by: 'P&C Operations',
+        cleared_at: daysAgo(1),
+        remarks: 'Compassionate waiver sign-off documented.',
+        created_at: caseF.created_at,
+        updated_at: caseF.updated_at,
+      },
+    ],
+    fnf: {
+      id: 'fnf-f-1',
+      offboarding_id: caseFId,
+      status: 'processing',
+      payable_days: 12,
+      leave_encashment_days: 0,
+      gratuity_eligible: false,
+      asset_recovery_amount: 0,
+      other_deductions: 0,
+      net_payable_estimate: '₹28,800',
+      remarks: 'Expedited disbursement in progress via NEFT.',
+      blocked_reasons: [],
+      created_at: caseF.created_at,
+      updated_at: caseF.updated_at,
+    },
+    activityLogs: [
+      {
+        id: 'log-f-1',
+        offboarding_id: caseFId,
+        actor_name: 'P&C Operations',
+        actor_role: 'pnc',
+        action: 'Immediate Relieving Exception Approved',
+        description: 'Notice period waived by leadership for Tarun Kapoor.',
+        created_at: daysAgo(3),
+      },
+    ],
+    documents: [],
+  });
+
+  // --------------------------------------------------------------------------
+  // SCENARIO G: Completed / Closed Exit (Historical, Documents Issued)
+  // --------------------------------------------------------------------------
+  const caseGId = 'off-case-007-ananya-roy';
+  const caseG: OffboardingCase = {
+    id: caseGId,
+    employee_id: 'emp-ananya-roy',
+    employee_name: 'Ananya Roy',
+    employee_email: 'ananya.roy@navgurukul.org',
+    employee_designation: 'Senior Program Manager',
+    employee_department: 'Outreach & Partnerships',
+    employee_type: 'Full-Time Employee',
+    manager_name: 'Anurag Kundu',
+    exit_type: 'resignation',
+    initiated_date: daysAgo(60),
+    initiated_by: 'Ananya Roy',
+    proposed_lwd: daysAgo(30),
+    actual_lwd: daysAgo(30),
+    notice_period_days: 30,
+    notice_period_waived: false,
+    reason: 'Career progression / Lead role at international foundation',
+    status: 'completed',
+    immediate_relieving: false,
+    exit_closed_at: daysAgo(25),
+    exit_closed_by: 'P&C Operations Lead',
+    created_at: new Date(Date.now() - 86400000 * 60).toISOString(),
+    updated_at: new Date(Date.now() - 86400000 * 25).toISOString(),
+  };
+
+  MEMORY_OFFBOARDING_STORE.set(caseGId, {
+    caseRecord: caseG,
+    checklist: [],
+    assets: [
+      {
+        id: 'asset-g-1',
+        offboarding_id: caseGId,
+        asset_name: 'MacBook Pro 16" M2 Max',
+        asset_tag: 'NG-LAP-2023-001',
+        asset_type: 'laptop',
+        return_status: 'cleared',
+        condition: 'excellent',
+        verified_by: 'IT Admin',
+        verified_at: daysAgo(30),
+        created_at: caseG.created_at,
+        updated_at: caseG.updated_at,
+      },
+    ],
+    ndc: [
+      {
+        id: 'ndc-g-1',
+        offboarding_id: caseGId,
+        department: 'manager',
+        department_label: 'Manager',
+        status: 'cleared',
+        cleared_by: 'Anurag Kundu',
+        cleared_at: daysAgo(31),
+        created_at: caseG.created_at,
+        updated_at: caseG.updated_at,
+      },
+      {
+        id: 'ndc-g-2',
+        offboarding_id: caseGId,
+        department: 'it_admin',
+        department_label: 'IT & Assets',
+        status: 'cleared',
+        cleared_by: 'IT Admin',
+        cleared_at: daysAgo(30),
+        created_at: caseG.created_at,
+        updated_at: caseG.updated_at,
+      },
+      {
+        id: 'ndc-g-3',
+        offboarding_id: caseGId,
+        department: 'finance',
+        department_label: 'Finance',
+        status: 'cleared',
+        cleared_by: 'Finance Lead',
+        cleared_at: daysAgo(28),
+        created_at: caseG.created_at,
+        updated_at: caseG.updated_at,
+      },
+      {
+        id: 'ndc-g-4',
+        offboarding_id: caseGId,
+        department: 'pnc',
+        department_label: 'People & Culture',
+        status: 'cleared',
+        cleared_by: 'P&C Operations',
+        cleared_at: daysAgo(28),
+        created_at: caseG.created_at,
+        updated_at: caseG.updated_at,
+      },
+    ],
+    fnf: {
+      id: 'fnf-g-1',
+      offboarding_id: caseGId,
+      status: 'processed',
+      payable_days: 30,
+      leave_encashment_days: 12.0,
+      gratuity_eligible: true,
+      asset_recovery_amount: 0,
+      other_deductions: 0,
+      net_payable_estimate: '₹1,64,500',
+      payment_reference: 'HDFC-NEFT-20260828-94102',
+      payment_date: daysAgo(25),
+      processed_by: 'Finance Lead',
+      processed_at: daysAgo(25),
+      remarks: 'Final settlement released and credited to employee salary account.',
+      blocked_reasons: [],
+      created_at: caseG.created_at,
+      updated_at: caseG.updated_at,
+    },
+    activityLogs: [
+      {
+        id: 'log-g-1',
+        offboarding_id: caseGId,
+        actor_name: 'P&C Operations Lead',
+        actor_role: 'pnc',
+        action: 'Exit Officially Closed',
+        description: 'All formalities completed. Employee marked as officially Exited in registry.',
+        created_at: daysAgo(25),
+      },
+    ],
+    documents: [
+      {
+        id: 'doc-g-ndc',
+        offboarding_id: caseGId,
+        document_type: 'ndc',
+        document_name: 'No Dues Certificate — Ananya Roy.pdf',
+        status: 'signed',
+        generated_at: daysAgo(28),
+      },
+      {
+        id: 'doc-g-relieving',
+        offboarding_id: caseGId,
+        document_type: 'relieving_letter',
+        document_name: 'Relieving & Experience Letter — Ananya Roy.pdf',
+        status: 'delivered',
+        generated_at: daysAgo(25),
+      },
+    ],
+  });
+}
+
+// Initialise seed data immediately
+initSeedScenarios();
+
+// ============================================================================
+// AUDIT LOG HELPER
+// ============================================================================
+
+async function recordAuditLog(
+  tableName: string,
+  recordId: string,
+  action: 'insert' | 'update' | 'delete',
+  changedData: Record<string, any>,
+  changedBy: string = 'pnc-user'
+) {
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase.from('audit_log').insert({
+      table_name: tableName,
+      record_id: recordId,
+      action,
+      changed_by: null, // nullable in audit_log schema
+      changed_data: {
+        ...changedData,
+        actor: changedBy,
+        timestamp: new Date().toISOString(),
+      },
+    });
+  } catch {
+    // Audit table may not exist in local mode
+  }
+}
+
+// ============================================================================
+// CORE SERVICE LAYER METHODS
+// ============================================================================
+
+/**
+ * Fetch all offboarding cases.
+ */
+export async function getAllOffboardingCases(): Promise<OffboardingCase[]> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from('offboarding_cases')
+      .select('*, employees(name, email, team)')
+      .order('created_at', { ascending: false });
+
+    if (!error && data && data.length > 0) {
+      return data.map((row: any) => ({
+        ...row,
+        employee_name: row.employees?.name || row.employee_name,
+        employee_email: row.employees?.email || row.employee_email,
+      }));
+    }
+  } catch (err) {
+    // Fallback to memory
+  }
+
+  return Array.from(MEMORY_OFFBOARDING_STORE.values())
+    .map((item) => item.caseRecord)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+}
+
+/**
+ * Fetch a single offboarding case by ID with all related records.
+ */
+export async function getOffboardingById(id: string): Promise<FullOffboardingData | null> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data: caseRow, error: caseErr } = await supabase
+      .from('offboarding_cases')
+      .select('*, employees(*)')
+      .eq('id', id)
+      .single();
+
+    if (!caseErr && caseRow) {
+      const [chkRes, assetRes, ndcRes, fnfRes, logsRes] = await Promise.all([
+        supabase.from('offboarding_checklists').select('*').eq('offboarding_id', id),
+        supabase.from('offboarding_asset_clearances').select('*').eq('offboarding_id', id),
+        supabase.from('offboarding_ndc').select('*').eq('offboarding_id', id),
+        supabase.from('offboarding_fnf').select('*').eq('offboarding_id', id).single(),
+        supabase.from('offboarding_activity_log').select('*').eq('offboarding_id', id).order('created_at', { ascending: false }),
+      ]);
+
+      const caseRecord: OffboardingCase = {
+        ...caseRow,
+        employee_name: caseRow.employees?.name || caseRow.employee_name,
+        employee_email: caseRow.employees?.email || caseRow.employee_email,
+      };
+
+      return {
+        caseRecord,
+        checklist: chkRes.data || [],
+        assets: assetRes.data || [],
+        ndc: ndcRes.data || [],
+        fnf: fnfRes.data || {
+          id: `fnf-${id}`,
+          offboarding_id: id,
+          status: 'not_started',
+          payable_days: 0,
+          leave_encashment_days: 0,
+          gratuity_eligible: false,
+          asset_recovery_amount: 0,
+          other_deductions: 0,
+          blocked_reasons: [],
+          created_at: caseRow.created_at,
+          updated_at: caseRow.updated_at,
+        },
+        activityLogs: logsRes.data || [],
+        documents: [],
+      };
+    }
+  } catch {
+    // Fallback to memory
+  }
+
+  return MEMORY_OFFBOARDING_STORE.get(id) || null;
+}
+
+/**
+ * Initiate an employee exit.
+ */
+export async function initiateOffboardingCase(
+  input: InitiateOffboardingInput
+): Promise<{ success: boolean; caseId?: string; error?: string }> {
+  try {
+    const caseId = `off-case-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+    const nowIso = new Date().toISOString();
+
+    const initialStatus: OffboardingStatus = input.immediate_relieving ? 'settlement_pending' : 'notice_period';
+    const noticeDays = input.notice_period_days ?? 30;
+
+    const newCase: OffboardingCase = {
+      id: caseId,
+      employee_id: input.employee_id,
+      employee_name: input.employee_name,
+      employee_email: input.employee_email,
+      employee_designation: input.employee_designation,
+      employee_department: input.employee_department,
+      employee_type: input.employee_type,
+      manager_name: input.manager_name || 'Assigned Manager',
+      exit_type: input.exit_type,
+      initiated_date: input.initiated_date || new Date().toISOString().split('T')[0],
+      initiated_by: input.initiated_by || 'P&C Operations',
+      proposed_lwd: input.proposed_lwd,
+      actual_lwd: input.immediate_relieving ? input.proposed_lwd : null,
+      notice_period_days: noticeDays,
+      notice_period_waived: Boolean(input.notice_period_waived),
+      reason: input.reason,
+      reason_details: input.reason_details,
+      status: initialStatus,
+      immediate_relieving: Boolean(input.immediate_relieving),
+      exception_notes: input.exception_notes,
+      created_at: nowIso,
+      updated_at: nowIso,
+    };
+
+    // Standard initial checklist
+    const defaultChecklist: OffboardingChecklistItem[] = [
+      {
+        id: `chk-${Date.now()}-1`,
+        offboarding_id: caseId,
+        title: 'Knowledge Handover Documentation & Repository Transfer',
+        description: 'Document active project tasks, repositories, drive assets, and runbooks.',
+        category: 'knowledge_transfer',
+        owner_role: 'employee',
+        assigned_to_name: input.employee_name,
+        status: 'pending',
+        is_mandatory: true,
+        due_date: input.proposed_lwd,
+        created_at: nowIso,
+        updated_at: nowIso,
+      },
+      {
+        id: `chk-${Date.now()}-2`,
+        offboarding_id: caseId,
+        title: 'Manager Handover Acceptance & Peer Handover',
+        description: 'Validate knowledge transfer completion and team reassignments.',
+        category: 'knowledge_transfer',
+        owner_role: 'manager',
+        assigned_to_name: input.manager_name || 'Reporting Manager',
+        status: 'pending',
+        is_mandatory: true,
+        due_date: input.proposed_lwd,
+        created_at: nowIso,
+        updated_at: nowIso,
+      },
+      {
+        id: `chk-${Date.now()}-3`,
+        offboarding_id: caseId,
+        title: 'IT Asset & Hardware Return Inspection',
+        description: 'Verify and return issued laptop, monitor, chargers, and hardware peripherals.',
+        category: 'asset_return',
+        owner_role: 'it_admin',
+        assigned_to_name: 'IT Operations Desk',
+        status: 'pending',
+        is_mandatory: true,
+        due_date: input.proposed_lwd,
+        created_at: nowIso,
+        updated_at: nowIso,
+      },
+      {
+        id: `chk-${Date.now()}-4`,
+        offboarding_id: caseId,
+        title: 'Confidential Exit Interview & Feedback Form',
+        description: 'Submit confidential reflections, handover feedback, and survey responses.',
+        category: 'exit_interview',
+        owner_role: 'employee',
+        assigned_to_name: input.employee_name,
+        status: 'pending',
+        is_mandatory: true,
+        due_date: input.proposed_lwd,
+        created_at: nowIso,
+        updated_at: nowIso,
+      },
+      {
+        id: `chk-${Date.now()}-5`,
+        offboarding_id: caseId,
+        title: 'Expense Claims & Financial Dues Verification',
+        description: 'Verify travel advances, reimbursements, or pending claims.',
+        category: 'finance',
+        owner_role: 'finance',
+        assigned_to_name: 'Finance Desk',
+        status: 'pending',
+        is_mandatory: true,
+        due_date: input.proposed_lwd,
+        created_at: nowIso,
+        updated_at: nowIso,
+      },
+    ];
+
+    // Standard initial departmental NDC
+    const defaultNdc: OffboardingNDCDepartment[] = [
+      {
+        id: `ndc-${Date.now()}-1`,
+        offboarding_id: caseId,
+        department: 'manager',
+        department_label: 'Reporting Manager',
+        status: 'pending',
+        remarks: 'Handover underway.',
+        created_at: nowIso,
+        updated_at: nowIso,
+      },
+      {
+        id: `ndc-${Date.now()}-2`,
+        offboarding_id: caseId,
+        department: 'it_admin',
+        department_label: 'IT & Asset Operations',
+        status: 'pending',
+        remarks: 'Awaiting hardware return.',
+        created_at: nowIso,
+        updated_at: nowIso,
+      },
+      {
+        id: `ndc-${Date.now()}-3`,
+        offboarding_id: caseId,
+        department: 'finance',
+        department_label: 'Finance & Accounts',
+        status: 'pending',
+        remarks: 'Expense claims check in progress.',
+        created_at: nowIso,
+        updated_at: nowIso,
+      },
+      {
+        id: `ndc-${Date.now()}-4`,
+        offboarding_id: caseId,
+        department: 'pnc',
+        department_label: 'People & Culture',
+        status: 'pending',
+        remarks: 'Awaiting departmental sign-offs.',
+        created_at: nowIso,
+        updated_at: nowIso,
+      },
+    ];
+
+    // Initial F&F Record
+    const defaultFnf: OffboardingFnF = {
+      id: `fnf-${caseId}`,
+      offboarding_id: caseId,
+      status: 'awaiting_clearance',
+      payable_days: 0,
+      leave_encashment_days: 0,
+      gratuity_eligible: false,
+      asset_recovery_amount: 0,
+      other_deductions: 0,
+      remarks: 'Computation scheduled upon clearance completion.',
+      blocked_reasons: ['Department NDC clearances pending', 'Asset verification pending'],
+      created_at: nowIso,
+      updated_at: nowIso,
+    };
+
+    const initialActivity: OffboardingActivityLog[] = [
+      {
+        id: `log-${Date.now()}-init`,
+        offboarding_id: caseId,
+        actor_name: input.initiated_by || 'P&C Operations',
+        actor_role: 'pnc',
+        action: 'Exit Formally Initiated',
+        description: `Exit initiated for ${input.employee_name} (${input.exit_type.replace(/_/g, ' ')}). Proposed LWD: ${input.proposed_lwd}. Notice: ${noticeDays} days.`,
+        created_at: nowIso,
+      },
+    ];
+
+    // Save to memory store
+    MEMORY_OFFBOARDING_STORE.set(caseId, {
+      caseRecord: newCase,
+      checklist: defaultChecklist,
+      assets: [
+        {
+          id: `asset-${Date.now()}-lap`,
+          offboarding_id: caseId,
+          asset_name: 'Company Assigned Laptop & Charger',
+          asset_type: 'laptop',
+          return_status: 'pending_return',
+          condition: 'good',
+          clearance_notes: 'Physical check at campus reception on LWD.',
+          created_at: nowIso,
+          updated_at: nowIso,
+        },
+      ],
+      ndc: defaultNdc,
+      fnf: defaultFnf,
+      activityLogs: initialActivity,
+      documents: [],
+    });
+
+    // Attempt persist to Supabase if tables exist
+    try {
+      const supabase = await createServerSupabaseClient();
+      await supabase.from('offboarding_cases').insert({
+        id: newCase.id,
+        employee_id: newCase.employee_id,
+        exit_type: newCase.exit_type,
+        initiated_date: newCase.initiated_date,
+        initiated_by: newCase.initiated_by,
+        proposed_lwd: newCase.proposed_lwd,
+        actual_lwd: newCase.actual_lwd,
+        notice_period_days: newCase.notice_period_days,
+        notice_period_waived: newCase.notice_period_waived,
+        reason: newCase.reason,
+        reason_details: newCase.reason_details,
+        status: newCase.status,
+        immediate_relieving: newCase.immediate_relieving,
+        exception_notes: newCase.exception_notes,
+      });
+
+      await supabase.from('offboarding_checklists').insert(defaultChecklist);
+      await supabase.from('offboarding_ndc').insert(defaultNdc);
+      await supabase.from('offboarding_fnf').insert(defaultFnf);
+      await supabase.from('offboarding_activity_log').insert(initialActivity);
+    } catch {
+      // Table missing - memory store handles it
+    }
+
+    // Record in global audit log
+    await recordAuditLog('offboarding_cases', caseId, 'insert', {
+      employee_id: input.employee_id,
+      employee_name: input.employee_name,
+      exit_type: input.exit_type,
+      proposed_lwd: input.proposed_lwd,
+    });
+
+    // Send resignation formal acknowledgment email
+    try {
+      await sendEmail(
+        'offboarding_resignation_ack',
+        {
+          subject: 'Acknowledgment of Resignation — NavGurukul Foundation',
+          employee_name: input.employee_name,
+          resignation_date: input.initiated_date,
+          notice_period_duration: `${noticeDays} Days`,
+          last_working_day: input.proposed_lwd,
+          offboarding_portal_link: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/offboarding/${caseId}`,
+          hr_poc_name: 'People & Culture Operations',
+        },
+        input.employee_email
+      );
+    } catch (mailErr) {
+      console.warn('Could not dispatch initial resignation email:', mailErr);
+    }
+
+    revalidatePath('/offboarding');
+    revalidatePath('/employees');
+    return { success: true, caseId };
+  } catch (err: any) {
+    console.error('Error initiating offboarding:', err);
+    return { success: false, error: err?.message || 'Failed to initiate offboarding case' };
+  }
+}
+
+/**
+ * Update a checklist item status or details.
+ */
+export async function updateChecklistItem(
+  caseId: string,
+  itemId: string,
+  updates: Partial<OffboardingChecklistItem>
+): Promise<{ success: boolean; error?: string }> {
+  const existing = MEMORY_OFFBOARDING_STORE.get(caseId);
+  if (!existing) return { success: false, error: 'Case not found' };
+
+  const itemIndex = existing.checklist.findIndex((c) => c.id === itemId);
+  if (itemIndex === -1) return { success: false, error: 'Checklist item not found' };
+
+  const nowIso = new Date().toISOString();
+  const oldItem = existing.checklist[itemIndex];
+  const updatedItem: OffboardingChecklistItem = {
+    ...oldItem,
+    ...updates,
+    updated_at: nowIso,
+    completed_at: updates.status === 'completed' ? nowIso : updates.status ? null : oldItem.completed_at,
+  };
+
+  existing.checklist[itemIndex] = updatedItem;
+
+  // Add activity log
+  existing.activityLogs.unshift({
+    id: `log-${Date.now()}-chk`,
+    offboarding_id: caseId,
+    actor_name: updates.completed_by || 'P&C Operations',
+    actor_role: 'pnc',
+    action: 'Checklist Item Updated',
+    description: `"${updatedItem.title}" marked as ${updatedItem.status.toUpperCase()}${updates.notes ? ` — Note: ${updates.notes}` : ''}`,
+    created_at: nowIso,
+  });
+
+  // DB Sync
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase.from('offboarding_checklists').update(updates).eq('id', itemId);
+  } catch {
+    // fallback
+  }
+
+  await recordAuditLog('offboarding_checklists', itemId, 'update', {
+    caseId,
+    title: updatedItem.title,
+    status: updatedItem.status,
+  });
+
+  revalidatePath(`/offboarding/${caseId}`);
+  return { success: true };
+}
+
+/**
+ * Update an asset clearance status.
+ */
+export async function updateAssetClearance(
+  caseId: string,
+  assetId: string,
+  updates: Partial<OffboardingAssetItem>
+): Promise<{ success: boolean; error?: string }> {
+  const existing = MEMORY_OFFBOARDING_STORE.get(caseId);
+  if (!existing) return { success: false, error: 'Case not found' };
+
+  const assetIndex = existing.assets.findIndex((a) => a.id === assetId);
+  if (assetIndex === -1) return { success: false, error: 'Asset record not found' };
+
+  const nowIso = new Date().toISOString();
+  const updatedAsset: OffboardingAssetItem = {
+    ...existing.assets[assetIndex],
+    ...updates,
+    updated_at: nowIso,
+    verified_at: updates.return_status === 'cleared' || updates.return_status === 'returned' ? nowIso : existing.assets[assetIndex].verified_at,
+  };
+
+  existing.assets[assetIndex] = updatedAsset;
+
+  // Update IT NDC status automatically if all assets cleared
+  const allAssetsCleared = existing.assets.every(
+    (a) => a.return_status === 'cleared' || a.return_status === 'returned' || a.return_status === 'waived'
+  );
+
+  const itNdc = existing.ndc.find((n) => n.department === 'it_admin');
+  if (itNdc) {
+    if (allAssetsCleared && itNdc.status !== 'cleared') {
+      itNdc.status = 'cleared';
+      itNdc.cleared_at = nowIso;
+      itNdc.cleared_by = updates.verified_by || 'IT Admin Desk';
+      itNdc.remarks = 'All assigned assets inspected and verified cleared.';
+      itNdc.blocker_reason = null;
+    } else if (!allAssetsCleared && updatedAsset.return_status === 'under_recovery') {
+      itNdc.status = 'blocked';
+      itNdc.blocker_reason = `Asset recovery pending: ₹${updatedAsset.recovery_amount || 0}`;
+    }
+  }
+
+  // Add activity log
+  existing.activityLogs.unshift({
+    id: `log-${Date.now()}-asset`,
+    offboarding_id: caseId,
+    actor_name: updates.verified_by || 'IT Asset Desk',
+    actor_role: 'it_admin',
+    action: 'Asset Clearance Status Changed',
+    description: `Asset "${updatedAsset.asset_name}" marked as ${updatedAsset.return_status.toUpperCase()}${updatedAsset.clearance_notes ? ` (${updatedAsset.clearance_notes})` : ''}`,
+    created_at: nowIso,
+  });
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase.from('offboarding_asset_clearances').update(updates).eq('id', assetId);
+  } catch {
+    // fallback
+  }
+
+  await recordAuditLog('offboarding_asset_clearances', assetId, 'update', {
+    caseId,
+    asset_name: updatedAsset.asset_name,
+    return_status: updatedAsset.return_status,
+  });
+
+  revalidatePath(`/offboarding/${caseId}`);
+  return { success: true };
+}
+
+/**
+ * Update Departmental NDC (No Dues Certificate) Sign-off.
+ */
+export async function updateNDCDepartment(
+  caseId: string,
+  department: string,
+  updates: Partial<OffboardingNDCDepartment>
+): Promise<{ success: boolean; error?: string }> {
+  const existing = MEMORY_OFFBOARDING_STORE.get(caseId);
+  if (!existing) return { success: false, error: 'Case not found' };
+
+  const ndcIndex = existing.ndc.findIndex((n) => n.department === department);
+  if (ndcIndex === -1) return { success: false, error: 'Department NDC record not found' };
+
+  const nowIso = new Date().toISOString();
+  const updatedNdc: OffboardingNDCDepartment = {
+    ...existing.ndc[ndcIndex],
+    ...updates,
+    updated_at: nowIso,
+    cleared_at: updates.status === 'cleared' ? nowIso : updates.status ? null : existing.ndc[ndcIndex].cleared_at,
+  };
+
+  existing.ndc[ndcIndex] = updatedNdc;
+
+  // Add activity log
+  existing.activityLogs.unshift({
+    id: `log-${Date.now()}-ndc`,
+    offboarding_id: caseId,
+    actor_name: updates.cleared_by || 'Department Authority',
+    actor_role: 'pnc',
+    action: 'NDC Clearance Updated',
+    description: `${updatedNdc.department_label} clearance marked as ${updatedNdc.status.toUpperCase()}${updates.remarks ? ` — ${updates.remarks}` : ''}`,
+    created_at: nowIso,
+  });
+
+  // Check if all NDC departments are cleared
+  const allNdcCleared = existing.ndc.every((n) => n.status === 'cleared');
+  if (allNdcCleared) {
+    if (existing.fnf.status === 'awaiting_clearance' || existing.fnf.status === 'not_started') {
+      existing.fnf.status = 'computation_pending';
+      existing.fnf.blocked_reasons = [];
+      existing.fnf.remarks = 'All departmental NDC sign-offs complete. Ready for F&F computation.';
+    }
+  } else {
+    const blockers = existing.ndc
+      .filter((n) => n.status !== 'cleared')
+      .map((n) => `${n.department_label}: ${n.blocker_reason || n.status}`);
+    existing.fnf.blocked_reasons = blockers;
+  }
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase.from('offboarding_ndc').update(updates).eq('offboarding_id', caseId).eq('department', department);
+  } catch {
+    // fallback
+  }
+
+  await recordAuditLog('offboarding_ndc', caseId, 'update', {
+    department,
+    status: updatedNdc.status,
+  });
+
+  revalidatePath(`/offboarding/${caseId}`);
+  return { success: true };
+}
+
+/**
+ * Update Full & Final (F&F) Settlement Computation & Payment Details.
+ */
+export async function updateFnFDetails(
+  caseId: string,
+  updates: Partial<OffboardingFnF>
+): Promise<{ success: boolean; error?: string }> {
+  const existing = MEMORY_OFFBOARDING_STORE.get(caseId);
+  if (!existing) return { success: false, error: 'Case not found' };
+
+  const nowIso = new Date().toISOString();
+  const updatedFnf: OffboardingFnF = {
+    ...existing.fnf,
+    ...updates,
+    updated_at: nowIso,
+    processed_at: updates.status === 'processed' ? nowIso : existing.fnf.processed_at,
+  };
+
+  existing.fnf = updatedFnf;
+
+  existing.activityLogs.unshift({
+    id: `log-${Date.now()}-fnf`,
+    offboarding_id: caseId,
+    actor_name: updates.processed_by || 'Finance Lead',
+    actor_role: 'finance',
+    action: 'F&F Settlement Updated',
+    description: `F&F status transitioned to ${updatedFnf.status.toUpperCase()}${updatedFnf.payment_reference ? ` (Ref: ${updatedFnf.payment_reference})` : ''}`,
+    created_at: nowIso,
+  });
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase.from('offboarding_fnf').update(updates).eq('offboarding_id', caseId);
+  } catch {
+    // fallback
+  }
+
+  await recordAuditLog('offboarding_fnf', caseId, 'update', {
+    status: updatedFnf.status,
+    payable_days: updatedFnf.payable_days,
+  });
+
+  revalidatePath(`/offboarding/${caseId}`);
+  return { success: true };
+}
+
+/**
+ * Update Proposed or Actual Last Working Day.
+ */
+export async function updateExitDates(
+  caseId: string,
+  proposedLwd: string,
+  actualLwd?: string | null,
+  reasonForAdjustment?: string
+): Promise<{ success: boolean; error?: string }> {
+  const existing = MEMORY_OFFBOARDING_STORE.get(caseId);
+  if (!existing) return { success: false, error: 'Case not found' };
+
+  const oldProposed = existing.caseRecord.proposed_lwd;
+  existing.caseRecord.proposed_lwd = proposedLwd;
+  if (actualLwd !== undefined) {
+    existing.caseRecord.actual_lwd = actualLwd;
+  }
+  existing.caseRecord.updated_at = new Date().toISOString();
+
+  existing.activityLogs.unshift({
+    id: `log-${Date.now()}-lwd`,
+    offboarding_id: caseId,
+    actor_name: 'P&C Operations',
+    actor_role: 'pnc',
+    action: 'Exit Timeline Adjusted',
+    description: `Proposed LWD updated from ${oldProposed} to ${proposedLwd}${actualLwd ? ` (Actual LWD: ${actualLwd})` : ''}${reasonForAdjustment ? `. Reason: ${reasonForAdjustment}` : ''}`,
+    created_at: new Date().toISOString(),
+  });
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase
+      .from('offboarding_cases')
+      .update({ proposed_lwd: proposedLwd, actual_lwd: actualLwd, updated_at: existing.caseRecord.updated_at })
+      .eq('id', caseId);
+  } catch {
+    // fallback
+  }
+
+  await recordAuditLog('offboarding_cases', caseId, 'update', {
+    oldProposed,
+    newProposed: proposedLwd,
+    actualLwd,
+  });
+
+  revalidatePath(`/offboarding/${caseId}`);
+  return { success: true };
+}
+
+/**
+ * Formally Close Exit and officially mark employee as Exited.
+ */
+export async function closeOffboardingCase(
+  caseId: string,
+  closedBy: string = 'P&C Operations Lead',
+  actualLwd?: string
+): Promise<{ success: boolean; error?: string }> {
+  const existing = MEMORY_OFFBOARDING_STORE.get(caseId);
+  if (!existing) return { success: false, error: 'Case not found' };
+
+  // Verification checks: ensure asset and NDC clearances are fulfilled
+  const hasUnclearedAssets = existing.assets.some(
+    (a) => a.return_status === 'pending_return' || a.return_status === 'under_recovery'
+  );
+  if (hasUnclearedAssets && MEMORY_SETTINGS.require_asset_clearance_before_closure) {
+    return {
+      success: false,
+      error: 'Cannot close exit: Outstanding assets are pending return or recovery clearance.',
+    };
+  }
+
+  const hasPendingNdc = existing.ndc.some((n) => n.status !== 'cleared');
+  if (hasPendingNdc && MEMORY_SETTINGS.require_all_ndc_before_fnf) {
+    return {
+      success: false,
+      error: 'Cannot close exit: Not all departments have cleared the No Dues Certificate.',
+    };
+  }
+
+  const nowIso = new Date().toISOString();
+  const finalLwd = actualLwd || existing.caseRecord.actual_lwd || existing.caseRecord.proposed_lwd;
+
+  existing.caseRecord.status = 'completed';
+  existing.caseRecord.actual_lwd = finalLwd;
+  existing.caseRecord.exit_closed_at = nowIso;
+  existing.caseRecord.exit_closed_by = closedBy;
+  existing.caseRecord.updated_at = nowIso;
+
+  // Add activity log
+  existing.activityLogs.unshift({
+    id: `log-${Date.now()}-close`,
+    offboarding_id: caseId,
+    actor_name: closedBy,
+    actor_role: 'pnc',
+    action: 'Exit Case Officially Closed',
+    description: `Formal exit closure finalized. Employee records updated to Exited (Official LWD: ${finalLwd}). Relieving documentation issued.`,
+    created_at: nowIso,
+  });
+
+  // Ensure documents are created
+  if (!existing.documents.some((d) => d.document_type === 'experience_letter')) {
+    existing.documents.push({
+      id: `doc-${Date.now()}-exp`,
+      offboarding_id: caseId,
+      document_type: 'experience_letter',
+      document_name: `Relieving & Experience Certificate — ${existing.caseRecord.employee_name}.pdf`,
+      status: 'generated',
+      generated_at: nowIso,
+    });
+  }
+
+  // Update employee record in employees table: status = 'exited', exit_date = finalLwd
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase
+      .from('employees')
+      .update({
+        status: 'exited',
+        exit_date: finalLwd,
+      })
+      .eq('id', existing.caseRecord.employee_id);
+
+    // Also update offboarding case table in DB
+    await supabase
+      .from('offboarding_cases')
+      .update({
+        status: 'completed',
+        actual_lwd: finalLwd,
+        exit_closed_at: nowIso,
+        exit_closed_by: closedBy,
+        updated_at: nowIso,
+      })
+      .eq('id', caseId);
+  } catch {
+    // fallback
+  }
+
+  await recordAuditLog('offboarding_cases', caseId, 'update', {
+    action: 'close_exit',
+    status: 'completed',
+    actual_lwd: finalLwd,
+    closedBy,
+  });
+
+  // Send formal relieving & experience letter email
+  try {
+    await sendEmail(
+      'offboarding_relieving_experience_letter',
+      {
+        subject: 'Relieving Documents & Service Certificate — NavGurukul Foundation',
+        employee_name: existing.caseRecord.employee_name,
+        job_title: existing.caseRecord.employee_designation,
+        last_working_day: finalLwd,
+        document_download_link: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/offboarding/${caseId}?tab=documents`,
+        finance_poc_email: 'finance@navgurukul.org',
+      },
+      existing.caseRecord.employee_email
+    );
+  } catch (mailErr) {
+    console.warn('Could not dispatch final relieving email:', mailErr);
+  }
+
+  revalidatePath('/offboarding');
+  revalidatePath(`/offboarding/${caseId}`);
+  revalidatePath('/employees');
+  return { success: true };
+}
+
+/**
+ * Generate an Exit Document (NDC or Experience Letter).
+ */
+export async function generateExitDocument(
+  caseId: string,
+  docType: 'ndc' | 'experience_letter' | 'relieving_letter'
+): Promise<{ success: boolean; document?: ExitDocument; error?: string }> {
+  const existing = MEMORY_OFFBOARDING_STORE.get(caseId);
+  if (!existing) return { success: false, error: 'Case not found' };
+
+  const nowIso = new Date().toISOString();
+  const docName =
+    docType === 'ndc'
+      ? `No Dues Certificate — ${existing.caseRecord.employee_name}.pdf`
+      : `Relieving & Experience Certificate — ${existing.caseRecord.employee_name}.pdf`;
+
+  const newDoc: ExitDocument = {
+    id: `doc-${Date.now()}-${docType}`,
+    offboarding_id: caseId,
+    document_type: docType,
+    document_name: docName,
+    status: 'generated',
+    generated_at: nowIso,
+  };
+
+  const docIdx = existing.documents.findIndex((d) => d.document_type === docType);
+  if (docIdx >= 0) {
+    existing.documents[docIdx] = newDoc;
+  } else {
+    existing.documents.push(newDoc);
+  }
+
+  existing.activityLogs.unshift({
+    id: `log-${Date.now()}-doc`,
+    offboarding_id: caseId,
+    actor_name: 'P&C Operations',
+    actor_role: 'pnc',
+    action: 'Exit Document Generated',
+    description: `Generated ${docName}.`,
+    created_at: nowIso,
+  });
+
+  revalidatePath(`/offboarding/${caseId}`);
+  return { success: true, document: newDoc };
+}
+
+/**
+ * Send Automated Reminders for pending offboarding actions.
+ */
+export async function sendOffboardingReminders(): Promise<{
+  success: boolean;
+  remindersSent: number;
+  details: string[];
+}> {
+  const cases = Array.from(MEMORY_OFFBOARDING_STORE.values()).filter(
+    (c) => c.caseRecord.status === 'notice_period' || c.caseRecord.status === 'clearance_in_progress'
+  );
+
+  let remindersSent = 0;
+  const details: string[] = [];
+
+  for (const c of cases) {
+    const pendingNdcDepts = c.ndc.filter((n) => n.status !== 'cleared').map((n) => n.department_label);
+    const pendingChecklist = c.checklist.filter((i) => i.status !== 'completed' && i.status !== 'waived');
+
+    if (pendingNdcDepts.length > 0 || pendingChecklist.length > 0) {
+      try {
+        const mailResult = await sendEmail(
+          'offboarding_clearance_reminder',
+          {
+            subject: `Action Required: Clearance Checkpoints for ${c.caseRecord.employee_name} (LWD: ${c.caseRecord.proposed_lwd})`,
+            employee_name: c.caseRecord.employee_name,
+            last_working_day: c.caseRecord.proposed_lwd,
+            pending_departments: pendingNdcDepts.join(', ') || 'Pending Checkpoints',
+            clearance_link: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/offboarding/${c.caseRecord.id}`,
+          },
+          c.caseRecord.employee_email
+        );
+
+        if (mailResult.success) {
+          remindersSent++;
+          details.push(`Reminder sent to ${c.caseRecord.employee_name} for ${pendingNdcDepts.length} pending clearances.`);
+
+          c.activityLogs.unshift({
+            id: `log-${Date.now()}-rem`,
+            offboarding_id: c.caseRecord.id,
+            actor_name: 'Automated Reminder Engine',
+            actor_role: 'system',
+            action: 'Automated Clearance Reminder Dispatched',
+            description: `Sent reminder for pending departments: ${pendingNdcDepts.join(', ')}.`,
+            created_at: new Date().toISOString(),
+          });
+        }
+      } catch (err: any) {
+        console.error('Failed to send reminder for case:', c.caseRecord.id, err);
+      }
+    }
+  }
+
+  return { success: true, remindersSent, details };
+}
+
+/**
+ * Get configurable offboarding policy settings.
+ */
+export async function getOffboardingSettings(): Promise<OffboardingSettings> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase.from('offboarding_settings').select('*').limit(1).single();
+    if (!error && data) {
+      MEMORY_SETTINGS = { ...DEFAULT_OFFBOARDING_SETTINGS, ...data };
+      return MEMORY_SETTINGS;
+    }
+  } catch {
+    // fallback
+  }
+
+  return MEMORY_SETTINGS;
+}
+
+/**
+ * Update offboarding policy settings.
+ */
+export async function updateOffboardingSettings(
+  settings: Partial<OffboardingSettings>
+): Promise<{ success: boolean; error?: string }> {
+  MEMORY_SETTINGS = { ...MEMORY_SETTINGS, ...settings, updated_at: new Date().toISOString() };
+
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase.from('offboarding_settings').upsert({
+      ...MEMORY_SETTINGS,
+      updated_at: new Date().toISOString(),
+    });
+  } catch {
+    // fallback
+  }
+
+  await recordAuditLog('offboarding_settings', 'singleton', 'update', settings);
+  revalidatePath('/manage/settings/offboarding');
+  return { success: true };
+}
