@@ -16,6 +16,7 @@ import {
   History,
   AlertTriangle,
   SlidersHorizontal,
+  UserMinus,
 } from 'lucide-react'
 
 const settingsTabs = [
@@ -24,6 +25,7 @@ const settingsTabs = [
   { label: 'Appraisal', href: '/manage/settings/appraisal', icon: TrendingUp },
   { label: 'Peer Feedback', href: '/manage/settings/peer-feedback', icon: MessageSquare },
   { label: 'Documents', href: '/manage/settings/documents', icon: FileText },
+  { label: 'Offboarding', href: '/manage/settings/offboarding', icon: UserMinus },
   { label: 'Audit Log', href: '/manage/settings/audit', icon: History },
 ]
 
@@ -65,7 +67,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
       )}
 
       {/* 2. Card-Style Step Navigation matching Onboarding Design */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         {settingsTabs.map((tab, idx) => {
           const isActive =
             tab.href === '/manage/settings'
