@@ -13,6 +13,7 @@ import {
   Building2,
   Copy,
   PlusCircle,
+  UserMinus,
 } from 'lucide-react';
 import {
   TEMPLATE_VARIABLES,
@@ -37,6 +38,7 @@ const CATEGORY_ICONS: Record<VariableCategory, React.ElementType> = {
   Compensation: CreditCard,
   Letter: FileText,
   Organisation: Building2,
+  Exit: UserMinus,
 };
 
 export function VariableLibrary({
@@ -69,6 +71,7 @@ export function VariableLibrary({
       Compensation: [],
       Letter: [],
       Organisation: [],
+      Exit: [],
     };
     filteredVariables.forEach((v) => {
       map[v.category].push(v);

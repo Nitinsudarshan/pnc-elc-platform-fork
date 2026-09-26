@@ -3,7 +3,8 @@ export type VariableCategory =
   | 'Employment'
   | 'Compensation'
   | 'Letter'
-  | 'Organisation';
+  | 'Organisation'
+  | 'Exit';
 
 export interface TemplateVariable {
   key: string;
@@ -226,6 +227,50 @@ export const TEMPLATE_VARIABLES: TemplateVariable[] = [
     description: 'Authorized signatory designation / role',
     legacyPlaceholder: '{{Authorized Signatory Title}}',
   },
+
+  // Exit & Offboarding
+  {
+    key: 'exit.resignation_date',
+    displayLabel: 'Resignation Date',
+    category: 'Exit',
+    description: 'Date resignation or exit notice was submitted',
+    legacyPlaceholder: '{{Resignation Date}}',
+  },
+  {
+    key: 'exit.last_working_day',
+    displayLabel: 'Last Working Day',
+    category: 'Exit',
+    description: 'Confirmed official last working day',
+    legacyPlaceholder: '{{Last Working Day}}',
+  },
+  {
+    key: 'exit.notice_period',
+    displayLabel: 'Notice Period Duration',
+    category: 'Exit',
+    description: 'Agreed notice period in days or months',
+    legacyPlaceholder: '{{Notice Period Duration}}',
+  },
+  {
+    key: 'exit.reason',
+    displayLabel: 'Exit Reason',
+    category: 'Exit',
+    description: 'Approved reason for employee separation',
+    legacyPlaceholder: '{{Exit Reason}}',
+  },
+  {
+    key: 'exit.ndc_clearance_date',
+    displayLabel: 'NDC Clearance Date',
+    category: 'Exit',
+    description: 'Date all departmental No Dues sign-offs completed',
+    legacyPlaceholder: '{{NDC Clearance Date}}',
+  },
+  {
+    key: 'exit.relieving_date',
+    displayLabel: 'Date of Relieving',
+    category: 'Exit',
+    description: 'Official date of relief from duties and responsibilities',
+    legacyPlaceholder: '{{Date of Relieving}}',
+  },
 ];
 
 export const VARIABLE_CATEGORIES: VariableCategory[] = [
@@ -234,6 +279,7 @@ export const VARIABLE_CATEGORIES: VariableCategory[] = [
   'Compensation',
   'Letter',
   'Organisation',
+  'Exit',
 ];
 
 export const DUMMY_VARIABLE_VALUES: Record<string, string> = {
