@@ -48,6 +48,7 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart'
 import { UnifiedReportsData } from '@/lib/reports/getReportsData'
+import { PageBanner } from '@/components/shared/page_banner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -305,10 +306,39 @@ export function ReportsView({ data }: ReportsViewProps) {
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
       {/* ===================================================================== */}
-      {/* 1. TOP-LEVEL SUBNAV TABS (Identical to manage/emails design)         */}
+      {/* 0. PAGE BANNER - WITH EXPORT CSV ACTION                              */}
       {/* ===================================================================== */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-1.5 bg-muted/40 rounded-lg border border-border/80">
-        <div className="flex flex-wrap items-center gap-1">
+      <PageBanner
+        title="Reports & Analytics"
+        description="Centralized reporting hub for appraisals, probation confirmations, onboarding, and headcount."
+        icon={<BarChart3 className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm" className="gap-1.5 font-medium rounded-lg text-xs">
+              <Link href="/appraisals">
+                <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>Appraisal Cohorts</span>
+              </Link>
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleExportCSV}
+              className="gap-1.5 font-semibold rounded-lg text-xs bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
+              title="Download current report data as CSV"
+            >
+              <Download className="size-3.5" />
+              <span>Export CSV</span>
+            </Button>
+          </div>
+        }
+      />
+
+      {/* ===================================================================== */}
+      {/* 1. TOP-LEVEL SUBNAV TABS - STRICTLY SINGLE LINE                       */}
+      {/* ===================================================================== */}
+      <div className="flex items-center justify-between gap-3 p-1.5 bg-muted/40 rounded-lg border border-border/80 overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-1 min-w-max shrink-0">
           {/* Tab 1: Appraisals */}
           <button
             type="button"
@@ -395,19 +425,8 @@ export function ReportsView({ data }: ReportsViewProps) {
           </button>
         </div>
 
-        {/* Right Action Group: Export CSV & Info Popover */}
-        <div className="flex items-center gap-2 px-1">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={handleExportCSV}
-            className="h-8 text-xs gap-1.5 font-semibold rounded-lg"
-            title="Download report data as CSV"
-          >
-            <Download className="size-3.5" />
-            <span>Export CSV</span>
-          </Button>
+        {/* Right Action Group: Info Popover only */}
+        <div className="flex items-center px-1 shrink-0">
 
           {/* Info Popover */}
           <Popover>
@@ -573,11 +592,12 @@ export function ReportsView({ data }: ReportsViewProps) {
                     <XAxis dataKey="team" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
                     <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
                     <Tooltip
+                      cursor={false}
                       content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                           const data = payload[0].payload
                           return (
-                            <div className="rounded-lg border bg-background p-2.5 shadow-md text-xs space-y-1">
+                            <div className="rounded-lg border border-border/80 bg-popover text-popover-foreground p-2.5 shadow-md text-xs space-y-1">
                               <p className="font-bold text-foreground">{data.team}</p>
                               <p className="text-amber-600 dark:text-amber-400 font-mono">
                                 July Cycle: {data.july}
@@ -585,7 +605,7 @@ export function ReportsView({ data }: ReportsViewProps) {
                               <p className="text-emerald-600 dark:text-emerald-400 font-mono">
                                 December Cycle: {data.december}
                               </p>
-                              <p className="font-semibold border-t pt-1 font-mono">
+                              <p className="font-semibold border-t border-border/60 pt-1 font-mono text-foreground">
                                 Total: {data.total}
                               </p>
                             </div>
