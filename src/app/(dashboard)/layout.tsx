@@ -28,12 +28,12 @@ export default async function DashboardLayout({
             email: "admin@example.com",
             avatar: "",
         }}>
-            <div className="[--header-height:calc(--spacing(14))]">
-                <SidebarProvider className="flex flex-col">
+            <div className="[--header-height:calc(--spacing(14))] min-h-screen w-full">
+                <SidebarProvider className="flex flex-col min-h-screen w-full">
                     <SiteHeader />
-                    <div className="flex flex-1">
+                    <div className="flex flex-1 min-w-0 w-full">
                         <AppSidebar />
-                        <SidebarInset>
+                        <SidebarInset className="min-w-0">
                             {children}
                         </SidebarInset>
                     </div>
