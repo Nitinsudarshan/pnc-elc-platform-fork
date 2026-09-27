@@ -490,11 +490,12 @@ export function OffboardingView({
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6">
       {/* 1. Page Banner with Two Distinct Stage Context */}
       <PageBanner
         title="Offboarding & Separation Hub"
         description="Two-stage exit lifecycle: Stage 1 Resignation & Retention Decision Workflow followed by Stage 2 Formal Clearances, External NDC, F&F Settlement & Relieving Documents."
+        icon={<UserMinus className="h-6 w-6 text-rose-600 dark:text-rose-400" />}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -517,24 +518,24 @@ export function OffboardingView({
               className="text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
             >
               <Plus className="size-3.5 mr-1.5" />
-              Initiate Resignation (Stage 1)
+              Initiate Resignation
             </Button>
           </div>
         }
       />
 
       {/* 2. Top-Level Architectural Stage Switcher */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-1.5 bg-muted/60 rounded-xl border border-border">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-1.5 bg-muted/60 rounded-xl border border-border">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setActiveStage('stage1_resignations')}
-            className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
               activeStage === 'stage1_resignations'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <RotateCcw className="size-3.5 text-indigo-600 dark:text-indigo-400" />
+            <RotateCcw className="size-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
             <span>Stage 1: Resignation & Retention Window</span>
             <Badge
               variant="secondary"
@@ -548,13 +549,13 @@ export function OffboardingView({
 
           <button
             onClick={() => setActiveStage('stage2_cases')}
-            className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
               activeStage === 'stage2_cases'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+            <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>Stage 2: Active Offboarding & Clearances</span>
             <Badge
               variant="secondary"
@@ -567,15 +568,15 @@ export function OffboardingView({
           </button>
         </div>
 
-        <div className="flex items-center gap-2 px-3 text-[11px] text-muted-foreground">
+        <div className="hidden lg:flex items-center gap-2 px-3 text-[11px] text-muted-foreground shrink-0">
           {activeStage === 'stage1_resignations' ? (
             <span className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-medium">
-              <AlertCircle className="size-3.5" />
+              <AlertCircle className="size-3.5 shrink-0" />
               Resignation requests are not yet Offboarding Cases.
             </span>
           ) : (
             <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
-              <CheckCircle className="size-3.5" />
+              <CheckCircle className="size-3.5 shrink-0" />
               Exit officially initiated. Assets, NDC & F&F active.
             </span>
           )}
@@ -588,73 +589,75 @@ export function OffboardingView({
       {activeStage === 'stage1_resignations' && (
         <div className="space-y-6 animate-in fade-in duration-300">
           {/* Stage 1 Metric Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs">
-              <div className="text-[11px] font-medium text-muted-foreground">Total Requests</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
+            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
+              <div className="text-[11px] font-medium text-muted-foreground truncate">Total Requests</div>
               <div className="text-xl font-bold text-foreground mt-1">{resMetrics.total}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">Pre-exit submissions</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">Pre-exit submissions</div>
             </Card>
 
-            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs">
-              <div className="text-[11px] font-medium text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                <Clock className="size-3" /> Pending Review
+            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
+              <div className="text-[11px] font-medium text-blue-600 dark:text-blue-400 flex items-center gap-1 truncate">
+                <Clock className="size-3 shrink-0" /> Pending Review
               </div>
               <div className="text-xl font-bold text-foreground mt-1">{resMetrics.pendingReview}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">Manager or P&C</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">Manager or P&C</div>
             </Card>
 
-            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs">
-              <div className="text-[11px] font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                <RotateCcw className="size-3" /> 7-Day Hold
+            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
+              <div className="text-[11px] font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1 truncate">
+                <RotateCcw className="size-3 shrink-0" /> 7-Day Hold
               </div>
               <div className="text-xl font-bold text-foreground mt-1">{resMetrics.onHold}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">Retention dialogue</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">Retention dialogue</div>
             </Card>
 
-            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs">
-              <div className="text-[11px] font-medium text-rose-600 dark:text-rose-400 flex items-center gap-1">
-                <AlertTriangle className="size-3" /> Disagreements
+            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
+              <div className="text-[11px] font-medium text-rose-600 dark:text-rose-400 flex items-center gap-1 truncate">
+                <AlertTriangle className="size-3 shrink-0" /> Disagreements
               </div>
               <div className="text-xl font-bold text-foreground mt-1">{resMetrics.disagreements}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">P&C resolution needed</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">P&C resolution needed</div>
             </Card>
 
-            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs">
-              <div className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                <CheckCircle2 className="size-3" /> Accepted Exits
+            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
+              <div className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1 truncate">
+                <CheckCircle2 className="size-3 shrink-0" /> Accepted Exits
               </div>
               <div className="text-xl font-bold text-foreground mt-1">{resMetrics.accepted}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">Moved to Offboarding</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">Moved to Offboarding</div>
             </Card>
 
-            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs">
-              <div className="text-[11px] font-medium text-purple-600 dark:text-purple-400 flex items-center gap-1">
-                <UserCheck className="size-3" /> Retained
+            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
+              <div className="text-[11px] font-medium text-purple-600 dark:text-purple-400 flex items-center gap-1 truncate">
+                <UserCheck className="size-3 shrink-0" /> Retained
               </div>
               <div className="text-xl font-bold text-foreground mt-1">{resMetrics.withdrawn}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">Withdrawn & Stayed</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">Withdrawn & Stayed</div>
             </Card>
           </div>
 
           {/* Resignation Requests Filters & Table */}
-          <Card className="rounded-xl border border-border bg-card shadow-xs">
+          <Card className="rounded-xl border border-border bg-card shadow-xs overflow-hidden">
             <CardHeader className="p-4 pb-3 border-b border-border/80">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
                 {/* Status Tabs */}
-                <Tabs value={resFilterTab} onValueChange={(val) => { setResFilterTab(val); setResPage(1); }} className="w-full md:w-auto">
-                  <TabsList className="bg-muted/70 p-0.5 h-8">
-                    <TabsTrigger value="all" className="text-xs px-2.5 py-1">All ({resignationRequests.length})</TabsTrigger>
-                    <TabsTrigger value="pending" className="text-xs px-2.5 py-1">Pending ({resMetrics.pendingReview})</TabsTrigger>
-                    <TabsTrigger value="on_hold" className="text-xs px-2.5 py-1">On Hold ({resMetrics.onHold})</TabsTrigger>
-                    <TabsTrigger value="retention" className="text-xs px-2.5 py-1">Retention Proposed ({resMetrics.retentionProposed})</TabsTrigger>
-                    <TabsTrigger value="disagreement" className="text-xs px-2.5 py-1">Disagreements ({resMetrics.disagreements})</TabsTrigger>
-                    <TabsTrigger value="accepted" className="text-xs px-2.5 py-1">Accepted ({resMetrics.accepted})</TabsTrigger>
-                    <TabsTrigger value="withdrawn" className="text-xs px-2.5 py-1">Withdrawn ({resMetrics.withdrawn})</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                <div className="overflow-x-auto pb-1 max-w-full">
+                  <Tabs value={resFilterTab} onValueChange={(val) => { setResFilterTab(val); setResPage(1); }} className="w-auto">
+                    <TabsList className="bg-muted/70 p-0.5 h-8 w-max">
+                      <TabsTrigger value="all" className="text-xs px-2.5 py-1">All ({resignationRequests.length})</TabsTrigger>
+                      <TabsTrigger value="pending" className="text-xs px-2.5 py-1">Pending ({resMetrics.pendingReview})</TabsTrigger>
+                      <TabsTrigger value="on_hold" className="text-xs px-2.5 py-1">On Hold ({resMetrics.onHold})</TabsTrigger>
+                      <TabsTrigger value="retention" className="text-xs px-2.5 py-1">Retention Proposed ({resMetrics.retentionProposed})</TabsTrigger>
+                      <TabsTrigger value="disagreement" className="text-xs px-2.5 py-1">Disagreements ({resMetrics.disagreements})</TabsTrigger>
+                      <TabsTrigger value="accepted" className="text-xs px-2.5 py-1">Accepted ({resMetrics.accepted})</TabsTrigger>
+                      <TabsTrigger value="withdrawn" className="text-xs px-2.5 py-1">Withdrawn ({resMetrics.withdrawn})</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
 
                 {/* Search & Select Filters */}
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <div className="relative w-48 sm:w-56">
                     <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
                     <Input
@@ -692,7 +695,7 @@ export function OffboardingView({
               </div>
             </CardHeader>
 
-            <CardContent className="p-0">
+            <CardContent className="p-0 overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent border-b border-border/80">
@@ -886,61 +889,63 @@ export function OffboardingView({
       {activeStage === 'stage2_cases' && (
         <div className="space-y-6 animate-in fade-in duration-300">
           {/* Stage 2 Metric Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs">
-              <div className="text-[11px] font-medium text-muted-foreground">Active Exits</div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3">
+            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
+              <div className="text-[11px] font-medium text-muted-foreground truncate">Active Exits</div>
               <div className="text-xl font-bold text-foreground mt-1">{caseMetrics.total}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">Formal offboarding cases</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">Formal offboarding cases</div>
             </Card>
 
-            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs">
-              <div className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
-                <Clock className="size-3" /> Notice Period
+            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
+              <div className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 flex items-center gap-1 truncate">
+                <Clock className="size-3 shrink-0" /> Notice Period
               </div>
               <div className="text-xl font-bold text-foreground mt-1">{caseMetrics.noticePeriod}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">KT & Handover active</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">KT & Handover active</div>
             </Card>
 
-            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs">
-              <div className="text-[11px] font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                <Laptop className="size-3" /> Clearances Pending
+            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
+              <div className="text-[11px] font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1 truncate">
+                <Laptop className="size-3 shrink-0" /> Clearances Pending
               </div>
               <div className="text-xl font-bold text-foreground mt-1">{caseMetrics.clearanceInProgress}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">Asset, IT & NDC checks</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">Asset, IT & NDC checks</div>
             </Card>
 
-            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs">
-              <div className="text-[11px] font-medium text-rose-600 dark:text-rose-400 flex items-center gap-1">
-                <Banknote className="size-3" /> Settlement Pending
+            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
+              <div className="text-[11px] font-medium text-rose-600 dark:text-rose-400 flex items-center gap-1 truncate">
+                <Banknote className="size-3 shrink-0" /> Settlement Pending
               </div>
               <div className="text-xl font-bold text-foreground mt-1">{caseMetrics.settlementPending}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">F&F Computation SLA</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">F&F Computation SLA</div>
             </Card>
 
-            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs">
-              <div className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                <CheckCircle2 className="size-3" /> Completed
+            <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
+              <div className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1 truncate">
+                <CheckCircle2 className="size-3 shrink-0" /> Completed
               </div>
               <div className="text-xl font-bold text-foreground mt-1">{caseMetrics.completed}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">Relieved & Closed</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 truncate">Relieved & Closed</div>
             </Card>
           </div>
 
           {/* Cases Filter & Table */}
-          <Card className="rounded-xl border border-border bg-card shadow-xs">
+          <Card className="rounded-xl border border-border bg-card shadow-xs overflow-hidden">
             <CardHeader className="p-4 pb-3 border-b border-border/80">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                <Tabs value={activeCaseTab} onValueChange={(val) => { setActiveCaseTab(val); setCasePage(1); }} className="w-full md:w-auto">
-                  <TabsList className="bg-muted/70 p-0.5 h-8">
-                    <TabsTrigger value="all" className="text-xs px-2.5 py-1">All Cases ({cases.length})</TabsTrigger>
-                    <TabsTrigger value="notice_period" className="text-xs px-2.5 py-1">Notice Period ({caseMetrics.noticePeriod})</TabsTrigger>
-                    <TabsTrigger value="clearance_in_progress" className="text-xs px-2.5 py-1">Clearance ({caseMetrics.clearanceInProgress})</TabsTrigger>
-                    <TabsTrigger value="settlement_pending" className="text-xs px-2.5 py-1">F&F Pending ({caseMetrics.settlementPending})</TabsTrigger>
-                    <TabsTrigger value="completed" className="text-xs px-2.5 py-1">Completed ({caseMetrics.completed})</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+              <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                <div className="overflow-x-auto pb-1 max-w-full">
+                  <Tabs value={activeCaseTab} onValueChange={(val) => { setActiveCaseTab(val); setCasePage(1); }} className="w-auto">
+                    <TabsList className="bg-muted/70 p-0.5 h-8 w-max">
+                      <TabsTrigger value="all" className="text-xs px-2.5 py-1">All Cases ({cases.length})</TabsTrigger>
+                      <TabsTrigger value="notice_period" className="text-xs px-2.5 py-1">Notice Period ({caseMetrics.noticePeriod})</TabsTrigger>
+                      <TabsTrigger value="clearance_in_progress" className="text-xs px-2.5 py-1">Clearance ({caseMetrics.clearanceInProgress})</TabsTrigger>
+                      <TabsTrigger value="settlement_pending" className="text-xs px-2.5 py-1">F&F Pending ({caseMetrics.settlementPending})</TabsTrigger>
+                      <TabsTrigger value="completed" className="text-xs px-2.5 py-1">Completed ({caseMetrics.completed})</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <div className="relative w-48 sm:w-56">
                     <Search className="absolute left-2.5 top-2.5 size-3.5 text-muted-foreground" />
                     <Input
@@ -980,7 +985,7 @@ export function OffboardingView({
               </div>
             </CardHeader>
 
-            <CardContent className="p-0">
+            <CardContent className="p-0 overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent border-b border-border/80">
