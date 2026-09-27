@@ -1175,10 +1175,16 @@ async function recordAuditLog(
 export async function getAllOffboardingCases(): Promise<OffboardingCase[]> {
   try {
     const supabase = await createServerSupabaseClient();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+
     const { data, error } = await supabase
       .from('offboarding_cases')
       .select('*, employees(name, email, team)')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .abortSignal(controller.signal);
+
+    clearTimeout(timeout);
 
     if (!error && data && data.length > 0) {
       return data.map((row: any) => ({
@@ -1188,7 +1194,7 @@ export async function getAllOffboardingCases(): Promise<OffboardingCase[]> {
       }));
     }
   } catch (err) {
-    // Fallback to memory
+    // Fallback to memory (timeout, missing table, or network error)
   }
 
   return Array.from(MEMORY_OFFBOARDING_STORE.values())
@@ -1203,11 +1209,17 @@ export async function getOffboardingById(id: string): Promise<FullOffboardingDat
   let fullData: FullOffboardingData | null = null;
   try {
     const supabase = await createServerSupabaseClient();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+
     const { data: caseRow, error: caseErr } = await supabase
       .from('offboarding_cases')
       .select('*, employees(*)')
       .eq('id', id)
+      .abortSignal(controller.signal)
       .single();
+
+    clearTimeout(timeout);
 
     if (!caseErr && caseRow) {
       const [chkRes, assetRes, ndcRes, fnfRes, logsRes] = await Promise.all([
@@ -1247,7 +1259,7 @@ export async function getOffboardingById(id: string): Promise<FullOffboardingDat
       };
     }
   } catch {
-    // Fallback to memory
+    // Fallback to memory (timeout, missing table, or network error)
   }
 
   if (!fullData) {
@@ -2494,6 +2506,8 @@ function initResignationSeedScenarios() {
 
 /**
  * Fetch all resignation requests.
+ * Uses a fast timeout to avoid hanging when the resignation_requests table
+ * doesn't exist in the remote database.
  */
 export async function getAllResignationRequests(): Promise<ResignationRequest[]> {
   initResignationSeedScenarios();
@@ -2501,10 +2515,16 @@ export async function getAllResignationRequests(): Promise<ResignationRequest[]>
 
   try {
     const supabase = await createServerSupabaseClient();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+
     const { data, error } = await supabase
       .from('resignation_requests')
       .select('*, employees(name, email, team)')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .abortSignal(controller.signal);
+
+    clearTimeout(timeout);
 
     if (!error && data && data.length > 0) {
       return data.map((row: any) => ({
@@ -2514,7 +2534,7 @@ export async function getAllResignationRequests(): Promise<ResignationRequest[]>
       }));
     }
   } catch {
-    // Fallback to memory
+    // Fallback to memory (timeout, missing table, or network error)
   }
 
   return Array.from(MEMORY_RESIGNATION_STORE.values()).sort(
@@ -2530,11 +2550,17 @@ export async function getResignationRequestById(id: string): Promise<Resignation
 
   try {
     const supabase = await createServerSupabaseClient();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+
     const { data, error } = await supabase
       .from('resignation_requests')
       .select('*, employees(*)')
       .eq('id', id)
+      .abortSignal(controller.signal)
       .single();
+
+    clearTimeout(timeout);
 
     if (!error && data) {
       return {
@@ -2544,7 +2570,7 @@ export async function getResignationRequestById(id: string): Promise<Resignation
       };
     }
   } catch {
-    // Fallback
+    // Fallback (timeout, missing table, or network error)
   }
 
   return MEMORY_RESIGNATION_STORE.get(id) || null;
