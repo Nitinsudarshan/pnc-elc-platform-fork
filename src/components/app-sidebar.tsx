@@ -14,6 +14,7 @@ import {
   TrendingUp,
   DatabaseBackup,
   ShieldCheck,
+  FileText,
 } from "lucide-react"
 
 import { NavMain, NavItem } from "@/components/nav-main"
@@ -113,7 +114,15 @@ export function AppSidebar({
           title: "Data Management",
           url: "/data-management",
           icon: DatabaseBackup,
-          isActive: pathname.startsWith("/data-management"),
+          isActive:
+            pathname.startsWith("/data-management") &&
+            !pathname.startsWith("/data-management/forms"),
+        },
+        {
+          title: "Forms",
+          url: "/data-management/forms",
+          icon: FileText,
+          isActive: pathname.startsWith("/data-management/forms"),
         },
       ],
     },
