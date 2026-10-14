@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator"
 import { useSidebar } from "@/components/ui/sidebar"
 import { ModeToggle } from "@/components/mode-toggle"
 import dynamic from "next/dynamic"
+import { DevRoleToggle } from "@/components/dev-role-toggle"
 
 const HeaderUserMenu = dynamic(
   () => import("@/components/header-user-menu").then((m) => ({ default: m.HeaderUserMenu })),
@@ -22,6 +23,8 @@ const HeaderUserMenu = dynamic(
 )
 
 export function SiteHeader({
+  isSuperAdmin,
+  userRole,
   ...props
 }: any) {
   const { toggleSidebar } = useSidebar()
@@ -60,6 +63,7 @@ export function SiteHeader({
           </BreadcrumbList>
         </Breadcrumb>
         <div className="ml-auto flex items-center gap-2">
+          <DevRoleToggle isSuperAdmin={isSuperAdmin} userRole={userRole} />
           <ModeToggle />
           <HeaderUserMenu />
         </div>

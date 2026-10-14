@@ -1,5 +1,6 @@
 import React from "react";
 import { PageBanner } from "@/components/shared/page-banner";
+import { DashboardGreeting } from "@/components/dashboard-greeting";
 import {
   Compass,
   Rocket,
@@ -22,12 +23,24 @@ export default function DashboardPage() {
       description: "Manage pre-joining candidate pipelines, document KYC, account provisioning, and Day-1 orientation.",
       href: "/onboarding",
       icon: Compass,
-      badge: "Pipeline",
+      badge: "Hub & Journeys",
       gradient: "from-blue-500/10 via-indigo-500/5 to-transparent",
       iconBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white border-blue-500/20",
       badgeStyle: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-900/50",
       hoverBorder: "hover:border-blue-500/40",
       arrowHover: "group-hover:text-blue-600 dark:group-hover:text-blue-400",
+    },
+    {
+      title: "Candidate Pipeline",
+      description: "Track candidate verification, generate offer letters, inspect KYC documents, and monitor joining statuses.",
+      href: "/onboarding/candidate",
+      icon: Rocket,
+      badge: "Pre-Joining",
+      gradient: "from-teal-500/10 via-cyan-500/5 to-transparent",
+      iconBg: "bg-teal-500/10 text-teal-700 dark:text-teal-400 group-hover:bg-teal-700 group-hover:text-white border-teal-500/20",
+      badgeStyle: "bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-900/50",
+      hoverBorder: "hover:border-teal-500/40",
+      arrowHover: "group-hover:text-teal-600 dark:group-hover:text-teal-400",
     },
     {
       title: "Employees Directory",
@@ -52,15 +65,6 @@ export default function DashboardPage() {
       badgeStyle: "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900/50",
       hoverBorder: "hover:border-rose-500/40",
       arrowHover: "group-hover:text-rose-600 dark:group-hover:text-rose-400",
-    },
-    {
-      title: "Onboarding Pipeline",
-      description: "Track every joiner's first three weeks — emails, calls, Slack and induction tasks.",
-      href: "/onboarding",
-      icon: Rocket,
-      badge: "Lifecycle",
-      gradient: "from-teal-500/10 via-cyan-500/5 to-transparent",
-      iconBg: "bg-teal-500/10 text-teal-600 dark:text-teal-400 group-hover:bg-teal-600 group-hover:text-white",
     },
     {
       title: "Appraisal Cohorts",
@@ -114,12 +118,8 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-20 animate-in fade-in duration-300">
-      {/* Banner - Single Line Title and Description */}
-      <PageBanner
-        title="Welcome to Navgurukul ELC (NG ELC)"
-        description="Unified Employee Life Cycle platform for onboarding, appraisals, confirmations, and reports."
-        icon={<Compass className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
-      />
+      {/* Dynamic Hourly Greeting Banner */}
+      <DashboardGreeting />
 
       {/* Main Core Modules Grid */}
       <div className="space-y-4">
@@ -134,7 +134,7 @@ export default function DashboardPage() {
           {coreModules.map((item) => {
             const Icon = item.icon;
             return (
-              <Link key={item.href} href={item.href} className="group block">
+              <Link key={item.title} href={item.href} className="group block">
                 <Card
                   className={`h-full rounded-lg border border-border bg-card p-4 transition-all duration-300 relative overflow-hidden group-hover:-translate-y-0.5 group-hover:shadow-md flex flex-col justify-between gap-3 ${item.hoverBorder}`}
                 >

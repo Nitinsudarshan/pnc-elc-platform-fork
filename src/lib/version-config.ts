@@ -26,12 +26,35 @@ export type VersionEntry = {
   changes: VersionChange[]
 }
 
-export const CURRENT_VERSION = '1.05.00'
+export const CURRENT_VERSION = '1.07.00'
 
 /** Newest first. Prepend new entries; never rewrite a released one. */
 export const VERSION_HISTORY: VersionEntry[] = [
   {
-    version: '1.05.00',
+    version: '1.07.00',
+    date: '2026-10-15',
+    title: 'Legacy onboarding import tooling and cutover runbooks',
+    type: 'minor',
+    changes: [
+      {
+        category: 'Features',
+        description:
+          'scripts/import-legacy-onboarding.ts reads CSV exports of the legacy tracker tabs and marks the steps that already happened. Dry run by default, and it only ever moves a step out of pending, so it cannot overwrite work this system did and is safe to re-run.',
+      },
+      {
+        category: 'Improvements',
+        description:
+          'Cutover and rollback runbook, plus operator documentation covering the timeline, exclusions, run modes, safety rails and what People & Culture still do by hand.',
+      },
+      {
+        category: 'Security',
+        description:
+          'The import deliberately never reads the P&C Operations tab, which holds the team email password column.',
+      },
+    ],
+  },
+  {
+    version: '1.06.00',
     date: '2026-10-15',
     title: 'Automation pipeline moved into employee onboarding',
     type: 'minor',
@@ -54,7 +77,7 @@ export const VERSION_HISTORY: VersionEntry[] = [
     ],
   },
   {
-    version: '1.04.00',
+    version: '1.05.00',
     date: '2026-10-15',
     title: 'Onboarding alerts and digests',
     type: 'minor',
@@ -77,7 +100,7 @@ export const VERSION_HISTORY: VersionEntry[] = [
     ],
   },
   {
-    version: '1.03.00',
+    version: '1.04.00',
     date: '2026-10-15',
     title: 'Onboarding behaviour parity with the legacy script',
     type: 'minor',
@@ -110,7 +133,7 @@ export const VERSION_HISTORY: VersionEntry[] = [
     ],
   },
   {
-    version: '1.02.00',
+    version: '1.03.00',
     date: '2026-10-15',
     title: 'Onboarding automation safety rails',
     type: 'minor',
@@ -139,6 +162,88 @@ export const VERSION_HISTORY: VersionEntry[] = [
         category: 'Improvements',
         description:
           'Vitest added with 53 tests covering the late window, mode matrix, date handling, eligibility carve-outs and stage boundaries. Decisions log and .env.example added.',
+      },
+    ],
+  },
+  {
+    version: '1.02.03',
+    date: '2026-10-14',
+    title: 'Remove Header Eye Helper',
+    type: 'patch',
+    changes: [
+      {
+        category: 'Improvements',
+        description:
+          'Removed the HeaderHelpTrigger eye icon button from the main site header for a cleaner toolbar layout.',
+      },
+    ],
+  },
+  {
+    version: '1.02.02',
+    date: '2026-10-14',
+    title: 'Widen Role Switcher Dropdown',
+    type: 'patch',
+    changes: [
+      {
+        category: 'Improvements',
+        description:
+          'Increased width of the DevRoleToggle dropdown menu (w-64 sm:w-72) for improved layout, readability of role titles, and touch targets.',
+      },
+    ],
+  },
+  {
+    version: '1.02.01',
+    date: '2026-10-14',
+    title: 'Modal 90vw/90vh Standardization & NGConnect UI Alignment',
+    type: 'patch',
+    changes: [
+      {
+        category: 'Improvements',
+        description:
+          'Enforced 90vw width and 90vh height on all modal dialogs with smooth animation and rounded-2xl styling across the platform, including changelog and preview dialogs.',
+      },
+      {
+        category: 'Features',
+        description:
+          'Integrated NGConnect design language for DevRoleToggle (Staff/Member mode pills), HeaderUserMenu, and HeaderHelpTrigger (amber Eye modal).',
+      },
+      {
+        category: 'Features',
+        description:
+          'Added 120-variant dynamic hourly greetings banner (DashboardGreeting) on the main dashboard with minute rollover and daily rotation.',
+      },
+    ],
+  },
+  {
+    version: '1.02.00',
+    date: '2026-10-14',
+    title: 'Role Switcher, User Emulation, and Changelog Suite',
+    type: 'minor',
+    changes: [
+      {
+        category: 'Features',
+        description:
+          'Interactive DevRoleToggle header component supporting live role switching across all 10 platform roles with dev cookie persistence and instant re-evaluation.',
+      },
+      {
+        category: 'Features',
+        description:
+          'User emulation engine with realistic persona presets (Eng Manager, PnC Lead, Finance Executive, Employee) to test role-scoped workflows.',
+      },
+      {
+        category: 'Features',
+        description:
+          'SidebarVersionFooter component and dedicated /changelog dashboard page rendering interactive version history, type badges, and category pills.',
+      },
+      {
+        category: 'Improvements',
+        description:
+          'Tied header user menu and UserContext directly into actual Supabase auth metadata and employee roster records instead of dummy boilerplate.',
+      },
+      {
+        category: 'Fixes',
+        description:
+          'Resolved duplicate /onboarding dashboard key error and Next.js dynamic prerender warning on signatories route.',
       },
     ],
   },

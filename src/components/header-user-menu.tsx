@@ -21,12 +21,21 @@ function toTitleCase(str: string) {
         .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+import { createClient } from "@/lib/supabase/client";
+
 export function HeaderUserMenu() {
     const router = useRouter();
     const user = useUserContext();
+    const supabase = createClient();
 
-    const signOut = () => {
+    const signOut = async () => {
+        try {
+            await supabase.auth.signOut();
+        } catch {
+            // Ignore signOut error
+        }
         router.push("/login");
+        router.refresh();
     };
 
     const firstName = user?.name ? toTitleCase(user.name.split(" ")[0]) : "User";
@@ -41,10 +50,10 @@ export function HeaderUserMenu() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-9 gap-2 px-2 rounded-lg">
-                    <Avatar className="h-7 w-7 rounded-lg">
+                <Button variant="ghost" className="h-9 gap-2 px-2 rounded-md">
+                    <Avatar className="h-7 w-7 rounded-md">
                         <AvatarImage src={userAvatar} alt={fullName} />
-                        <AvatarFallback className="rounded-lg text-xs">{initials}</AvatarFallback>
+                        <AvatarFallback className="rounded-md text-xs">{initials}</AvatarFallback>
                     </Avatar>
                     <span className="hidden sm:block text-sm font-medium max-w-[100px] truncate">
                         {displayLabel}
@@ -55,9 +64,9 @@ export function HeaderUserMenu() {
             <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="p-0 font-normal">
                     <div className="flex items-center gap-2 px-2 py-2">
-                        <Avatar className="h-8 w-8 rounded-lg">
+                        <Avatar className="h-8 w-8 rounded-md">
                             <AvatarImage src={userAvatar} alt={fullName} />
-                            <AvatarFallback className="rounded-lg text-xs">{initials}</AvatarFallback>
+                            <AvatarFallback className="rounded-md text-xs">{initials}</AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col min-w-0">
                             <span className="text-sm font-semibold truncate">{fullName}</span>
