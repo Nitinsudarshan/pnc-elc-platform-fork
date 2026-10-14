@@ -51,6 +51,3 @@ shadcn/ui equivalent exists.
   `react-hook-form`, `zod` or `@hookform/resolvers`. The first non-trivial form
   adds them together, as `forms-and-validation.md` describes — existing forms
   predate that rule and are not the pattern to copy.
-- `src/components/shared/` currently contains both `page-banner.tsx` and
-  `page_banner.tsx` (the former re-exports the latter). Import from
-  `@/components/shared/page-banner`.
