@@ -1,5 +1,6 @@
 import React from "react";
 import { PageBanner } from "@/components/shared/page-banner";
+import { DashboardGreeting } from "@/components/dashboard-greeting";
 import {
   Compass,
   Rocket,
@@ -117,12 +118,8 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-20 animate-in fade-in duration-300">
-      {/* Banner - Single Line Title and Description */}
-      <PageBanner
-        title="Welcome to Navgurukul ELC (NG ELC)"
-        description="Unified Employee Life Cycle platform for onboarding, appraisals, confirmations, and reports."
-        icon={<Compass className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
-      />
+      {/* Dynamic Hourly Greeting Banner */}
+      <DashboardGreeting />
 
       {/* Main Core Modules Grid */}
       <div className="space-y-4">

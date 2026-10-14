@@ -26,10 +26,33 @@ export type VersionEntry = {
   changes: VersionChange[]
 }
 
-export const CURRENT_VERSION = '1.02.00'
+export const CURRENT_VERSION = '1.02.01'
 
 /** Newest first. Prepend new entries; never rewrite a released one. */
 export const VERSION_HISTORY: VersionEntry[] = [
+  {
+    version: '1.02.01',
+    date: '2026-10-14',
+    title: 'Modal 90vw/90vh Standardization & NGConnect UI Alignment',
+    type: 'patch',
+    changes: [
+      {
+        category: 'Improvements',
+        description:
+          'Enforced 90vw width and 90vh height on all modal dialogs with smooth animation and rounded-2xl styling across the platform, including changelog and preview dialogs.',
+      },
+      {
+        category: 'Features',
+        description:
+          'Integrated NGConnect design language for DevRoleToggle (Staff/Member mode pills), HeaderUserMenu, and HeaderHelpTrigger (amber Eye modal).',
+      },
+      {
+        category: 'Features',
+        description:
+          'Added 120-variant dynamic hourly greetings banner (DashboardGreeting) on the main dashboard with minute rollover and daily rotation.',
+      },
+    ],
+  },
   {
     version: '1.02.00',
     date: '2026-10-14',

@@ -17,12 +17,16 @@ import { ModeToggle } from "@/components/mode-toggle"
 import dynamic from "next/dynamic"
 import { DevRoleToggle } from "@/components/dev-role-toggle"
 
+import { HeaderHelpTrigger } from "@/components/header-help-trigger"
+
 const HeaderUserMenu = dynamic(
   () => import("@/components/header-user-menu").then((m) => ({ default: m.HeaderUserMenu })),
   { ssr: false }
 )
 
 export function SiteHeader({
+  isSuperAdmin,
+  userRole,
   ...props
 }: any) {
   const { toggleSidebar } = useSidebar()
@@ -61,7 +65,8 @@ export function SiteHeader({
           </BreadcrumbList>
         </Breadcrumb>
         <div className="ml-auto flex items-center gap-2">
-          <DevRoleToggle />
+          <DevRoleToggle isSuperAdmin={isSuperAdmin} userRole={userRole} />
+          <HeaderHelpTrigger />
           <ModeToggle />
           <HeaderUserMenu />
         </div>

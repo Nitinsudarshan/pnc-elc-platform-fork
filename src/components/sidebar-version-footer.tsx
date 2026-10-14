@@ -89,8 +89,8 @@ export function SidebarVersionFooter() {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 gap-0 rounded-xl overflow-hidden border bg-card shadow-2xl">
-          <DialogHeader className="p-5 pb-3 border-b bg-muted/20 space-y-1.5">
+        <DialogContent className="w-[90vw] max-w-[90vw] sm:max-w-[90vw] h-[90vh] max-h-[90vh] rounded-2xl border border-border/80 shadow-2xl p-0 overflow-hidden flex flex-col">
+          <DialogHeader className="p-5 pb-3 border-b bg-muted/20 space-y-1.5 shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">

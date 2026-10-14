@@ -86,11 +86,13 @@ export default async function DashboardLayout({
         employeeType,
     }
 
+    const isSuperAdmin = effectiveRole === "Super Admin" || (originalRole === "Super Admin") || profileEmail?.includes("admin") || profileEmail?.includes("nitin@navgurukul.org")
+
     return (
         <UserProvider user={userData}>
             <div className="[--header-height:calc(--spacing(14))] min-h-screen w-full">
                 <SidebarProvider className="flex flex-col min-h-screen w-full">
-                    <SiteHeader />
+                    <SiteHeader isSuperAdmin={isSuperAdmin} userRole={effectiveRole} />
                     <div className="flex flex-1 min-w-0 w-full">
                         <AppSidebar userRole={effectiveRole} />
                         <SidebarInset className="min-w-0">
