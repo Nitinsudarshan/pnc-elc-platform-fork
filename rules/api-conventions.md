@@ -9,9 +9,13 @@ globs: "src/app/api/**"
 ## Rules
 
 - Use `src/app/api/**/route.ts` route handlers for: imports/exports, anything
-  called from a Client Component via `fetch`, and integrations with external
-  systems (Coursera). Use Server Actions for simple form submissions that don't
-  need a stable external endpoint.
+  called from a Client Component via `fetch`, scheduled jobs, and integrations
+  with external systems (Gmail, Slack, Google Calendar). Use Server Actions for
+  simple form submissions that don't need a stable external endpoint.
+- Scheduled jobs live under `src/app/api/cron/**` and are registered in
+  `vercel.json`. Every cron handler checks the `CRON_SECRET` bearer token as its
+  first statement and returns 401 otherwise — these endpoints are publicly
+  routable.
 - Every route handler returns a consistent JSON shape:
   `{ success: boolean, data?: T, error?: string }` — don't mix response shapes
   across endpoints (some returning raw arrays, others wrapped objects).

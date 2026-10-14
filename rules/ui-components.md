@@ -18,10 +18,11 @@ shadcn/ui equivalent exists.
   the shadcn CLI (`npx shadcn add <component>`) — do not hand-roll a replacement.
 - **Charts and graphs must use shadcn's chart component** (`npx shadcn add chart`),
   which wraps Recharts with themeable styling — not raw `recharts` components
-  used directly, and not any other charting library. This project already
-  depends on `recharts`; it should only be reached through the shadcn chart
-  wrapper (`ChartContainer`, `ChartTooltip`, etc.), never imported and used
-  standalone in a component.
+  used directly, and not any other charting library. The wrapper is not yet
+  installed in this project; the first chart added should generate it with the
+  shadcn CLI (which brings `recharts` in as its dependency) and reach it only
+  through `ChartContainer` / `ChartTooltip`, never importing `recharts`
+  standalone. See `charts.md` for colour rules.
 - Do not write raw CSS (`.module.css`, inline `style={{}}`) or Tailwind-only
   custom components for things shadcn already provides — forms, modals, toasts,
   tables, dropdowns, etc. all have a shadcn primitive; use it.
@@ -40,18 +41,13 @@ shadcn/ui equivalent exists.
   with its own required markup) — and even then it must still use design tokens
   from `design-system.md`, not raw hardcoded styling.
 
-## Known drift to clean up
+## Known gaps
 
-`src/components/ui/chart.tsx` (the shadcn chart wrapper) already exists and is
-correctly used in `users-stats.tsx` and `alumni-network/alumni-stats.tsx`.
-However, these files currently import `recharts` directly, bypassing it:
-
-- `src/components/coursera-charts.tsx`
-- `src/components/dashboard-charts.tsx`
-- `src/app/(dashboard)/data-management/coursera/_components/CourseraDashboardClient.tsx`
-- `src/app/(dashboard)/data-management/coursera/learner/[email]/_components/LearnerDetailClient.tsx`
-- `src/app/(dashboard)/reports/_components/ReportGeneratorClient.tsx`
-
-Any agent touching these files should migrate them to use `ChartContainer` /
-`ChartTooltip` from `src/components/ui/chart.tsx` rather than leaving new,
-inconsistent chart code next to the correct pattern.
+- `src/components/ui/chart.tsx` does not exist yet, and no charting library is
+  installed. The first feature that needs a chart generates the wrapper via
+  `npx shadcn add chart` rather than hand-rolling one or adding a different
+  library.
+- `src/components/ui/form.tsx` does not exist either, and neither do
+  `react-hook-form`, `zod` or `@hookform/resolvers`. The first non-trivial form
+  adds them together, as `forms-and-validation.md` describes — existing forms
+  predate that rule and are not the pattern to copy.

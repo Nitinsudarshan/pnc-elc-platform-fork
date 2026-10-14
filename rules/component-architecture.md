@@ -18,7 +18,7 @@ Page components must be modular.
 - Break complex UI into reusable components before duplicating markup a second time
   (rule of two: if you're about to copy-paste a block, extract it instead).
 - Co-locate a page-specific component with the route (e.g.
-  `src/app/(dashboard)/crm/_components/`) only if it is not reused elsewhere.
+  `src/app/(dashboard)/onboarding/_components/`) only if it is not reused elsewhere.
   Anything used by 2+ routes belongs in `src/components/shared` or `src/components/ui`.
 - Keep data-fetching and presentation separate where practical: a component that
   fetches from Supabase should hand plain props down to a "dumb" presentational

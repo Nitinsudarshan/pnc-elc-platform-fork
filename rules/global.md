@@ -5,7 +5,8 @@ description: Master index and precedence rules for the /rules directory. Always 
 
 # Global Rules
 
-All development on NGConnect must follow the rules defined in the `/rules` directory.
+All development on the PnC ELC Platform must follow the rules defined in the
+`/rules` directory.
 This file is the entry point — read it first, then apply the specific files relevant
 to the task at hand.
 
@@ -27,10 +28,11 @@ to the task at hand.
 | `server-client-boundary.md` | When to use `"use client"` vs Server Components |
 | `forms-and-validation.md` | Standard form/validation pattern (react-hook-form + zod) |
 | `testing.md` | What to test, framework, file placement |
-| `data-import.md` | Excel/CSV import safety (alumni, Coursera) |
+| `data-import.md` | Excel/CSV import safety (employee data imports) |
 | `api-conventions.md` | Route handler response shape, validation, error handling |
 | `performance.md` | Bundle size, lazy loading, memoization basics |
-| `rbac-settings.md` | RBAC system architecture and SQL configuration |
+| `rbac-settings.md` | RBAC system architecture and feature registration |
+| `greetings.md` | Dashboard greeting banner spec (not yet implemented) |
 | `version-and-changelog.md` | Automatic versioning and changelog maintenance requirement |
 
 ## Precedence
@@ -49,6 +51,6 @@ If a conflict can't be resolved this way, stop and ask rather than guessing.
 
 ## Scope
 
-These rules apply to all code generated or edited under `src/`. They do not apply to
-one-off scripts at the repo root (`check-data.ts`, `update-licenses.ts`, etc.) unless
-explicitly asked.
+These rules apply to all code generated or edited under `src/`, plus the SQL in
+`supabase/migrations/`. They do not apply to one-off maintenance scripts at the
+repo root unless explicitly asked.

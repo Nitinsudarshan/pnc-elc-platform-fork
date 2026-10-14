@@ -26,6 +26,6 @@ form inventing its own pattern, use this standard going forward:
 - Show field-level errors using shadcn's `FormMessage` (which wires up
   `aria-describedby` automatically — keeps this consistent with
   `accessibility.md`), not ad hoc red text under inputs.
-- For file-upload forms (alumni/Coursera import), validate file type and size
+- For file-upload forms (employee data import), validate file type and size
   client-side for fast feedback, but always re-validate structure/content
   server-side before touching the database (see `data-import.md`).

@@ -15,10 +15,10 @@ what the code obviously does.
 
   ```ts
   /**
-   * Fetches alumni records for the given cohort year.
-   * @param year - Graduation year to filter by
+   * Fetches every employee joining in the given month.
+   * @param month - Month to filter by, as `YYYY-MM`
    */
-  export const useAlumniByYear = (year: number) => { ... }
+  export const useEmployeesJoiningIn = (month: string) => { ... }
   ```
 
 - Document: purpose of the component/function, non-obvious prop behavior (not

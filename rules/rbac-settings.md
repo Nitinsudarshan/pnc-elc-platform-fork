@@ -1,42 +1,70 @@
+---
+trigger: always_on
+description: RBAC system architecture and how to register a new feature
+---
+
 # Role-Based Access Control (RBAC) Settings
 
-This project uses a highly granular, resource-based Role-Based Access Control (RBAC) system. Access can be assigned at the **Role** level, overridden at the **Team** level, and further overridden at the **Individual User** level.
+This project uses a **role-based, feature-scoped** access control system. A user
+holds exactly one role; each feature declares which roles may reach it.
 
-## CRITICAL RULE: Registering New Features
-**Every time a new feature, page, or module is built, it MUST be added to the RBAC Matrix.** 
-If you build something new, you are strictly required to ensure it is manageable from `http://localhost:3000/manage/rbac`.
+## CRITICAL RULE: Registering new features
 
-To do this:
-1. Open `src/lib/resource-tree.ts`.
-2. Add a new `PermissionResource` entry to the `PERMISSION_RESOURCES` array.
-   - Example: `{ id: 'crm.new_feature', label: 'My New Feature', cluster: 'crm', actions: ['view', 'edit'] }`
-3. Ensure that your new route/component uses `checkAccess(userId, 'crm.new_feature', 'view')` to enforce the permission.
-4. Once added to `PERMISSION_RESOURCES`, the UI at `/manage/rbac` will automatically render checkboxes for it.
+**Every time a new feature, page, or module is built, it MUST be added to the
+RBAC matrix.** A route that isn't registered is reachable by every signed-in
+user, including `Employee`.
 
-## How the Engine Works
+To register one:
 
-- The access rights are stored in the `rbac_permissions` table in the Supabase database.
-- A centralized helper `checkAccess(userId, resourceId, action)` in `src/lib/permissions.ts` is the single source of truth for authorization.
-- Access is enforced at the individual component level or the layout level.
-- **Fail-Closed Design:** If a user, their team, and their role do not have an explicit `true` value for a resource in the database, access is **denied**.
-- **Super Admins:** Hardcoded bypasses exist for Super Admins. They implicitly pass all `checkAccess` gates without needing database records.
+1. Open `src/lib/role-constants.ts`.
+2. Add the feature to the `Feature` union — e.g. `"onboarding"`.
+3. Add its entry to `FEATURE_ACCESS` listing every role allowed in:
+   `onboarding: ["Super Admin", "Admin", "PnC", "Manager"],`
+4. Map its route prefix in `ROUTE_FEATURE`: `["/onboarding", "onboarding"],`
+5. Gate the route group with a `layout.tsx` that awaits `requireFeature`:
 
-## Database Schema 
+   ```tsx
+   import { requireFeature } from '@/lib/rbac/requireFeature'
 
-The system relies on two tables. (If you ever need to recreate them, you can run the `rbac_setup.sql` script located in the root directory).
+   export default async function Layout({ children }: { children: React.ReactNode }) {
+     await requireFeature('onboarding')
+     return <>{children}</>
+   }
+   ```
 
-1. **`rbac_permissions`**: 
-   - `subject_type`: 'role', 'team', or 'user'
-   - `subject_id`: The role name, team name, or user's UUID
-   - `resource_id`: The ID string from `resource-tree.ts`
-   - `can_view`, `can_edit`, `can_delete`: Boolean toggles
+Adding the feature to `Feature` without adding it to `FEATURE_ACCESS` is a type
+error, which is deliberate — the matrix cannot silently fall out of date.
 
-2. **`rbac_audit_logs`**:
-   - Stores snapshots of changes made via the RBAC UI so that Admins can instantly rollback accidental lockouts.
+## How the engine works
 
-## Hierarchy & Precedence
-When evaluating if a user has access to edit `crm.workspace`:
-1. Check if the **User ID** has a specific override. If found, use it.
-2. If not, check if the user's **Team** has an override. If found, use it.
-3. If not, fallback to the user's base **Role**.
-4. If no records exist anywhere, deny access.
+- A user's role lives in their Supabase auth `app_metadata.role`, read on the
+  server by `getCurrentUserRole()` (`src/lib/rbac/getCurrentUserRole.ts`).
+- `requireFeature(feature)` (`src/lib/rbac/requireFeature.ts`) is the single
+  enforcement point: it redirects to `/login` when there is no session, and to
+  `/` when the role is not in that feature's list.
+- `canAccessRoute(role, url)` in `src/lib/role-constants.ts` answers the same
+  question for navigation, so the sidebar hides what the user cannot open.
+- **Fail-safe default:** a user with no role is treated as `DEFAULT_ROLE`
+  (`Employee`), which appears in no feature list by default.
+- `ROLE_HIERARCHY` ranks roles numerically. It governs impersonation
+  (`canImpersonate`) only — it is **not** a privilege ladder: a higher rank does
+  not implicitly grant a lower-ranked role's features. Feature access is decided
+  solely by membership in `FEATURE_ACCESS`.
+
+## Assigning roles
+
+- Roles are assigned at `/manage/roles` and `/manage/users`, which are
+  themselves gated behind the `manageUsers` feature.
+- `setUserRole()` (`src/lib/rbac/setUserRole.ts`) enforces the rules that the UI
+  must not be trusted to enforce: only `Admin`/`Super Admin` may assign at all,
+  only a `Super Admin` may grant or modify an admin role, a user may never
+  change their own role, and the role must appear in `ASSIGNABLE_ROLES`.
+- Writing a role uses the service-role client, so it is server-only — never
+  call it from a Client Component (see `security.md`).
+
+## Enforcement boundary
+
+RBAC decides which *routes and features* a user reaches. It is not row-level
+security: Supabase RLS policies remain the authorization layer for data (see
+`data-access.md`). A page passing `requireFeature` does not entitle its queries
+to bypass RLS.
