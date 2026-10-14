@@ -26,10 +26,33 @@ export type VersionEntry = {
   changes: VersionChange[]
 }
 
-export const CURRENT_VERSION = '1.03.00'
+export const CURRENT_VERSION = '1.04.00'
 
 /** Newest first. Prepend new entries; never rewrite a released one. */
 export const VERSION_HISTORY: VersionEntry[] = [
+  {
+    version: '1.04.00',
+    date: '2026-10-15',
+    title: 'Onboarding alerts and digests',
+    type: 'minor',
+    changes: [
+      {
+        category: 'Features',
+        description:
+          'Run summary posted after each automation run, batching every failure into one message rather than alerting per error.',
+      },
+      {
+        category: 'Features',
+        description:
+          'Afternoon digest at 16:00 IST: pre-flight check for joiners arriving within two days with an incomplete record, tomorrow\u2019s expected actions, and everything currently needing a human.',
+      },
+      {
+        category: 'Improvements',
+        description:
+          'Alerts respect the run mode — a dry run logs instead of posting, and sandbox redirects to the sandbox channel.',
+      },
+    ],
+  },
   {
     version: '1.03.00',
     date: '2026-10-15',

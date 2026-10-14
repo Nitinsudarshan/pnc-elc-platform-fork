@@ -108,6 +108,24 @@ const readManagerConnect = (
   return { time, isPlaceholder: Boolean(meta.isPlaceholder) }
 }
 
+/**
+ * Posts a message to a channel, honouring the run mode.
+ * Shared with the alerting module so both speak to Slack the same way.
+ */
+export const postSlackMessage = async (
+  channel: string,
+  text: string
+): Promise<boolean> => {
+  const resolved = resolveSlackChannel(getRunMode(), channel)
+  if (!resolved) return false
+
+  const response = await callSlack('chat.postMessage', { channel: resolved, text })
+  if (!response.ok) {
+    console.error('Onboarding: Slack post failed —', response.error)
+  }
+  return response.ok
+}
+
 /** Posts an operational alert for P&C, not a message to the joiner. */
 const postAlert = async (text: string): Promise<void> => {
   const channel = process.env.ONBOARDING_ALERT_SLACK_CHANNEL?.trim()

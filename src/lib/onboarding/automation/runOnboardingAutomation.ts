@@ -7,6 +7,7 @@ import { getOrgToday } from '@/lib/onboarding/automation/dates'
 import { loadJourneys, type LoadedJourney } from '@/lib/onboarding/automation/loadJourneys'
 import { getDueSteps } from '@/lib/onboarding/automation/progress'
 import { deriveStage } from '@/lib/onboarding/automation/schedule'
+import { sendRunSummary } from '@/lib/onboarding/automation/alerts'
 import {
   beginRun,
   claimStep,
@@ -489,6 +490,7 @@ export const runOnboardingAutomation = async (
 
       await writeLogs(supabase, logs)
       await finishRun(supabase, run, summary)
+      await sendRunSummary(summary)
       return summary
     }
 
@@ -624,6 +626,7 @@ export const runOnboardingAutomation = async (
 
     await writeLogs(supabase, logs)
     await finishRun(supabase, run, summary)
+    await sendRunSummary(summary)
 
     return summary
   } catch (error) {
