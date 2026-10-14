@@ -3,6 +3,7 @@
 import * as React from "react"
 import {
   BookOpen,
+  Compass,
   LifeBuoy,
   Send,
   LayoutDashboard,
@@ -58,6 +59,12 @@ export function AppSidebar({
       url: "/employees",
       icon: Users,
       isActive: pathname.startsWith("/employees"),
+    },
+    {
+      title: "Onboarding",
+      url: "/onboarding",
+      icon: Compass,
+      isActive: pathname.startsWith("/onboarding"),
     },
     {
       title: "Confirmations",

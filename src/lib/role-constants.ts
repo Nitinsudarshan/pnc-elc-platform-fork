@@ -22,10 +22,11 @@ export const ASSIGNABLE_ROLES: UserRole[] = [
   "Super Admin", "Admin", "PnC", "Finance", "Manager", "Employee",
 ];
 
-export type Feature = "employees" | "confirmations" | "appraisals" | "dataManagement" | "manageUsers";
+export type Feature = "employees" | "onboarding" | "confirmations" | "appraisals" | "dataManagement" | "manageUsers";
 
 export const FEATURE_ACCESS: Record<Feature, UserRole[]> = {
   employees: ["Super Admin", "Admin", "PnC", "Finance", "Manager"],
+  onboarding: ["Super Admin", "Admin", "PnC", "Manager"],
   confirmations: ["Super Admin", "Admin", "PnC", "Manager"],
   appraisals: ["Super Admin", "Admin", "PnC", "Manager"],
   dataManagement: ["Super Admin", "Admin", "PnC"],
@@ -34,6 +35,7 @@ export const FEATURE_ACCESS: Record<Feature, UserRole[]> = {
 
 const ROUTE_FEATURE: [string, Feature][] = [
   ["/employees", "employees"],
+  ["/onboarding", "onboarding"],
   ["/confirmations", "confirmations"],
   ["/appraisals", "appraisals"],
   ["/data-management", "dataManagement"],

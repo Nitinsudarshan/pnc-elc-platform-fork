@@ -2,6 +2,7 @@ import React from "react";
 import { PageBanner } from "@/components/shared/page-banner";
 import {
   Compass,
+  Rocket,
   Users,
   TrendingUp,
   Database,
@@ -20,6 +21,15 @@ export default function DashboardPage() {
       badge: "Core Directory",
       gradient: "from-sky-500/10 via-blue-500/5 to-transparent",
       iconBg: "bg-sky-500/10 text-sky-600 dark:text-sky-400 group-hover:bg-sky-600 group-hover:text-white",
+    },
+    {
+      title: "Onboarding Pipeline",
+      description: "Track every joiner's first three weeks — emails, calls, Slack and induction tasks.",
+      href: "/onboarding",
+      icon: Rocket,
+      badge: "Lifecycle",
+      gradient: "from-teal-500/10 via-cyan-500/5 to-transparent",
+      iconBg: "bg-teal-500/10 text-teal-600 dark:text-teal-400 group-hover:bg-teal-600 group-hover:text-white",
     },
     {
       title: "Appraisal Cohorts",
