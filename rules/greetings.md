@@ -1,11 +1,16 @@
 # Greetings Banner Component
 
-This document outlines the design, content structure, and operational rules for the Dashboard Greetings Banner used in the NGConnect dashboard.
+> **Status: not implemented in this project.** The component files below do not
+> exist in the PnC ELC Platform yet. This document is the spec to build to if a
+> greeting banner is requested — it is not a description of current code.
+
+This document outlines the design, content structure, and operational rules for
+the Dashboard Greetings Banner.
 
 ## 1. Component Location & Overview
 
-- **Component File**: [`src/components/dashboard-greeting.tsx`](file:///d:/Projects/NGConnect/src/components/dashboard-greeting.tsx)
-- **Data File**: [`src/components/greetings-data.ts`](file:///d:/Projects/NGConnect/src/components/greetings-data.ts)
+- **Component File**: `src/components/shared/dashboard-greeting.tsx`
+- **Data File**: `src/components/shared/greetings-data.ts`
 - **Purpose**: Displays a personalized, context-aware greeting to the user based on the current time of day. It is designed to be highly aesthetic, visually engaging, and welcoming. Content and logic are strictly separated.
 
 ## 2. Component Design & Aesthetics
@@ -64,4 +69,4 @@ The `DashboardGreeting` component operates under the following rules:
   - `return hourData[variantIndex] ?? hourData[0]`
 
 ## 5. Preview Environment
-- A dedicated page exists at [`src/app/(dashboard)/greetings/page.tsx`](file:///d:/Projects/NGConnect/src/app/(dashboard)/greetings/page.tsx) to preview all 120 variations, complete with search functionality and a grid layout to view the gradients, icons, and text for every hour of the day.
+- A dedicated preview page at `src/app/(dashboard)/greetings/page.tsx` should list all 120 variations, with search and a grid layout showing the gradients, icons, and text for every hour of the day. If added, register it in the RBAC matrix (see `rbac-settings.md`).

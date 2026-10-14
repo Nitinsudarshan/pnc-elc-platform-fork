@@ -17,7 +17,8 @@ All UI must be mobile-first.
   (`w-full`, `max-w-*`, `flex-1`) so layouts adapt naturally.
 - Use container padding (`px-4 md:px-6 lg:px-8`) for page-level layout instead of
   margins on individual children.
-- Tables and dense data views (CRM lists, reports) must have a usable mobile
+- Tables and dense data views (employee lists, the onboarding pipeline,
+  appraisal reports) must have a usable mobile
   fallback — either a card-based layout below `md:`, or horizontal scroll with a
   visible scroll affordance. Don't ship a table that's simply unusable on a phone.
 - Test interactive components (dialogs, dropdowns, sheets) at mobile width — prefer

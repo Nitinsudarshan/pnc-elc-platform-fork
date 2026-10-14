@@ -20,12 +20,17 @@ globs: "src/app/**, src/lib/**"
   optional add-on. Don't write queries that assume "the UI won't show this
   anyway" as a substitute for an RLS policy — a query without a matching policy
   should fail closed, not silently return everything.
-- Keep query logic in `src/lib/<domain>/` (e.g. `src/lib/alumni`) — don't inline
+- Keep query logic in `src/lib/<domain>/` (e.g. `src/lib/employees`,
+  `src/lib/confirmations`, `src/lib/onboarding`) — don't inline
   `.from('table').select(...)` chains deep inside component JSX. Components call
-  a named function (`getAlumniByYear(year)`), not the Supabase client directly.
+  a named function (`getEmployees()`), not the Supabase client directly.
 - Handle Supabase errors explicitly — check `error` on every call and surface a
   user-facing message (via `sonner`) rather than letting a failed query silently
   render an empty state.
-- When adding a new table or changing schema, update `supabase_schema.sql` and
-  `created_tables.md` in the same change — don't let them drift from the actual
-  database.
+- Schema changes ship as a new timestamped migration in `supabase/migrations/`
+  (e.g. `202610140900_create_onboarding_tables.sql`) — never by editing an
+  existing migration that has already been applied, and never as an
+  out-of-band change made directly in the Supabase dashboard.
+- Every new table enables RLS and declares its policies in the same migration
+  that creates it, following the `to authenticated` pattern the existing tables
+  use. A table without policies is unreadable, not open.

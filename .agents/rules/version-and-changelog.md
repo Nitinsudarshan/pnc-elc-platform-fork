@@ -1,6 +1,6 @@
 # Versioning and Changelog Maintenance
 
-All development tasks on NGConnect must maintain the centralized versioning configuration and changelog registry in `src/lib/version-config.ts`.
+All development tasks on the PnC ELC Platform must maintain the centralized versioning configuration and changelog registry in `src/lib/version-config.ts`.
 
 ## Mandatory Requirement
 

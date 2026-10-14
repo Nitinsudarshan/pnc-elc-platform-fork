@@ -1,6 +1,6 @@
 ---
 trigger: always_on
-description: TypeScript and React coding conventions for NGConnect
+description: TypeScript and React coding conventions for the PnC ELC Platform
 globs: "**/*.ts, **/*.tsx"
 ---
 
@@ -21,11 +21,11 @@ All code must follow the project's linting and formatting standards.
 
 ## Naming conventions
 
-- Components: `PascalCase` (`MemberCard.tsx`), one component per file, filename
+- Components: `PascalCase` (`EmployeeCard.tsx`), one component per file, filename
   matches the component name.
-- Hooks: `camelCase` prefixed with `use` (`useAlumniData.ts`), live in `src/hooks`.
-- Utilities/helpers: `camelCase` (`formatLicenseDate.ts`), live in `src/lib`.
-- Types/interfaces: `PascalCase`, no `I` prefix (`Member`, not `IMember`).
+- Hooks: `camelCase` prefixed with `use` (`useEmployeeData.ts`), live in `src/hooks`.
+- Utilities/helpers: `camelCase` (`getConfirmationTriggerDate.ts`), live in `src/lib`.
+- Types/interfaces: `PascalCase`, no `I` prefix (`Employee`, not `IEmployee`).
 - Booleans: prefix with `is`/`has`/`should` (`isLoading`, `hasAccess`).
 
 ## Imports

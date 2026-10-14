@@ -12,14 +12,17 @@ description: What to test, what not to, and where tests live
   Next.js/TypeScript setup better than Jest here) — don't introduce a second
   framework later without discussion.
 - Prioritize testing over presentation: `src/lib/**` (parsing, transforms,
-  business logic — e.g. `import-parser.ts`) and API route handlers
+  business logic — e.g. `src/lib/onboarding/schedule.ts`) and API route handlers
   (`src/app/api/**`) get unit tests first. These carry the actual risk
-  (bad data written to Supabase, broken imports).
+  (bad data written to Supabase, a mistimed automation, broken imports).
 - Don't write tests for shadcn/ui primitives themselves (`src/components/ui`) —
   that's tested upstream. Test your own logic that wraps/composes them.
 - Don't chase 100% coverage on simple presentational components with no
   branching logic — a component that just renders props isn't worth a test.
-- Co-locate test files next to the code they test: `import-parser.ts` →
-  `import-parser.test.ts` in the same folder.
+- Co-locate test files next to the code they test: `schedule.ts` →
+  `schedule.test.ts` in the same folder.
+- Date-dependent logic must take the current date as an argument rather than
+  calling `new Date()` internally, so it can be tested without freezing the
+  clock (see `deriveStage(context, today)`).
 - For anything touching Supabase in a test, use a mocked client — never point
   tests at the real project database.
