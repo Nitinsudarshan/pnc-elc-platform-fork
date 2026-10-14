@@ -26,10 +26,23 @@ export type VersionEntry = {
   changes: VersionChange[]
 }
 
-export const CURRENT_VERSION = '1.02.01'
+export const CURRENT_VERSION = '1.02.02'
 
 /** Newest first. Prepend new entries; never rewrite a released one. */
 export const VERSION_HISTORY: VersionEntry[] = [
+  {
+    version: '1.02.02',
+    date: '2026-10-14',
+    title: 'Widen Role Switcher Dropdown',
+    type: 'patch',
+    changes: [
+      {
+        category: 'Improvements',
+        description:
+          'Increased width of the DevRoleToggle dropdown menu (w-64 sm:w-72) for improved layout, readability of role titles, and touch targets.',
+      },
+    ],
+  },
   {
     version: '1.02.01',
     date: '2026-10-14',

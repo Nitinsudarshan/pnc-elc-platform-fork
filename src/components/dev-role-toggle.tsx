@@ -101,7 +101,7 @@ export function DevRoleToggle({ isSuperAdmin, userRole }: { isSuperAdmin?: boole
           </Badge>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 rounded-xl border bg-card p-1.5 shadow-xl">
+      <DropdownMenuContent align="end" className="w-64 sm:w-72 rounded-xl border bg-card p-1.5 shadow-xl">
         <DropdownMenuLabel className="px-2 py-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
           <span>Role View Mode</span>
           <span className="text-[10px] text-muted-foreground font-normal font-mono">({baseRole})</span>
