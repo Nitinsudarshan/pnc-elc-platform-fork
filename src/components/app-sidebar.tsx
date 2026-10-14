@@ -8,7 +8,8 @@ import {
   LayoutDashboard,
   Settings,
   Users,
-  ClipboardCheck,
+  ClipboardList,
+  FilePlus,
   TrendingUp,
   DatabaseBackup,
   UserPlus,
@@ -20,9 +21,10 @@ import {
   PenTool,
   Mail,
   BarChart3,
-  LayoutGrid,
   UserMinus,
   History,
+  ShieldCheck,
+  Inbox,
 } from "lucide-react"
 
 import { NavMain, NavItem } from "@/components/nav-main"
@@ -39,28 +41,20 @@ import {
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { canAccessRoute, type UserRole } from "@/lib/role-constants"
 
 const data = {
   navSecondary: [
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-    },
-    {
-      title: "Support",
-      url: "#",
-      icon: LifeBuoy,
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: Send,
-    },
+    { title: "Documentation", url: "#", icon: BookOpen },
+    { title: "Support", url: "#", icon: LifeBuoy },
+    { title: "Feedback", url: "#", icon: Send },
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  userRole,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { userRole?: UserRole | null }) {
   const { setOpenMobile, isMobile } = useSidebar()
   const pathname = usePathname()
 
@@ -70,6 +64,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/",
       icon: LayoutDashboard,
       isActive: pathname === "/",
+    },
+    {
+      title: "My Forms",
+      url: "/my-forms",
+      icon: Inbox,
+      isActive: pathname.startsWith("/my-forms"),
     },
     {
       title: "Employees",
@@ -107,6 +107,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ],
     },
     {
+      title: "Confirmations",
+      url: "/confirmations",
+      icon: ClipboardList,
+      isActive: pathname.startsWith("/confirmations"),
+      items: [
+        {
+          title: "All Confirmations",
+          url: "/confirmations",
+          icon: ClipboardList,
+          isActive: pathname === "/confirmations",
+        },
+        {
+          title: "New Confirmation",
+          url: "/confirmations/new",
+          icon: FilePlus,
+          isActive: pathname === "/confirmations/new",
+        },
+      ],
+    },
+    {
       title: "Offboarding",
       url: "/offboarding",
       icon: UserMinus,
@@ -116,7 +136,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: "Appraisals",
       url: "/appraisals",
       icon: TrendingUp,
-      isActive: pathname === "/appraisals",
+      isActive: pathname === "/appraisals" || pathname.startsWith("/appraisals/report"),
     },
     {
       title: "Reports",
@@ -136,6 +156,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: Settings,
       isActive: pathname.startsWith("/manage") || pathname.startsWith("/data-management"),
       items: [
+        {
+          title: "Users",
+          url: "/manage/users",
+          icon: Users,
+          isActive: pathname === "/manage/users",
+        },
+        {
+          title: "Roles",
+          url: "/manage/roles",
+          icon: ShieldCheck,
+          isActive: pathname === "/manage/roles",
+        },
         {
           title: "Letter Templates",
           url: "/manage/letter-templates",
@@ -167,20 +199,32 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           isActive: pathname.startsWith("/manage/settings"),
         },
         {
-          title: "Users",
-          url: "/manage/users",
-          icon: Users,
-          isActive: pathname === "/manage/users",
-        },
-        {
           title: "Data Management",
           url: "/data-management",
           icon: DatabaseBackup,
-          isActive: pathname.startsWith("/data-management"),
+          isActive:
+            pathname.startsWith("/data-management") &&
+            !pathname.startsWith("/data-management/forms"),
+        },
+        {
+          title: "Forms",
+          url: "/data-management/forms",
+          icon: FileText,
+          isActive: pathname.startsWith("/data-management/forms"),
         },
       ],
     },
   ]
+
+  const visibleNav: NavItem[] = navItems
+    .map((item) => {
+      if (!item.items) return item
+      const kids = item.items.filter((s) => canAccessRoute(userRole, s.url))
+      return { ...item, items: kids, url: kids[0]?.url ?? item.url }
+    })
+    .filter((item) =>
+      item.items ? item.items.length > 0 : canAccessRoute(userRole, item.url)
+    )
 
   return (
     <Sidebar
@@ -216,7 +260,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navItems} />
+        <NavMain items={visibleNav} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
     </Sidebar>
