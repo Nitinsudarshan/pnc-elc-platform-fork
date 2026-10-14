@@ -26,10 +26,33 @@ export type VersionEntry = {
   changes: VersionChange[]
 }
 
-export const CURRENT_VERSION = '1.04.00'
+export const CURRENT_VERSION = '1.05.00'
 
 /** Newest first. Prepend new entries; never rewrite a released one. */
 export const VERSION_HISTORY: VersionEntry[] = [
+  {
+    version: '1.05.00',
+    date: '2026-10-15',
+    title: 'Automation pipeline moved into employee onboarding',
+    type: 'minor',
+    changes: [
+      {
+        category: 'Improvements',
+        description:
+          'The automation pipeline now sits beside the post-joining checklist at /onboarding/employee rather than on the candidate hub, which is where the work it describes actually happens. The hub is a hub again.',
+      },
+      {
+        category: 'Features',
+        description:
+          'Automation health strip: deliveries and failures over the last seven days, and when the last run finished, so a silently failing automation does not look like a healthy one.',
+      },
+      {
+        category: 'Features',
+        description:
+          'Drawer actions for People & Culture: write the Slack introduction, flag a missed technical call, and send the two post-meeting emails.',
+      },
+    ],
+  },
   {
     version: '1.04.00',
     date: '2026-10-15',

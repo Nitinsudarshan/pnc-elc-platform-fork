@@ -120,6 +120,8 @@ export type OnboardingDashboardRow = {
   attentionReasons: string[]
   managerEmail: string | null
   buddyEmail: string | null
+  slackIntroText: string | null
+  missedTechCall: boolean
   /** Steps a human must send by hand, surfaced with a "mark as sent" action. */
   manualSteps: { id: string; label: string; scheduledFor: string }[]
   tasks: { id: string; label: string; isCompleted: boolean }[]

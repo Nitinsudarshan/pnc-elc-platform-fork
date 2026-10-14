@@ -111,6 +111,17 @@ export const deriveAttentionReasons = (
     reasons.push('Buddy missing — assign one before the Buddy Connect')
   }
 
+  // The introduction is written by a person, so a missing one blocks a step
+  // that no amount of retrying will fix.
+  const introStep = steps.find((step) => step.stepKey === 'slack_intro')
+  if (introStep && introStep.status === 'pending') {
+    reasons.push(
+      context.slackIntroText
+        ? 'Slack introduction pending'
+        : 'Slack introduction not written yet'
+    )
+  }
+
   const failedSteps = steps.filter((step) => step.status === 'failed')
   if (failedSteps.length > 0) {
     const labels = failedSteps
