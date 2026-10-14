@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getFormBuilderData } from '@/lib/forms/getFormBuilderData'
+import { RequestsPanel } from './RequestsPanel'
 import { FIELD_TYPES, fieldTypeLabel, workflowLabel } from '@/lib/forms/types'
 import {
   addSection,
@@ -26,10 +27,10 @@ export default async function FormBuilderPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string; sent?: string }>
 }) {
   const { id } = await params
-  const { error } = await searchParams
+  const { error, sent } = await searchParams
   const data = await getFormBuilderData(id)
   if (!data) notFound()
 
@@ -257,6 +258,9 @@ export default async function FormBuilderPage({
             </button>
           </div>
         </form>
+      )}
+      {published && !isArchived && (
+        <RequestsPanel formId={form.id} publishedVersionId={published.id} sent={sent} />
       )}
     </div>
   )

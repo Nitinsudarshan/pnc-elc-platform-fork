@@ -15,6 +15,7 @@ import {
   DatabaseBackup,
   ShieldCheck,
   FileText,
+  Inbox,
 } from "lucide-react"
 
 import { NavMain, NavItem } from "@/components/nav-main"
@@ -53,6 +54,12 @@ export function AppSidebar({
       url: "/",
       icon: LayoutDashboard,
       isActive: pathname === "/",
+    },
+    {
+      title: "My Forms",
+      url: "/my-forms",
+      icon: Inbox,
+      isActive: pathname.startsWith("/my-forms"),
     },
     {
       title: "Employees",
