@@ -24,6 +24,17 @@ export async function markStepSent(stepId: string): Promise<ActionResult> {
   const supabase = await createServerSupabaseClient()
   const now = new Date().toISOString()
 
+  const { data: step, error: lookupError } = await supabase
+    .from('onboarding_steps')
+    .select('step_key, onboarding_journeys ( onboarding_record_id )')
+    .eq('id', stepId)
+    .single()
+
+  if (lookupError || !step) {
+    console.error('Failed to load onboarding step:', lookupError?.message)
+    return { success: false, error: 'Could not find this step' }
+  }
+
   const { error } = await supabase
     .from('onboarding_steps')
     .update({
@@ -37,6 +48,33 @@ export async function markStepSent(stepId: string): Promise<ActionResult> {
   if (error) {
     console.error('Failed to mark onboarding step sent:', error.message)
     return { success: false, error: 'Could not update this step' }
+  }
+
+  // Credential delivery is also tracked on the candidate record, so the hub and
+  // the pipeline never disagree about whether the joiner has their login.
+  if (step.step_key === 'credential_email') {
+    const journey = Array.isArray(step.onboarding_journeys)
+      ? step.onboarding_journeys[0]
+      : step.onboarding_journeys
+
+    const recordId = (journey as { onboarding_record_id?: string | null } | null)
+      ?.onboarding_record_id
+
+    if (recordId) {
+      const { error: provisioningError } = await supabase
+        .from('employee_account_provisioning')
+        .update({ credentials_delivery_status: 'sent' })
+        .eq('onboarding_id', recordId)
+
+      if (provisioningError) {
+        // The step is already recorded; a stale provisioning row is worth
+        // reporting but must not read as a failure to the person who sent it.
+        console.error(
+          'Failed to sync credential delivery to provisioning:',
+          provisioningError.message
+        )
+      }
+    }
   }
 
   revalidatePath('/onboarding')

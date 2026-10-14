@@ -32,6 +32,7 @@ export type RunSummary = {
 
 type LogEntry = {
   journeyId: string | null
+  onboardingRecordId?: string | null
   employeeName: string
   module: string
   action: string
@@ -54,6 +55,90 @@ const writeLogs = async (supabase: SupabaseClient, entries: LogEntry[]) => {
   )
 
   if (error) console.error('Onboarding run: failed to write logs', error.message)
+
+  // Mirror into the candidate record's activity log so the onboarding hub shows
+  // automation events in the same timeline as the human ones.
+  const activityRows = entries
+    .filter((entry) => entry.onboardingRecordId)
+    .map((entry) => ({
+      onboarding_id: entry.onboardingRecordId,
+      actor_type: 'system' as const,
+      action: entry.module,
+      description: `${entry.action} — ${entry.status}${
+        entry.error ? `: ${entry.error}` : ''
+      }`,
+      metadata: { journey_id: entry.journeyId, status: entry.status },
+    }))
+
+  if (activityRows.length > 0) {
+    const { error: activityError } = await supabase
+      .from('onboarding_activity_log')
+      .insert(activityRows)
+
+    if (activityError) {
+      console.error(
+        'Onboarding run: failed to write activity log',
+        activityError.message
+      )
+    }
+  }
+}
+
+/**
+ * Credential delivery is tracked in two places: this module's `credential_email`
+ * step, and the candidate pipeline's
+ * `employee_account_provisioning.credentials_delivery_status`. Whichever records
+ * it first wins, so a credential mail sent from the hub is never sent again here.
+ */
+const reconcileCredentialDelivery = async (
+  supabase: SupabaseClient,
+  journeys: LoadedJourney[]
+): Promise<void> => {
+  const recordIds = journeys
+    .map((journey) => journey.context.onboardingRecordId)
+    .filter((id): id is string => Boolean(id))
+
+  if (recordIds.length === 0) return
+
+  const { data, error } = await supabase
+    .from('employee_account_provisioning')
+    .select('onboarding_id, credentials_delivery_status')
+    .in('onboarding_id', recordIds)
+
+  if (error) {
+    console.error('Onboarding run: failed to read provisioning', error.message)
+    return
+  }
+
+  const deliveredRecordIds = new Set(
+    (data ?? [])
+      .filter((row) => row.credentials_delivery_status === 'sent')
+      .map((row) => row.onboarding_id as string)
+  )
+
+  if (deliveredRecordIds.size === 0) return
+
+  for (const journey of journeys) {
+    const recordId = journey.context.onboardingRecordId
+    if (!recordId || !deliveredRecordIds.has(recordId)) continue
+
+    const credentialStep = journey.steps.find(
+      (step) => step.stepKey === 'credential_email' && step.status === 'pending'
+    )
+    if (!credentialStep) continue
+
+    await supabase
+      .from('onboarding_steps')
+      .update({
+        status: 'sent',
+        completed_at: new Date().toISOString(),
+        skip_reason: 'Credentials delivered via the onboarding hub',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', credentialStep.id)
+
+    credentialStep.status = 'sent'
+  }
 }
 
 /** Applies a dispatch outcome back onto the step row. */
@@ -213,6 +298,13 @@ export const runOnboardingAutomation = async (
   const today = getOrgToday()
 
   try {
+    await reconcileCredentialDelivery(supabase, journeys)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    summary.errors.push(`credentials: ${message}`)
+  }
+
+  try {
     await refreshStages(supabase, journeys)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
@@ -249,6 +341,7 @@ export const runOnboardingAutomation = async (
         summary.stepsSent += 1
         logs.push({
           journeyId: item.journey.context.journeyId,
+          onboardingRecordId: item.journey.context.onboardingRecordId,
           employeeName: item.journey.context.employeeName,
           module: item.step.channel,
           action,
@@ -259,6 +352,7 @@ export const runOnboardingAutomation = async (
         summary.stepsSkipped += 1
         logs.push({
           journeyId: item.journey.context.journeyId,
+          onboardingRecordId: item.journey.context.onboardingRecordId,
           employeeName: item.journey.context.employeeName,
           module: item.step.channel,
           action,
@@ -276,6 +370,7 @@ export const runOnboardingAutomation = async (
         )
         logs.push({
           journeyId: item.journey.context.journeyId,
+          onboardingRecordId: item.journey.context.onboardingRecordId,
           employeeName: item.journey.context.employeeName,
           module: item.step.channel,
           action,

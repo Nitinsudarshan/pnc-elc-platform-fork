@@ -46,6 +46,7 @@ export const getOnboardingDashboard =
         return {
           journeyId: context.journeyId,
           employeeId: context.employeeId,
+          onboardingRecordId: context.onboardingRecordId,
           employeeName: context.employeeName,
           employeeType: context.employeeType,
           joiningDate: context.joiningDate,

@@ -29,7 +29,10 @@ export type EmployeeType =
  */
 export type JourneyContext = {
   journeyId: string
-  employeeId: string
+  /** Null for staff who joined before the candidate pipeline existed. */
+  employeeId: string | null
+  /** Null for staff onboarded without going through candidate intake. */
+  onboardingRecordId: string | null
   employeeName: string
   employeeType: EmployeeType
   department: string | null
@@ -88,7 +91,8 @@ export type ChannelProgress = {
 /** One row of the onboarding dashboard table. */
 export type OnboardingDashboardRow = {
   journeyId: string
-  employeeId: string
+  employeeId: string | null
+  onboardingRecordId: string | null
   employeeName: string
   employeeType: EmployeeType
   joiningDate: string

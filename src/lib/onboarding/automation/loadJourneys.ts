@@ -26,7 +26,11 @@ export type LoadedJourney = {
 
 type JourneyRow = {
   id: string
-  employee_id: string
+  employee_id: string | null
+  onboarding_record_id: string | null
+  candidate_name: string | null
+  official_email: string | null
+  personal_email: string | null
   joining_date: string
   stage: JourneyContext['stage']
   department: string | null
@@ -72,6 +76,10 @@ type TaskRow = {
 const JOURNEY_SELECT = `
   id,
   employee_id,
+  onboarding_record_id,
+  candidate_name,
+  official_email,
+  personal_email,
   joining_date,
   stage,
   department,
@@ -96,16 +104,20 @@ const toContext = (row: JourneyRow): JourneyContext => {
     ? employee?.employee_profiles[0]
     : employee?.employee_profiles
 
+  // The journey's own columns are the source of truth: they are refreshed on
+  // every sync and are populated for candidates who have no employees row yet.
+  // The employee join is the fallback for journeys written before that.
   return {
     journeyId: row.id,
     employeeId: row.employee_id,
-    employeeName: employee?.name ?? 'Unknown',
+    onboardingRecordId: row.onboarding_record_id,
+    employeeName: row.candidate_name ?? employee?.name ?? 'Unknown',
     employeeType: employee?.employee_type ?? 'fte',
     department: row.department,
     joiningDate: row.joining_date,
     stage: row.stage,
-    officialEmail: profile?.official_email ?? null,
-    personalEmail: profile?.personal_email ?? null,
+    officialEmail: row.official_email ?? profile?.official_email ?? null,
+    personalEmail: row.personal_email ?? profile?.personal_email ?? null,
     managerEmail: row.manager_email,
     buddyEmail: row.buddy_email,
     slackChannelId: row.slack_channel_id,
