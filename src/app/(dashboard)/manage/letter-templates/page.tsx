@@ -380,7 +380,7 @@ export default function LetterTemplatesPage() {
                         <p className="font-semibold text-xs text-foreground flex items-center gap-2">
                           <span>{tpl.name}</span>
                           {tpl.addendum_type && (
-                            <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-blue-50 text-blue-700 border-blue-200">
+                            <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30">
                               {tpl.addendum_type}
                             </Badge>
                           )}
@@ -408,8 +408,8 @@ export default function LetterTemplatesPage() {
                         variant="outline"
                         className={`text-[10px] font-semibold ${
                           tpl.status === 'active'
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300'
-                            : 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-400'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-300'
+                            : 'bg-slate-100 text-slate-700 border-slate-500/30 dark:bg-slate-800 dark:text-slate-400'
                         }`}
                       >
                         {tpl.status === 'active' ? 'Active' : 'Archived'}
@@ -481,7 +481,7 @@ export default function LetterTemplatesPage() {
                               }}
                               className="text-xs cursor-pointer gap-2 font-medium"
                             >
-                              <Download className="h-3.5 w-3.5 text-indigo-600" />
+                              <Download className="h-3.5 w-3.5 text-indigo-700 dark:text-indigo-300" />
                               <span>Download PDF</span>
                             </DropdownMenuItem>
 
@@ -503,12 +503,12 @@ export default function LetterTemplatesPage() {
                             >
                               {tpl.status === 'active' ? (
                                 <>
-                                  <Archive className="h-3.5 w-3.5 text-amber-600" />
+                                  <Archive className="h-3.5 w-3.5 text-amber-700 dark:text-amber-300" />
                                   <span>Archive Template</span>
                                 </>
                               ) : (
                                 <>
-                                  <RotateCcw className="h-3.5 w-3.5 text-emerald-600" />
+                                  <RotateCcw className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-300" />
                                   <span>Restore to Active</span>
                                 </>
                               )}
@@ -535,7 +535,7 @@ export default function LetterTemplatesPage() {
         >
           <DialogHeader className="p-4 border-b border-border/60 bg-muted/20 shrink-0">
             <DialogTitle className="text-sm font-bold flex items-center gap-2">
-              <Eye className="h-4 w-4 text-indigo-600" />
+              <Eye className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
               <span>Document Preview</span>
             </DialogTitle>
           </DialogHeader>

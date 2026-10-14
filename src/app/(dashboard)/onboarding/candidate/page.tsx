@@ -538,7 +538,7 @@ function CandidateOnboardingContent() {
                                     className="text-xs cursor-pointer gap-2"
                                   >
                                     {copiedToken === item.invitation_token ? (
-                                      <Check className="h-3.5 w-3.5 text-emerald-600" />
+                                      <Check className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-300" />
                                     ) : (
                                       <Copy className="h-3.5 w-3.5 text-muted-foreground" />
                                     )}

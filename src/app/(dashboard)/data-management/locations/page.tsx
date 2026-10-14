@@ -300,7 +300,7 @@ export default function LocationsManagementPage() {
       <PageBanner
         title="Locations Management"
         description="Manage campuses, bootcamps, and day centers."
-        icon={<MapPin className="h-8 w-8 text-emerald-500" />}
+        icon={<MapPin className="h-8 w-8 text-emerald-700 dark:text-emerald-300" />}
         actions={
           <div className="flex items-center gap-2">
             <Link href="/data-management">
@@ -311,7 +311,7 @@ export default function LocationsManagementPage() {
             </Link>
             <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="rounded-lg gap-1.5 h-9 shadow-sm bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Button size="sm" className="rounded-lg gap-1.5 h-9 shadow-sm bg-emerald-700 hover:bg-emerald-800 text-white">
                   <Plus className="h-4 w-4" />
                   Add Location
                 </Button>
@@ -320,7 +320,7 @@ export default function LocationsManagementPage() {
                 <form onSubmit={handleCreateLocation}>
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-base font-bold">
-                      <MapPin className="h-5 w-5 text-emerald-600" />
+                      <MapPin className="h-5 w-5 text-emerald-700 dark:text-emerald-300" />
                       Add New Location
                     </DialogTitle>
                     <DialogDescription className="text-xs">
@@ -330,7 +330,7 @@ export default function LocationsManagementPage() {
                   <div className="grid gap-4 py-4">
                     <div className="space-y-1.5">
                       <Label htmlFor="locName" className="text-xs font-semibold">
-                        Location Name <span className="text-rose-500">*</span>
+                        Location Name <span className="text-rose-700 dark:text-rose-300">*</span>
                       </Label>
                       <Input
                         id="locName"
@@ -345,7 +345,7 @@ export default function LocationsManagementPage() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <Label htmlFor="locType" className="text-xs font-semibold">
-                          Location Type <span className="text-rose-500">*</span>
+                          Location Type <span className="text-rose-700 dark:text-rose-300">*</span>
                         </Label>
                         <Select
                           value={newLocType}
@@ -402,7 +402,7 @@ export default function LocationsManagementPage() {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white" disabled={submitting}>
+                    <Button type="submit" className="rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white" disabled={submitting}>
                       {submitting ? 'Adding...' : 'Add Location'}
                     </Button>
                   </DialogFooter>
@@ -419,7 +419,7 @@ export default function LocationsManagementPage() {
         <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Total Locations</span>
-            <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
+            <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400">
               <Globe className="h-4 w-4" />
             </div>
           </div>
@@ -452,7 +452,7 @@ export default function LocationsManagementPage() {
         <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Bootcamps</span>
-            <div className="p-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400">
+            <div className="p-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-400">
               <GraduationCap className="h-4 w-4" />
             </div>
           </div>
@@ -471,7 +471,7 @@ export default function LocationsManagementPage() {
         <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Day Centers</span>
-            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
+            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400">
               <Compass className="h-4 w-4" />
             </div>
           </div>
@@ -617,7 +617,7 @@ export default function LocationsManagementPage() {
                               setIsAddressOpen(true);
                             }}
                           >
-                            <MapPinPlus className="h-4 w-4 text-emerald-600" />
+                            <MapPinPlus className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
                             {loc.address ? 'Edit Address' : 'Add Address'}
                           </DropdownMenuItem>
                           <DropdownMenuItem
@@ -628,13 +628,13 @@ export default function LocationsManagementPage() {
                               setIsEditOpen(true);
                             }}
                           >
-                            <Edit2 className="h-4 w-4 text-indigo-500" />
+                            <Edit2 className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
                             Change Type
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className={`rounded-lg gap-2 cursor-pointer ${
-                              loc.status === 'active' ? 'text-rose-600' : 'text-emerald-600'
+                              loc.status === 'active' ? 'text-rose-600' : 'text-emerald-700'
                             }`}
                             onClick={() => handleToggleStatus(loc)}
                           >
@@ -678,7 +678,7 @@ export default function LocationsManagementPage() {
           <form onSubmit={handleUpdateType}>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-base font-bold">
-                <Edit2 className="h-5 w-5 text-indigo-600" />
+                <Edit2 className="h-5 w-5 text-indigo-700 dark:text-indigo-300" />
                 Change Facility Type
               </DialogTitle>
               <DialogDescription className="text-xs">
@@ -727,7 +727,7 @@ export default function LocationsManagementPage() {
           <form onSubmit={handleSaveAddress}>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-base font-bold">
-                <MapPinPlus className="h-5 w-5 text-emerald-600" />
+                <MapPinPlus className="h-5 w-5 text-emerald-700 dark:text-emerald-300" />
                 {selectedLoc?.address ? 'Edit Location Address' : 'Add Location Address'}
               </DialogTitle>
               <DialogDescription className="text-xs">
@@ -760,7 +760,7 @@ export default function LocationsManagementPage() {
               >
                 Cancel
               </Button>
-              <Button type="submit" className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white" disabled={submitting}>
+              <Button type="submit" className="rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white" disabled={submitting}>
                 {submitting ? 'Saving Address...' : 'Save Address'}
               </Button>
             </DialogFooter>

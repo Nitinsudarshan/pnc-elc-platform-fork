@@ -366,7 +366,7 @@ export function ReportsView({ data }: ReportsViewProps) {
                 : 'text-muted-foreground hover:text-foreground hover:bg-background/40'
             }`}
           >
-            <UserCheck className="size-3.5 text-amber-600 dark:text-amber-400" />
+            <UserCheck className="size-3.5 text-amber-700 dark:text-amber-400" />
             <span>Confirmations &amp; Probation</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded-lg bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-mono font-bold">
               {data.confirmations.total}
@@ -400,7 +400,7 @@ export function ReportsView({ data }: ReportsViewProps) {
                 : 'text-muted-foreground hover:text-foreground hover:bg-background/40'
             }`}
           >
-            <Users className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+            <Users className="size-3.5 text-emerald-700 dark:text-emerald-400" />
             <span>Headcount &amp; Demographics</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-mono font-bold">
               {data.headcount.total}
@@ -498,7 +498,7 @@ export function ReportsView({ data }: ReportsViewProps) {
             <Card className="rounded-lg border border-border/80 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground">July Mid-Year Cycle</span>
-                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
                   <Calendar className="size-4" />
                 </div>
               </div>
@@ -522,7 +522,7 @@ export function ReportsView({ data }: ReportsViewProps) {
             <Card className="rounded-lg border border-border/80 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground">December Year-End Cycle</span>
-                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                   <TrendingUp className="size-4" />
                 </div>
               </div>
@@ -599,10 +599,10 @@ export function ReportsView({ data }: ReportsViewProps) {
                           return (
                             <div className="rounded-lg border border-border/80 bg-popover text-popover-foreground p-2.5 shadow-md text-xs space-y-1">
                               <p className="font-bold text-foreground">{data.team}</p>
-                              <p className="text-amber-600 dark:text-amber-400 font-mono">
+                              <p className="text-amber-700 dark:text-amber-400 font-mono">
                                 July Cycle: {data.july}
                               </p>
-                              <p className="text-emerald-600 dark:text-emerald-400 font-mono">
+                              <p className="text-emerald-700 dark:text-emerald-400 font-mono">
                                 December Cycle: {data.december}
                               </p>
                               <p className="font-semibold border-t border-border/60 pt-1 font-mono text-foreground">
@@ -738,7 +738,7 @@ export function ReportsView({ data }: ReportsViewProps) {
             <Card className="rounded-lg border border-border/80 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground">Cleared &amp; Confirmed</span>
-                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                   <CheckCircle2 className="size-4" />
                 </div>
               </div>
@@ -753,7 +753,7 @@ export function ReportsView({ data }: ReportsViewProps) {
             <Card className="rounded-lg border border-border/80 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground">In Review &amp; Pending</span>
-                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
                   <Clock className="size-4" />
                 </div>
               </div>
@@ -768,7 +768,7 @@ export function ReportsView({ data }: ReportsViewProps) {
             <Card className="rounded-lg border border-border/80 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground">Resolution Rate</span>
-                <div className="p-2 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+                <div className="p-2 rounded-lg bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20">
                   <TrendingUp className="size-4" />
                 </div>
               </div>
@@ -933,7 +933,7 @@ export function ReportsView({ data }: ReportsViewProps) {
             <Card className="rounded-lg border border-border/80 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground">Post-Joining Employees</span>
-                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                   <CheckCircle2 className="size-4" />
                 </div>
               </div>
@@ -1071,7 +1071,7 @@ export function ReportsView({ data }: ReportsViewProps) {
             <Card className="rounded-lg border border-border/80 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground">Total Active Headcount</span>
-                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                   <Users className="size-4" />
                 </div>
               </div>
@@ -1101,7 +1101,7 @@ export function ReportsView({ data }: ReportsViewProps) {
             <Card className="rounded-lg border border-border/80 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground">Campus Locations</span>
-                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
                   <MapPin className="size-4" />
                 </div>
               </div>
@@ -1116,7 +1116,7 @@ export function ReportsView({ data }: ReportsViewProps) {
             <Card className="rounded-lg border border-border/80 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground">Engagement Models</span>
-                <div className="p-2 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+                <div className="p-2 rounded-lg bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20">
                   <Briefcase className="size-4" />
                 </div>
               </div>
@@ -1310,7 +1310,7 @@ export function ReportsView({ data }: ReportsViewProps) {
             <Card className="rounded-lg border border-border/80 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground">Delivered Successfully</span>
-                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                   <CheckCircle2 className="size-4" />
                 </div>
               </div>
@@ -1325,7 +1325,7 @@ export function ReportsView({ data }: ReportsViewProps) {
             <Card className="rounded-lg border border-border/80 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground">Queued / In Flight</span>
-                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
                   <Clock className="size-4" />
                 </div>
               </div>
@@ -1340,7 +1340,7 @@ export function ReportsView({ data }: ReportsViewProps) {
             <Card className="rounded-lg border border-border/80 bg-card p-4 flex flex-col justify-between gap-3 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground">Delivery Success Rate</span>
-                <div className="p-2 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+                <div className="p-2 rounded-lg bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20">
                   <TrendingUp className="size-4" />
                 </div>
               </div>

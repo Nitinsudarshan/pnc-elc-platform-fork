@@ -233,7 +233,7 @@ export default function DepartmentsManagementPage() {
       <PageBanner
         title="Departments Management"
         description="Configure organizational departments, assign department heads, monitor headcount distribution, and archive inactive divisions."
-        icon={<Building2 className="h-8 w-8 text-indigo-500" />}
+        icon={<Building2 className="h-8 w-8 text-indigo-700 dark:text-indigo-300" />}
         actions={
           <div className="flex items-center gap-2">
             <Link href="/data-management">
@@ -253,7 +253,7 @@ export default function DepartmentsManagementPage() {
                 <form onSubmit={handleCreateDepartment}>
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-base font-bold">
-                      <Building2 className="h-5 w-5 text-indigo-600" />
+                      <Building2 className="h-5 w-5 text-indigo-700 dark:text-indigo-300" />
                       Create New Department
                     </DialogTitle>
                     <DialogDescription className="text-xs">
@@ -263,7 +263,7 @@ export default function DepartmentsManagementPage() {
                   <div className="grid gap-4 py-4">
                     <div className="space-y-1.5">
                       <Label htmlFor="name" className="text-xs font-semibold">
-                        Department Name <span className="text-rose-500">*</span>
+                        Department Name <span className="text-rose-700 dark:text-rose-300">*</span>
                       </Label>
                       <Input
                         id="name"
@@ -341,7 +341,7 @@ export default function DepartmentsManagementPage() {
         <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Active Divisions</span>
-            <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
+            <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400">
               <CheckCircle2 className="h-4 w-4" />
             </div>
           </div>
@@ -360,7 +360,7 @@ export default function DepartmentsManagementPage() {
         <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Archived</span>
-            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
+            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400">
               <Archive className="h-4 w-4" />
             </div>
           </div>
@@ -472,7 +472,7 @@ export default function DepartmentsManagementPage() {
                       <TableCell className="text-xs">
                         {dept.head_of_department_name ? (
                           <div className="flex items-center gap-1.5 text-foreground font-medium">
-                            <UserCheck className="h-3.5 w-3.5 text-emerald-500" />
+                            <UserCheck className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-300" />
                             <span>{dept.head_of_department_name}</span>
                           </div>
                         ) : (
@@ -525,13 +525,13 @@ export default function DepartmentsManagementPage() {
                                 setIsEditHodOpen(true);
                               }}
                             >
-                              <UserCheck className="h-4 w-4 text-indigo-500" />
+                              <UserCheck className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
                               Assign / Edit HOD
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className={`rounded-lg gap-2 cursor-pointer ${
-                                dept.is_archived ? 'text-emerald-600' : 'text-amber-600'
+                                dept.is_archived ? 'text-emerald-700' : 'text-amber-700'
                               }`}
                               onClick={() => handleToggleArchive(dept)}
                             >
@@ -575,7 +575,7 @@ export default function DepartmentsManagementPage() {
           <form onSubmit={handleSaveHod}>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-base font-bold">
-                <UserCheck className="h-5 w-5 text-indigo-600" />
+                <UserCheck className="h-5 w-5 text-indigo-700 dark:text-indigo-300" />
                 Assign Head of Department
               </DialogTitle>
               <DialogDescription className="text-xs">

@@ -830,14 +830,14 @@ export function EmailsView({
     switch (status) {
       case 'delivered':
         return (
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
             <span className="size-2 rounded-full bg-emerald-500" />
             <span>Delivered</span>
           </div>
         )
       case 'queued':
         return (
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400">
             <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
             <span>In Queue</span>
           </div>
@@ -892,7 +892,7 @@ export function EmailsView({
                 : 'text-muted-foreground hover:text-foreground hover:bg-background/40'
             }`}
           >
-            <Radio className="size-3.5 text-emerald-600 dark:text-emerald-400 animate-pulse" />
+            <Radio className="size-3.5 text-emerald-700 dark:text-emerald-400 animate-pulse" />
             <span>Delivery Monitor & Outbox</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-mono font-bold">
               {logs.length}
@@ -908,7 +908,7 @@ export function EmailsView({
                 : 'text-muted-foreground hover:text-foreground hover:bg-background/40'
             }`}
           >
-            <Server className="size-3.5 text-amber-600 dark:text-amber-400" />
+            <Server className="size-3.5 text-amber-700 dark:text-amber-400" />
             <span>Email Setup (Gmail, SES, SMTP)</span>
           </button>
 
@@ -999,7 +999,7 @@ export function EmailsView({
                 </div>
                 <div className="flex items-center justify-between text-[11px]">
                   <span className="text-muted-foreground">Today&apos;s Traffic:</span>
-                  <span className="font-semibold text-emerald-600 dark:text-emerald-400 font-mono">
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400 font-mono">
                     {usedToday.toLocaleString()} used &bull; {leftToday.toLocaleString()} left
                   </span>
                 </div>
@@ -1131,11 +1131,11 @@ export function EmailsView({
                     {/* Cadence & Automated Trigger Badge Box */}
                     <div className="p-2.5 rounded-lg bg-muted/40 border border-border/70 space-y-1 text-xs">
                       <div className="flex items-center gap-1.5 text-foreground font-semibold text-[11px]">
-                        <Zap className="size-3 text-amber-500 shrink-0" />
+                        <Zap className="size-3 text-amber-700 dark:text-amber-300 shrink-0" />
                         <span className="truncate">{tmpl.cadence?.trigger_event || 'Automated Trigger'}</span>
                       </div>
                       <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium">
-                        <Clock className="size-3 text-indigo-500 shrink-0" />
+                        <Clock className="size-3 text-indigo-700 dark:text-indigo-300 shrink-0" />
                         <span className="truncate">{tmpl.cadence?.cadence_summary || 'Immediate'}</span>
                       </div>
                     </div>
@@ -1153,7 +1153,7 @@ export function EmailsView({
                     {/* Variables Count Tag */}
                     <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
                       <span className="flex items-center gap-1">
-                        <Sparkles className="size-3 text-indigo-500" />
+                        <Sparkles className="size-3 text-indigo-700 dark:text-indigo-300" />
                         <span>{tmpl.available_variables.length} dynamic variables</span>
                       </span>
                       <span className="font-mono text-[10px] opacity-70">
@@ -1226,7 +1226,7 @@ export function EmailsView({
               <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Delivered
               </p>
-              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{deliveredCount}</p>
+              <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{deliveredCount}</p>
               <p className="text-[10px] text-muted-foreground">Confirmed recipient inbox</p>
             </div>
 
@@ -1234,7 +1234,7 @@ export function EmailsView({
               <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 In Queue
               </p>
-              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{queuedCount}</p>
+              <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">{queuedCount}</p>
               <p className="text-[10px] text-muted-foreground">Scheduled & in transit</p>
             </div>
 
@@ -1253,7 +1253,7 @@ export function EmailsView({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <Radio className="size-3.5 text-emerald-600 animate-pulse" />
+                    <Radio className="size-3.5 text-emerald-700 dark:text-emerald-300 animate-pulse" />
                     Sent Emails & Outbox Log
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -1473,7 +1473,7 @@ export function EmailsView({
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="size-7 rounded-lg bg-red-500/10 text-red-600 flex items-center justify-center font-bold text-xs">
+                    <div className="size-7 rounded-lg bg-red-500/10 text-red-700 dark:text-red-300 flex items-center justify-center font-bold text-xs">
                       G
                     </div>
                     <div>
@@ -1498,7 +1498,7 @@ export function EmailsView({
                       <span className="size-1.5 rounded-full bg-indigo-500" />
                       Used: <strong className="text-foreground">{usedToday.toLocaleString()}</strong>
                     </span>
-                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
                       {leftToday.toLocaleString()} left
                     </span>
                   </div>
@@ -1522,7 +1522,7 @@ export function EmailsView({
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="size-7 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold text-xs">
+                    <div className="size-7 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold text-xs">
                       SES
                     </div>
                     <div>
@@ -1539,7 +1539,7 @@ export function EmailsView({
                 </p>
                 <div className="flex items-center justify-between pt-1 border-t border-border/50 text-[11px]">
                   <span className="text-muted-foreground">Production Quota:</span>
-                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">50,000 / day</span>
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">50,000 / day</span>
                 </div>
               </div>
 
@@ -1571,7 +1571,7 @@ export function EmailsView({
                 </p>
                 <div className="flex items-center justify-between pt-1 border-t border-border/50 text-[11px]">
                   <span className="text-muted-foreground">Monthly Quota:</span>
-                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">50,000 / mo</span>
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">50,000 / mo</span>
                 </div>
               </div>
 
@@ -1586,7 +1586,7 @@ export function EmailsView({
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="size-7 rounded-lg bg-sky-500/10 text-sky-600 flex items-center justify-center font-bold text-xs">
+                    <div className="size-7 rounded-lg bg-sky-500/10 text-sky-700 dark:text-sky-300 flex items-center justify-center font-bold text-xs">
                       SMTP
                     </div>
                     <div>
@@ -1614,7 +1614,7 @@ export function EmailsView({
             <Card className="lg:col-span-2 border-border/80 bg-card/60 backdrop-blur-sm shadow-xs rounded-xl overflow-hidden">
               <CardHeader className="p-4 pb-2">
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
-                  <Sliders className="size-3.5 text-indigo-600" />
+                  <Sliders className="size-3.5 text-indigo-700 dark:text-indigo-300" />
                   <span>
                     {providerConfig.active_provider === 'gmail' && 'Google Workspace OAuth2 API Configuration'}
                     {providerConfig.active_provider === 'ses' && 'Amazon Simple Email Service (SES) Credentials'}
@@ -1637,14 +1637,14 @@ export function EmailsView({
                     <div className="p-3 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-start justify-between gap-3 text-xs">
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-1.5 font-bold text-emerald-800 dark:text-emerald-300">
-                          <CheckCircle2 className="size-3.5 text-emerald-600" />
+                          <CheckCircle2 className="size-3.5 text-emerald-700 dark:text-emerald-300" />
                           <span>Connected to Google Workspace via Environment Credentials</span>
                         </div>
                         <p className="text-[11px] text-emerald-700 dark:text-emerald-400 leading-relaxed">
                           The PNC ELC platform is actively authenticating dispatches through Google Cloud Console OAuth 2.0 Client credentials with offline refresh capability.
                         </p>
                       </div>
-                      <Badge variant="secondary" className="shrink-0 bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border-emerald-300">
+                      <Badge variant="secondary" className="shrink-0 bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 border-emerald-500/30">
                         Active &amp; Ready
                       </Badge>
                     </div>
@@ -1685,7 +1685,7 @@ export function EmailsView({
                         <Input
                           readOnly
                           value="1//042-fqCrlAZusCgYIARAAGAQSNwF-•••• (Valid)"
-                          className="text-xs h-8.5 font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50/20 dark:bg-emerald-950/20 border-emerald-300"
+                          className="text-xs h-8.5 font-mono text-emerald-700 dark:text-emerald-300 bg-emerald-50/20 dark:bg-emerald-950/20 border-emerald-500/30"
                         />
                         <span className="text-[10px] text-muted-foreground">Offline token configured with auto-refresh</span>
                       </div>
@@ -1731,14 +1731,14 @@ export function EmailsView({
                     <div className="p-3 rounded-lg bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-start justify-between gap-3 text-xs">
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-1.5 font-bold text-amber-800 dark:text-amber-300">
-                          <CheckCircle2 className="size-3.5 text-amber-600" />
+                          <CheckCircle2 className="size-3.5 text-amber-700 dark:text-amber-300" />
                           <span>AWS Simple Email Service — Asia Pacific (Mumbai)</span>
                         </div>
                         <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-relaxed">
                           Identity <span className="font-mono">navgurukul.org</span> is verified with 2048-bit DKIM keys in AWS SES ap-south-1.
                         </p>
                       </div>
-                      <Badge variant="secondary" className="shrink-0 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 border-amber-300">
+                      <Badge variant="secondary" className="shrink-0 bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 border-amber-500/30">
                         Verified Identity
                       </Badge>
                     </div>
@@ -1926,7 +1926,7 @@ export function EmailsView({
                 <div className="flex items-center justify-between pt-2">
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     {providerSaved && (
-                      <span className="flex items-center gap-1 text-emerald-600 font-semibold">
+                      <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-300 font-semibold">
                         <CheckCircle2 className="size-3.5" />
                         Provider configuration saved
                       </span>
@@ -1960,7 +1960,7 @@ export function EmailsView({
               <Card className="border-border/80 bg-card/60 backdrop-blur-sm shadow-xs rounded-xl overflow-hidden">
                 <CardHeader className="p-4 pb-2">
                   <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <ShieldCheck className="size-3.5 text-emerald-600" />
+                    <ShieldCheck className="size-3.5 text-emerald-700 dark:text-emerald-300" />
                     <span>Domain Security Status</span>
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -1971,7 +1971,7 @@ export function EmailsView({
                   <div className="p-2.5 rounded-lg bg-muted/30 border border-border/60 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-foreground">SPF Record</span>
-                      <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold text-[11px]">
+                      <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-semibold text-[11px]">
                         <CheckCircle className="size-3" />
                         Valid / Pass
                       </span>
@@ -1984,7 +1984,7 @@ export function EmailsView({
                   <div className="p-2.5 rounded-lg bg-muted/30 border border-border/60 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-foreground">DKIM (2048-bit RSA)</span>
-                      <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold text-[11px]">
+                      <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-semibold text-[11px]">
                         <CheckCircle className="size-3" />
                         Verified
                       </span>
@@ -1997,7 +1997,7 @@ export function EmailsView({
                   <div className="p-2.5 rounded-lg bg-muted/30 border border-border/60 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-foreground">DMARC Policy</span>
-                      <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold text-[11px]">
+                      <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-semibold text-[11px]">
                         <CheckCircle className="size-3" />
                         Enforced (p=reject)
                       </span>
@@ -2010,7 +2010,7 @@ export function EmailsView({
                   <div className="p-2.5 rounded-lg bg-muted/30 border border-border/60 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-foreground">Primary MX Exchange</span>
-                      <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold text-[11px]">
+                      <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-semibold text-[11px]">
                         <CheckCircle className="size-3" />
                         Active
                       </span>
@@ -2026,7 +2026,7 @@ export function EmailsView({
               <Card className="border-border/80 bg-card/60 backdrop-blur-sm shadow-xs rounded-xl overflow-hidden">
                 <CardHeader className="p-4 pb-2">
                   <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <Send className="size-3.5 text-indigo-600" />
+                    <Send className="size-3.5 text-indigo-700 dark:text-indigo-300" />
                     <span>Send Live Verification Test</span>
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -2076,7 +2076,7 @@ export function EmailsView({
                       </>
                     ) : (
                       <>
-                        <Send className="size-3 text-indigo-600" />
+                        <Send className="size-3 text-indigo-700 dark:text-indigo-300" />
                         <span>Dispatch Live Test Email</span>
                       </>
                     )}
@@ -2145,7 +2145,7 @@ export function EmailsView({
                     Remaining Left
                   </span>
                   <div className="flex items-baseline gap-1 justify-center sm:justify-start">
-                    <span className="text-2xl font-extrabold font-mono text-emerald-600 dark:text-emerald-400">
+                    <span className="text-2xl font-extrabold font-mono text-emerald-700 dark:text-emerald-400">
                       {leftToday.toLocaleString()}
                     </span>
                     <span className="text-[11px] text-muted-foreground font-semibold">
@@ -2297,12 +2297,12 @@ export function EmailsView({
               <CardHeader className="p-4 pb-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-muted-foreground">Remaining Left</span>
-                  <div className="size-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                  <div className="size-7 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 flex items-center justify-center">
                     <CheckCircle2 className="size-4" />
                   </div>
                 </div>
                 <div className="flex items-baseline gap-1.5 mt-1">
-                  <span className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
+                  <span className="text-2xl font-extrabold text-emerald-700 dark:text-emerald-400 font-mono">
                     {leftToday.toLocaleString()}
                   </span>
                   <Badge variant="outline" className="text-[10px] font-mono font-bold bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800">
@@ -2313,7 +2313,7 @@ export function EmailsView({
               <CardContent className="p-4 pt-1">
                 <div className="flex items-center justify-between text-[11px]">
                   <span className="text-muted-foreground">Threshold Status:</span>
-                  <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                     <span className="size-1.5 rounded-full bg-emerald-500" />
                     Ample Headroom
                   </span>
@@ -2350,7 +2350,7 @@ export function EmailsView({
                 </div>
                 <div className="flex items-center justify-between text-[11px] pt-1 border-t border-border/40 mt-1">
                   <span className="text-muted-foreground">Spam Complaints:</span>
-                  <span className="font-semibold text-emerald-600 font-mono">0 (0.0%)</span>
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-300 font-mono">0 (0.0%)</span>
                 </div>
               </CardContent>
             </Card>
@@ -2418,7 +2418,7 @@ export function EmailsView({
                   </div>
                   <div className="absolute left-[75%] -translate-x-1/2 top-0 flex flex-col items-center">
                     <div className="w-[1.5px] h-1.5 bg-amber-500/70 mb-0.5" />
-                    <span className="font-semibold text-amber-600 dark:text-amber-400">75%</span>
+                    <span className="font-semibold text-amber-700 dark:text-amber-400">75%</span>
                   </div>
                   <div className="absolute left-[85%] -translate-x-1/2 top-0 flex flex-col items-center">
                     <div className="w-[1.5px] h-1.5 bg-rose-500/70 mb-0.5" />
@@ -2434,7 +2434,7 @@ export function EmailsView({
               {/* Status Banner */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 text-xs">
                 <div className="flex items-center gap-2.5">
-                  <div className="size-6 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <div className="size-6 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <CheckCircle className="size-3.5" />
                   </div>
                   <div>
@@ -2454,7 +2454,7 @@ export function EmailsView({
                     onClick={() => setActiveTab('monitor')}
                     className="text-xs h-7 gap-1 font-semibold"
                   >
-                    <Radio className="size-3 text-emerald-600" />
+                    <Radio className="size-3 text-emerald-700 dark:text-emerald-300" />
                     <span>View Outbox ({logs.length})</span>
                   </Button>
                   <Button
@@ -2463,7 +2463,7 @@ export function EmailsView({
                     onClick={() => setActiveTab('setup')}
                     className="text-xs h-7 gap-1 font-semibold"
                   >
-                    <Server className="size-3 text-amber-600" />
+                    <Server className="size-3 text-amber-700 dark:text-amber-300" />
                     <span>Setup Credentials</span>
                   </Button>
                 </div>
@@ -2534,7 +2534,7 @@ export function EmailsView({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <Activity className="size-4 text-emerald-600 dark:text-emerald-400" />
+                    <Activity className="size-4 text-emerald-700 dark:text-emerald-400" />
                     <span>24-Hour Hourly Dispatch Activity</span>
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -2597,7 +2597,7 @@ export function EmailsView({
               {/* Row 3: Dedicated Footer Callout Box (Cleanly isolated, zero collision) */}
               <div className="mt-4 p-3 rounded-lg bg-muted/40 border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-muted-foreground">
                 <span className="flex items-center gap-2">
-                  <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="size-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
                   <span>Scheduled batch automation runs on cron every 30 minutes between 09:00 and 19:00 IST.</span>
                 </span>
                 <span className="font-mono text-[11px] font-medium text-foreground bg-background px-2.5 py-0.5 rounded border border-border/60 shrink-0">
@@ -2613,7 +2613,7 @@ export function EmailsView({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <CardTitle className="text-sm font-bold flex items-center gap-2">
-                    <Server className="size-4 text-amber-600 dark:text-amber-400" />
+                    <Server className="size-4 text-amber-700 dark:text-amber-400" />
                     <span>Multi-Provider Sending Quotas &amp; Fallback Hierarchy</span>
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -2626,7 +2626,7 @@ export function EmailsView({
                   onClick={() => setActiveTab('setup')}
                   className="text-xs h-7 gap-1 font-semibold"
                 >
-                  <Server className="size-3 text-amber-600" />
+                  <Server className="size-3 text-amber-700 dark:text-amber-300" />
                   <span>Manage Provider Settings</span>
                 </Button>
               </div>
@@ -2637,7 +2637,7 @@ export function EmailsView({
                 <div className="p-4 rounded-xl bg-indigo-50/40 dark:bg-indigo-950/20 border-2 border-indigo-200 dark:border-indigo-800/80 space-y-3 relative shadow-xs">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="size-7 rounded-lg bg-red-500/10 text-red-600 font-bold flex items-center justify-center text-xs">
+                      <div className="size-7 rounded-lg bg-red-500/10 text-red-700 dark:text-red-300 font-bold flex items-center justify-center text-xs">
                         G
                       </div>
                       <div>
@@ -2661,7 +2661,7 @@ export function EmailsView({
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Remaining Left:</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">{leftToday.toLocaleString()} left</span>
+                      <span className="font-bold text-emerald-700 dark:text-emerald-400 font-mono">{leftToday.toLocaleString()} left</span>
                     </div>
                   </div>
 
@@ -2677,7 +2677,7 @@ export function EmailsView({
                 <div className="p-4 rounded-xl bg-card border border-border/80 space-y-3 relative shadow-xs">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="size-7 rounded-lg bg-amber-500/10 text-amber-600 font-bold flex items-center justify-center text-xs">
+                      <div className="size-7 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 font-bold flex items-center justify-center text-xs">
                         SES
                       </div>
                       <div>
@@ -2701,7 +2701,7 @@ export function EmailsView({
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Remaining Left:</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">50,000 left</span>
+                      <span className="font-bold text-emerald-700 dark:text-emerald-400 font-mono">50,000 left</span>
                     </div>
                   </div>
 
@@ -2738,7 +2738,7 @@ export function EmailsView({
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Remaining Left:</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">49,988 left</span>
+                      <span className="font-bold text-emerald-700 dark:text-emerald-400 font-mono">49,988 left</span>
                     </div>
                   </div>
 
@@ -2753,7 +2753,7 @@ export function EmailsView({
           {/* Safety Safeguards & Quota Alerts Notice */}
           <div className="p-4 rounded-xl bg-card border border-border/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div className="size-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="size-8 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
                 <AlertTriangle className="size-4" />
               </div>
               <div className="space-y-0.5">
@@ -2887,7 +2887,7 @@ export function EmailsView({
               </CardHeader>
               <CardContent className="p-4 pt-1 text-[11px] text-muted-foreground flex justify-between">
                 <span>Delivered:</span>
-                <span className="font-semibold text-emerald-600 font-mono">{periodDelivered.toLocaleString()}</span>
+                <span className="font-semibold text-emerald-700 dark:text-emerald-300 font-mono">{periodDelivered.toLocaleString()}</span>
               </CardContent>
             </Card>
 
@@ -2911,7 +2911,7 @@ export function EmailsView({
               <CardHeader className="p-4 pb-2">
                 <span className="text-xs font-semibold text-muted-foreground">Peak Volume Day</span>
                 <div className="flex items-baseline gap-1.5 mt-1">
-                  <span className="text-2xl font-extrabold text-amber-600 dark:text-amber-400 font-mono">
+                  <span className="text-2xl font-extrabold text-amber-700 dark:text-amber-400 font-mono">
                     {periodPeakDay.totalSent.toLocaleString()}
                   </span>
                   <span className="text-xs text-muted-foreground font-medium">sends</span>
@@ -2927,7 +2927,7 @@ export function EmailsView({
               <CardHeader className="p-4 pb-2">
                 <span className="text-xs font-semibold text-muted-foreground">Period Delivery Health</span>
                 <div className="flex items-baseline gap-1.5 mt-1">
-                  <span className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
+                  <span className="text-2xl font-extrabold text-emerald-700 dark:text-emerald-400 font-mono">
                     {periodSuccessRate}
                   </span>
                   <Badge variant="outline" className="text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800">
@@ -3121,8 +3121,8 @@ export function EmailsView({
 
                         <TableCell>
                           <div className="flex items-center gap-1.5 text-xs font-mono">
-                            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{d.delivered} sent</span>
-                            {d.failed > 0 && <span className="text-rose-600 font-semibold">({d.failed} err)</span>}
+                            <span className="text-emerald-700 dark:text-emerald-400 font-semibold">{d.delivered} sent</span>
+                            {d.failed > 0 && <span className="text-rose-700 dark:text-rose-300 font-semibold">({d.failed} err)</span>}
                           </div>
                         </TableCell>
 
@@ -3276,7 +3276,7 @@ export function EmailsView({
                   <div className="p-3 rounded-xl border border-border/70 bg-muted/20 space-y-1.5">
                     <div className="flex items-center justify-between">
                       <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                        <Sparkles className="size-3 text-amber-500" />
+                        <Sparkles className="size-3 text-amber-700 dark:text-amber-300" />
                         Dynamic Placeholders (Click to copy)
                       </Label>
                       <span className="text-[10px] text-muted-foreground">
@@ -3290,11 +3290,11 @@ export function EmailsView({
                           key={variable}
                           type="button"
                           onClick={() => handleCopyVariable(variable)}
-                          className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-md bg-background border border-border/80 hover:border-indigo-400 hover:text-indigo-600 transition-colors shadow-2xs"
+                          className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-md bg-background border border-border/80 hover:border-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors shadow-2xs"
                           title="Click to copy to clipboard"
                         >
                           {copiedVar === variable ? (
-                            <Check className="size-3 text-emerald-600" />
+                            <Check className="size-3 text-emerald-700 dark:text-emerald-300" />
                           ) : (
                             <Copy className="size-3 text-muted-foreground" />
                           )}
@@ -3327,7 +3327,7 @@ export function EmailsView({
                 <div className="lg:col-span-5 flex flex-col space-y-2 border-t lg:border-t-0 lg:border-l border-border/60 pt-4 lg:pt-0 lg:pl-6">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                      <Eye className="size-3.5 text-indigo-600" />
+                      <Eye className="size-3.5 text-indigo-700 dark:text-indigo-300" />
                       <span>Live Rendered Preview</span>
                     </Label>
                     <Badge variant="outline" className="text-[10px] bg-muted/40">
@@ -3369,7 +3369,7 @@ export function EmailsView({
               <div className="space-y-4 max-w-4xl mx-auto">
                 <div className="p-4 rounded-xl border border-border/70 bg-muted/20 space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <Zap className="size-4 text-amber-500" />
+                    <Zap className="size-4 text-amber-700 dark:text-amber-300" />
                     <p className="text-xs font-bold text-foreground">Lifecycle Trigger Event</p>
                   </div>
                   <Input
@@ -3516,7 +3516,7 @@ export function EmailsView({
           <DialogHeader className="p-4 px-6 border-b border-border/60 bg-muted/20 shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-lg bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-400 border border-sky-200 dark:border-sky-900">
+                <div className="p-2 rounded-lg bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-400 border border-sky-200 dark:border-sky-900">
                   <Mail className="w-4 h-4" />
                 </div>
                 <div>
@@ -3570,7 +3570,7 @@ export function EmailsView({
               {previewTemplate?.cadence && (
                 <div className="p-3.5 rounded-xl border border-border/70 bg-muted/20 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <Clock className="size-4 text-indigo-600" />
+                    <Clock className="size-4 text-indigo-700 dark:text-indigo-300" />
                     <div>
                       <span className="font-semibold text-foreground block">Notification Cadence:</span>
                       <span className="text-muted-foreground text-[11px]">{previewTemplate.cadence.cadence_summary}</span>
@@ -3682,7 +3682,7 @@ export function EmailsView({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Domain Verification:</span>
-                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">navgurukul.org (SPF/DKIM Valid)</span>
+                      <span className="font-semibold text-emerald-700 dark:text-emerald-400">navgurukul.org (SPF/DKIM Valid)</span>
                     </div>
                   </div>
                 </div>
@@ -3915,7 +3915,7 @@ export function EmailsView({
               </div>
               <div className="p-3 rounded-xl bg-card border border-border/80">
                 <span className="text-[11px] text-muted-foreground block">Delivered Successfully</span>
-                <span className="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400">{selectedDayLog?.delivered}</span>
+                <span className="text-xl font-bold font-mono text-emerald-700 dark:text-emerald-400">{selectedDayLog?.delivered}</span>
               </div>
               <div className="p-3 rounded-xl bg-card border border-border/80">
                 <span className="text-[11px] text-muted-foreground block">Failed / Errors</span>

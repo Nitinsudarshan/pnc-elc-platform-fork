@@ -197,7 +197,7 @@ export default function LettersLibraryPage() {
                           {l.template_name}
                         </button>
                         {l.addendum_type && (
-                          <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-blue-50 text-blue-700 border-blue-200">
+                          <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30">
                             {l.addendum_type} Addendum
                           </Badge>
                         )}
@@ -300,7 +300,7 @@ export default function LettersLibraryPage() {
             <div className="flex items-center justify-between">
               <div>
                 <DialogTitle className="text-sm font-bold flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-indigo-600" />
+                  <FileText className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
                   <span>{selectedLetter?.template_name}</span>
                 </DialogTitle>
                 <DialogDescription className="text-xs">

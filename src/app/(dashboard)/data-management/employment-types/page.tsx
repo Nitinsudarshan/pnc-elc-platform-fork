@@ -216,7 +216,7 @@ export default function EmploymentTypesManagementPage() {
       <PageBanner
         title="Employment Types"
         description="Configure workforce engagement classifications, contract models, and employment eligibility."
-        icon={<Briefcase className="h-8 w-8 text-amber-500" />}
+        icon={<Briefcase className="h-8 w-8 text-amber-700 dark:text-amber-300" />}
         actions={
           <div className="flex items-center gap-2">
             <Link href="/data-management">
@@ -229,7 +229,7 @@ export default function EmploymentTypesManagementPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="rounded-lg gap-1.5 h-9 text-emerald-600 border-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+                className="rounded-lg gap-1.5 h-9 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
                 onClick={handleMakeAllActive}
               >
                 <Sparkles className="h-4 w-4" />
@@ -238,7 +238,7 @@ export default function EmploymentTypesManagementPage() {
             )}
             <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" className="rounded-lg gap-1.5 h-9 shadow-sm bg-amber-600 hover:bg-amber-700 text-white">
+                <Button size="sm" className="rounded-lg gap-1.5 h-9 shadow-sm bg-amber-700 hover:bg-amber-800 text-white">
                   <Plus className="h-4 w-4" />
                   Add Employment Type
                 </Button>
@@ -247,7 +247,7 @@ export default function EmploymentTypesManagementPage() {
                 <form onSubmit={handleCreateType}>
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-base font-bold">
-                      <Briefcase className="h-5 w-5 text-amber-600" />
+                      <Briefcase className="h-5 w-5 text-amber-700 dark:text-amber-300" />
                       Add Employment Type
                     </DialogTitle>
                     <DialogDescription className="text-xs">
@@ -257,7 +257,7 @@ export default function EmploymentTypesManagementPage() {
                   <div className="grid gap-4 py-4">
                     <div className="space-y-1.5">
                       <Label htmlFor="name" className="text-xs font-semibold">
-                        Classification Title <span className="text-rose-500">*</span>
+                        Classification Title <span className="text-rose-700 dark:text-rose-300">*</span>
                       </Label>
                       <Input
                         id="name"
@@ -291,7 +291,7 @@ export default function EmploymentTypesManagementPage() {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" className="rounded-lg bg-amber-600 hover:bg-amber-700 text-white" disabled={submitting}>
+                    <Button type="submit" className="rounded-lg bg-amber-700 hover:bg-amber-800 text-white" disabled={submitting}>
                       {submitting ? 'Creating...' : 'Add Type'}
                     </Button>
                   </DialogFooter>
@@ -308,7 +308,7 @@ export default function EmploymentTypesManagementPage() {
         <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Total Types</span>
-            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
+            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400">
               <Layers className="h-4 w-4" />
             </div>
           </div>
@@ -322,7 +322,7 @@ export default function EmploymentTypesManagementPage() {
         <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Active Models</span>
-            <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
+            <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400">
               <CheckCircle2 className="h-4 w-4" />
             </div>
           </div>
@@ -421,7 +421,7 @@ export default function EmploymentTypesManagementPage() {
                     {/* Classification Title */}
                     <TableCell className="font-medium text-xs">
                       <div className="flex items-center gap-2.5">
-                        <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0">
+                        <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 shrink-0">
                           <FileBadge className="h-4 w-4" />
                         </div>
                         <span className="font-semibold text-foreground text-xs">{formattedTitle}</span>
@@ -458,7 +458,7 @@ export default function EmploymentTypesManagementPage() {
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem
                             className={`rounded-lg gap-2 cursor-pointer ${
-                              isActive ? 'text-amber-600' : 'text-emerald-600'
+                              isActive ? 'text-amber-700' : 'text-emerald-700'
                             }`}
                             onClick={() => handleToggleStatus(item)}
                           >

@@ -170,14 +170,14 @@ export function NotificationSettingsForm({
     switch (status) {
       case 'delivered':
         return (
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
             <span className="size-2 rounded-full bg-emerald-500" />
             <span>Delivered</span>
           </div>
         )
       case 'queued':
         return (
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400">
             <span className="size-2 rounded-full bg-amber-500 animate-pulse" />
             <span>In Queue</span>
           </div>
@@ -216,7 +216,7 @@ export function NotificationSettingsForm({
                 : 'text-muted-foreground hover:text-foreground hover:bg-background/40'
             }`}
           >
-            <Bell className="size-3.5 text-indigo-600" />
+            <Bell className="size-3.5 text-indigo-700 dark:text-indigo-300" />
             <span>Notification Rules & Lifecycle Cadence</span>
           </button>
           <button
@@ -228,7 +228,7 @@ export function NotificationSettingsForm({
                 : 'text-muted-foreground hover:text-foreground hover:bg-background/40'
             }`}
           >
-            <Radio className="size-3.5 text-emerald-600 animate-pulse" />
+            <Radio className="size-3.5 text-emerald-700 dark:text-emerald-300 animate-pulse" />
             <span>Email Delivery Monitor & Outbox</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-foreground font-mono">
               {logs.length}
@@ -252,7 +252,7 @@ export function NotificationSettingsForm({
           <Card className="border-border/80 bg-card/60 backdrop-blur-sm shadow-xs rounded-xl overflow-hidden">
             <CardHeader className="pb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                <div className="p-2.5 rounded-lg bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20">
                   <UserPlus className="w-4 h-4" />
                 </div>
                 <div>
@@ -573,7 +573,7 @@ export function NotificationSettingsForm({
           <Card className="border-border/80 bg-card/60 backdrop-blur-sm shadow-xs rounded-xl overflow-hidden">
             <CardHeader className="pb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                   <TrendingUp className="w-4 h-4" />
                 </div>
                 <div>
@@ -736,7 +736,7 @@ export function NotificationSettingsForm({
           <div className="flex items-center justify-between p-4 bg-card rounded-xl border border-border/80 shadow-xs">
             <div className="flex items-center gap-2">
               {saved && (
-                <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+                <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Lifecycle notification rules updated</span>
                 </div>
@@ -795,7 +795,7 @@ export function NotificationSettingsForm({
               <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Delivered
               </p>
-              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{deliveredCount}</p>
+              <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{deliveredCount}</p>
               <p className="text-[10px] text-muted-foreground">Verified recipient delivery</p>
             </div>
 
@@ -803,7 +803,7 @@ export function NotificationSettingsForm({
               <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Queued Reminders
               </p>
-              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{queuedCount}</p>
+              <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">{queuedCount}</p>
               <p className="text-[10px] text-muted-foreground">Scheduled for next cron window</p>
             </div>
 

@@ -458,7 +458,7 @@ export default function CandidateOnboardingPortalPage({
       {/* Submission Status Alert */}
       {isSubmitted && (
         <div className="p-4 rounded-lg border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 flex items-start gap-3 text-emerald-800 dark:text-emerald-300 text-xs sm:text-sm shadow-xs">
-          <CheckCircle2 className="size-5 shrink-0 text-emerald-600 mt-0.5" />
+          <CheckCircle2 className="size-5 shrink-0 text-emerald-700 dark:text-emerald-300 mt-0.5" />
           <div className="space-y-1">
             <p className="font-bold">Onboarding Submitted Successfully!</p>
             <p className="text-xs text-emerald-700 dark:text-emerald-400 leading-relaxed">
@@ -502,7 +502,7 @@ export default function CandidateOnboardingPortalPage({
         <Card className="rounded-lg border border-border bg-card shadow-xs animate-in fade-in duration-200">
           <CardHeader className="pb-4 border-b border-border/50">
             <CardTitle className="text-base font-bold flex items-center gap-2">
-              <User className="size-5 text-indigo-600" />
+              <User className="size-5 text-indigo-700 dark:text-indigo-300" />
               1. Personal, Address & Emergency Contact Details
             </CardTitle>
             <CardDescription className="text-xs">
@@ -514,7 +514,7 @@ export default function CandidateOnboardingPortalPage({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="text-xs font-semibold">
-                  Full Legal Name <span className="text-rose-500">*</span>
+                  Full Legal Name <span className="text-rose-700 dark:text-rose-300">*</span>
                 </Label>
                 <Input
                   className="rounded-lg"
@@ -576,13 +576,13 @@ export default function CandidateOnboardingPortalPage({
             {/* Permanent Address Section */}
             <div className="p-4 rounded-lg border border-border/70 bg-muted/10 space-y-4">
               <div className="flex items-center gap-2 text-foreground font-bold text-xs uppercase tracking-wider">
-                <MapPin className="size-4 text-indigo-600" />
+                <MapPin className="size-4 text-indigo-700 dark:text-indigo-300" />
                 <span>Permanent Address (As per official ID proof)</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="col-span-1 md:col-span-4 space-y-2">
                   <Label className="text-xs font-semibold">
-                    Permanent Address Line <span className="text-rose-500">*</span>
+                    Permanent Address Line <span className="text-rose-700 dark:text-rose-300">*</span>
                   </Label>
                   <Textarea
                     rows={2}
@@ -671,7 +671,7 @@ export default function CandidateOnboardingPortalPage({
             {!sameAsPermanent && (
               <div className="p-4 rounded-lg border border-border/70 bg-card space-y-4">
                 <div className="flex items-center gap-2 text-foreground font-bold text-xs uppercase tracking-wider">
-                  <MapPin className="size-4 text-purple-600" />
+                  <MapPin className="size-4 text-purple-700 dark:text-purple-300" />
                   <span>Current Residential Address</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -719,13 +719,13 @@ export default function CandidateOnboardingPortalPage({
             {/* Emergency Contact */}
             <div className="p-4 rounded-lg border border-border/70 bg-muted/10 space-y-4">
               <div className="flex items-center gap-2 text-foreground font-bold text-xs uppercase tracking-wider">
-                <HeartHandshake className="size-4 text-rose-600" />
+                <HeartHandshake className="size-4 text-rose-700 dark:text-rose-300" />
                 <span>Emergency Contact Person</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label className="text-xs font-semibold">
-                    Contact Name <span className="text-rose-500">*</span>
+                    Contact Name <span className="text-rose-700 dark:text-rose-300">*</span>
                   </Label>
                   <Input
                     className="rounded-lg"
@@ -746,7 +746,7 @@ export default function CandidateOnboardingPortalPage({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-semibold">
-                    Emergency Phone <span className="text-rose-500">*</span>
+                    Emergency Phone <span className="text-rose-700 dark:text-rose-300">*</span>
                   </Label>
                   <Input
                     className="rounded-lg"
@@ -790,7 +790,7 @@ export default function CandidateOnboardingPortalPage({
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <Upload className="size-5 text-indigo-600" />
+                  <Upload className="size-5 text-indigo-700 dark:text-indigo-300" />
                   2. Required Document Dossier
                 </CardTitle>
                 <CardDescription className="text-xs">
@@ -812,9 +812,9 @@ export default function CandidateOnboardingPortalPage({
                   key={doc.id}
                   className={`p-4 rounded-lg border transition-all ${
                     isRejected
-                      ? 'border-rose-300 bg-rose-50/40 dark:bg-rose-950/20'
+                      ? 'border-rose-500/30 bg-rose-50/40 dark:bg-rose-950/20'
                       : isDone
-                      ? 'border-emerald-200 bg-emerald-50/20 dark:bg-emerald-950/20'
+                      ? 'border-emerald-500/30 bg-emerald-50/20 dark:bg-emerald-950/20'
                       : 'border-border/70 bg-card'
                   }`}
                 >
@@ -826,11 +826,11 @@ export default function CandidateOnboardingPortalPage({
                           variant="outline"
                           className={`text-[10px] uppercase font-mono rounded-lg ${
                             doc.status === 'verified'
-                              ? 'bg-emerald-50 text-emerald-600 border-emerald-300'
+                              ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
                               : doc.status === 'rejected'
-                              ? 'bg-rose-50 text-rose-600 border-rose-300'
+                              ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30'
                               : doc.status === 'uploaded'
-                              ? 'bg-blue-50 text-blue-600 border-blue-300'
+                              ? 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30'
                               : 'text-muted-foreground'
                           }`}
                         >
@@ -865,7 +865,7 @@ export default function CandidateOnboardingPortalPage({
                             setPreviewDoc({
                               title: doc.document_type,
                               html: `<div class="p-8 text-center space-y-4">
-                                <div class="size-16 rounded-lg bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-600 mx-auto flex items-center justify-center font-bold">PDF</div>
+                                <div class="size-16 rounded-lg bg-indigo-50/70 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 mx-auto flex items-center justify-center font-bold">PDF</div>
                                 <p class="font-bold text-sm text-foreground">${doc.file_name}</p>
                                 <p class="text-xs text-muted-foreground">[Document Vault Storage Reference: secure://${doc.id}]</p>
                               </div>`,
@@ -918,7 +918,7 @@ export default function CandidateOnboardingPortalPage({
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <Briefcase className="size-5 text-indigo-600" />
+                  <Briefcase className="size-5 text-indigo-700 dark:text-indigo-300" />
                   3. Employment Terms & Role Acknowledgment
                 </CardTitle>
                 <CardDescription className="text-xs">
@@ -926,11 +926,11 @@ export default function CandidateOnboardingPortalPage({
                 </CardDescription>
               </div>
               {employmentDetails?.candidate_confirmed ? (
-                <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-xs gap-1 py-1 rounded-lg">
+                <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20 text-xs gap-1 py-1 rounded-lg">
                   <CheckCircle2 className="size-3.5" /> Confirmed
                 </Badge>
               ) : (
-                <Badge variant="outline" className="text-xs text-amber-600 border-amber-300 bg-amber-50/50 py-1 rounded-lg">
+                <Badge variant="outline" className="text-xs text-amber-700 dark:text-amber-300 border-amber-500/30 bg-amber-500/10 py-1 rounded-lg">
                   Confirmation Required
                 </Badge>
               )}
@@ -940,9 +940,9 @@ export default function CandidateOnboardingPortalPage({
             {/* Metric Tiles Grid (rounded-lg) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Designation */}
-              <div className="p-4 rounded-lg border border-border/70 bg-card hover:border-indigo-300 transition-colors space-y-1.5">
+              <div className="p-4 rounded-lg border border-border/70 bg-card hover:border-indigo-500/30 transition-colors space-y-1.5">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold uppercase tracking-wider">
-                  <Briefcase className="size-4 text-indigo-600" />
+                  <Briefcase className="size-4 text-indigo-700 dark:text-indigo-300" />
                   <span>Designation</span>
                 </div>
                 <p className="text-base font-bold text-foreground">{record.designation}</p>
@@ -952,9 +952,9 @@ export default function CandidateOnboardingPortalPage({
               </div>
 
               {/* Department / Team */}
-              <div className="p-4 rounded-lg border border-border/70 bg-card hover:border-indigo-300 transition-colors space-y-1.5">
+              <div className="p-4 rounded-lg border border-border/70 bg-card hover:border-indigo-500/30 transition-colors space-y-1.5">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold uppercase tracking-wider">
-                  <Building className="size-4 text-purple-600" />
+                  <Building className="size-4 text-purple-700 dark:text-purple-300" />
                   <span>Department / Team</span>
                 </div>
                 <p className="text-base font-bold text-foreground">{record.team_name || record.department || 'NavGurukul Core'}</p>
@@ -962,9 +962,9 @@ export default function CandidateOnboardingPortalPage({
               </div>
 
               {/* Proposed Joining Date */}
-              <div className="p-4 rounded-lg border border-border/70 bg-card hover:border-indigo-300 transition-colors space-y-1.5">
+              <div className="p-4 rounded-lg border border-border/70 bg-card hover:border-indigo-500/30 transition-colors space-y-1.5">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold uppercase tracking-wider">
-                  <Calendar className="size-4 text-teal-600" />
+                  <Calendar className="size-4 text-teal-700 dark:text-teal-300" />
                   <span>Proposed Joining Date</span>
                 </div>
                 <p className="text-base font-bold text-foreground">{record.joining_date}</p>
@@ -972,9 +972,9 @@ export default function CandidateOnboardingPortalPage({
               </div>
 
               {/* Reporting Manager */}
-              <div className="p-4 rounded-lg border border-border/70 bg-card hover:border-indigo-300 transition-colors space-y-1.5">
+              <div className="p-4 rounded-lg border border-border/70 bg-card hover:border-indigo-500/30 transition-colors space-y-1.5">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold uppercase tracking-wider">
-                  <User className="size-4 text-blue-600" />
+                  <User className="size-4 text-blue-700 dark:text-blue-300" />
                   <span>Reporting Manager</span>
                 </div>
                 <p className="text-base font-bold text-foreground">{record.manager_name || 'Designated Lead'}</p>
@@ -982,9 +982,9 @@ export default function CandidateOnboardingPortalPage({
               </div>
 
               {/* Probation Duration */}
-              <div className="p-4 rounded-lg border border-border/70 bg-card hover:border-indigo-300 transition-colors space-y-1.5">
+              <div className="p-4 rounded-lg border border-border/70 bg-card hover:border-indigo-500/30 transition-colors space-y-1.5">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold uppercase tracking-wider">
-                  <Clock className="size-4 text-amber-600" />
+                  <Clock className="size-4 text-amber-700 dark:text-amber-300" />
                   <span>Probation Duration</span>
                 </div>
                 <p className="text-base font-bold text-foreground">{record.probation_period || '3 Months'}</p>
@@ -992,9 +992,9 @@ export default function CandidateOnboardingPortalPage({
               </div>
 
               {/* Notice Period */}
-              <div className="p-4 rounded-lg border border-border/70 bg-card hover:border-indigo-300 transition-colors space-y-1.5">
+              <div className="p-4 rounded-lg border border-border/70 bg-card hover:border-indigo-500/30 transition-colors space-y-1.5">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold uppercase tracking-wider">
-                  <ShieldCheck className="size-4 text-rose-600" />
+                  <ShieldCheck className="size-4 text-rose-700 dark:text-rose-300" />
                   <span>Notice Period</span>
                 </div>
                 <p className="text-base font-bold text-foreground">{record.notice_period || '1 Month'}</p>
@@ -1005,7 +1005,7 @@ export default function CandidateOnboardingPortalPage({
             {/* Roles & Responsibilities Scope */}
             <div className="p-4 rounded-lg border border-border/70 bg-muted/15 space-y-2">
               <div className="flex items-center gap-2 text-foreground font-bold text-xs uppercase tracking-wider">
-                <FileEdit className="size-4 text-indigo-600" />
+                <FileEdit className="size-4 text-indigo-700 dark:text-indigo-300" />
                 <span>Roles & Responsibilities Scope:</span>
               </div>
               <blockquote className="border-l-4 border-indigo-600 pl-4 py-1 text-sm text-foreground/90 leading-relaxed italic bg-card/60 rounded-r-lg">
@@ -1024,7 +1024,7 @@ export default function CandidateOnboardingPortalPage({
                 variant="outline"
                 size="sm"
                 onClick={() => setCorrectionDialogOpen(true)}
-                className="text-xs text-amber-600 border-amber-300 hover:bg-amber-50 rounded-lg"
+                className="text-xs text-amber-700 dark:text-amber-300 border-amber-500/30 hover:bg-amber-500/10 rounded-lg"
               >
                 Request Correction
               </Button>
@@ -1032,7 +1032,7 @@ export default function CandidateOnboardingPortalPage({
                 size="sm"
                 onClick={() => handleConfirmEmployment(true)}
                 disabled={saving}
-                className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-xs rounded-lg"
+                className="gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-xs rounded-lg"
               >
                 <CheckCircle2 className="size-4" />
                 <span>Confirm & Continue</span>
@@ -1049,7 +1049,7 @@ export default function CandidateOnboardingPortalPage({
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <BookOpen className="size-5 text-indigo-600" />
+                  <BookOpen className="size-5 text-indigo-700 dark:text-indigo-300" />
                   4. Pre-Joining Policies & Handbook
                 </CardTitle>
                 <CardDescription className="text-xs">
@@ -1068,14 +1068,14 @@ export default function CandidateOnboardingPortalPage({
                 <div
                   key={p.id}
                   className={`p-4 rounded-lg border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all ${
-                    isCompleted ? 'border-emerald-200 bg-emerald-50/20 dark:bg-emerald-950/20' : 'border-border/70 bg-card'
+                    isCompleted ? 'border-emerald-500/30 bg-emerald-50/20 dark:bg-emerald-950/20' : 'border-border/70 bg-card'
                   }`}
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-sm text-foreground">{p.title}</span>
                       {isCompleted && (
-                        <Badge className="bg-emerald-50 text-emerald-600 border-emerald-300 text-[10px] rounded-lg">Read</Badge>
+                        <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[10px] rounded-lg">Read</Badge>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">{p.description}</p>
@@ -1134,7 +1134,7 @@ export default function CandidateOnboardingPortalPage({
         <Card className="rounded-lg border border-border bg-card shadow-xs animate-in fade-in duration-200">
           <CardHeader className="pb-4 border-b border-border/50">
             <CardTitle className="text-base font-bold flex items-center gap-2">
-              <FileCheck2 className="size-5 text-indigo-600" />
+              <FileCheck2 className="size-5 text-indigo-700 dark:text-indigo-300" />
               5. Offer & Appointment Letter Signature Box
             </CardTitle>
             <CardDescription className="text-xs">
@@ -1150,8 +1150,8 @@ export default function CandidateOnboardingPortalPage({
                   <Badge
                     className={`text-[10px] rounded-lg ${
                       offerDoc?.status === 'signed'
-                        ? 'bg-emerald-50 text-emerald-600 border-emerald-300'
-                        : 'bg-blue-50 text-blue-600 border-blue-300'
+                        ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                        : 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30'
                     }`}
                   >
                     {offerDoc?.status === 'signed' ? 'Signed' : 'Pending Signature'}
@@ -1161,7 +1161,7 @@ export default function CandidateOnboardingPortalPage({
                   Formal compensation breakdown, notice period, and role terms.
                 </p>
                 {offerDoc?.signed_at && (
-                  <div className="space-y-1 pt-2 border-t border-border/40 text-[11px] text-emerald-600 font-mono">
+                  <div className="space-y-1 pt-2 border-t border-border/40 text-[11px] text-emerald-700 dark:text-emerald-300 font-mono">
                     <p>✓ Signed by {offerDoc.signed_by}</p>
                     <p className="text-[10px] text-muted-foreground">
                       Timestamp: {new Date(offerDoc.signed_at).toLocaleString('en-IN')}
@@ -1218,8 +1218,8 @@ export default function CandidateOnboardingPortalPage({
                   <Badge
                     className={`text-[10px] rounded-lg ${
                       apptDoc?.status === 'signed'
-                        ? 'bg-emerald-50 text-emerald-600 border-emerald-300'
-                        : 'bg-blue-50 text-blue-600 border-blue-300'
+                        ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                        : 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30'
                     }`}
                   >
                     {apptDoc?.status === 'signed' ? 'Signed' : 'Pending Signature'}
@@ -1229,7 +1229,7 @@ export default function CandidateOnboardingPortalPage({
                   Appointment covenants, confidentiality, and statutory guidelines.
                 </p>
                 {apptDoc?.signed_at && (
-                  <div className="space-y-1 pt-2 border-t border-border/40 text-[11px] text-emerald-600 font-mono">
+                  <div className="space-y-1 pt-2 border-t border-border/40 text-[11px] text-emerald-700 dark:text-emerald-300 font-mono">
                     <p>✓ Signed by {apptDoc.signed_by}</p>
                     <p className="text-[10px] text-muted-foreground">
                       Timestamp: {new Date(apptDoc.signed_at).toLocaleString('en-IN')}
@@ -1300,7 +1300,7 @@ export default function CandidateOnboardingPortalPage({
         <Card className="rounded-lg border border-border bg-card shadow-xs animate-in fade-in duration-200">
           <CardHeader className="pb-4 border-b border-border/50">
             <CardTitle className="text-base font-bold flex items-center gap-2">
-              <CheckCircle2 className="size-5 text-indigo-600" />
+              <CheckCircle2 className="size-5 text-indigo-700 dark:text-indigo-300" />
               6. Onboarding Completion & Final Submission
             </CardTitle>
             <CardDescription className="text-xs">
@@ -1311,7 +1311,7 @@ export default function CandidateOnboardingPortalPage({
             <div className="divide-y divide-border/60 rounded-lg border border-border/70 overflow-hidden bg-muted/10 text-xs">
               <div className="p-3.5 flex items-center justify-between">
                 <span className="font-semibold text-foreground">1. Personal & Contact Information</span>
-                <Badge className="bg-emerald-50 text-emerald-600 border-emerald-300 rounded-lg">Complete</Badge>
+                <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 rounded-lg">Complete</Badge>
               </div>
               <div className="p-3.5 flex items-center justify-between">
                 <span className="font-semibold text-foreground">2. Required Verification Documents</span>
@@ -1322,9 +1322,9 @@ export default function CandidateOnboardingPortalPage({
               <div className="p-3.5 flex items-center justify-between">
                 <span className="font-semibold text-foreground">3. Employment Terms Confirmation</span>
                 {employmentDetails?.candidate_confirmed ? (
-                  <Badge className="bg-emerald-50 text-emerald-600 border-emerald-300 rounded-lg">Confirmed</Badge>
+                  <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 rounded-lg">Confirmed</Badge>
                 ) : (
-                  <Badge variant="outline" className="text-amber-600 rounded-lg">Pending</Badge>
+                  <Badge variant="outline" className="text-amber-700 dark:text-amber-300 rounded-lg">Pending</Badge>
                 )}
               </div>
               <div className="p-3.5 flex items-center justify-between">
@@ -1336,17 +1336,17 @@ export default function CandidateOnboardingPortalPage({
               <div className="p-3.5 flex items-center justify-between">
                 <span className="font-semibold text-foreground">5. Offer Letter Signature Box</span>
                 {offerDoc?.status === 'signed' ? (
-                  <Badge className="bg-emerald-50 text-emerald-600 border-emerald-300 rounded-lg">Signed with Metadata</Badge>
+                  <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 rounded-lg">Signed with Metadata</Badge>
                 ) : (
-                  <Badge variant="outline" className="text-rose-600 rounded-lg">Pending</Badge>
+                  <Badge variant="outline" className="text-rose-700 dark:text-rose-300 rounded-lg">Pending</Badge>
                 )}
               </div>
               <div className="p-3.5 flex items-center justify-between">
                 <span className="font-semibold text-foreground">6. Appointment Letter Signature Box</span>
                 {apptDoc?.status === 'signed' ? (
-                  <Badge className="bg-emerald-50 text-emerald-600 border-emerald-300 rounded-lg">Signed with Metadata</Badge>
+                  <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 rounded-lg">Signed with Metadata</Badge>
                 ) : (
-                  <Badge variant="outline" className="text-rose-600 rounded-lg">Pending</Badge>
+                  <Badge variant="outline" className="text-rose-700 dark:text-rose-300 rounded-lg">Pending</Badge>
                 )}
               </div>
             </div>
@@ -1368,7 +1368,7 @@ export default function CandidateOnboardingPortalPage({
                 <span>Submit Onboarding to P&C</span>
               </Button>
             ) : (
-              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600">
+              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                 <CheckCircle2 className="size-4" />
                 <span>Submitted on {record.submitted_at ? new Date(record.submitted_at).toLocaleDateString('en-IN') : 'Today'}</span>
               </div>
@@ -1383,10 +1383,10 @@ export default function CandidateOnboardingPortalPage({
           <DialogHeader className="p-6 pb-4 border-b border-border/40 bg-muted/20 shrink-0">
             <div className="flex items-center justify-between">
               <DialogTitle className="text-lg font-bold flex items-center gap-2 text-foreground">
-                <PenTool className="size-5 text-indigo-500" />
+                <PenTool className="size-5 text-indigo-700 dark:text-indigo-300" />
                 Sign {signingDoc?.name} — Signature Box & Audit Capture
               </DialogTitle>
-              <Badge variant="outline" className="font-mono text-xs px-2.5 py-0.5 rounded-lg bg-indigo-500/10 text-indigo-600">
+              <Badge variant="outline" className="font-mono text-xs px-2.5 py-0.5 rounded-lg bg-indigo-500/10 text-indigo-700 dark:text-indigo-300">
                 Legally Binding Digital Sign
               </Badge>
             </div>
@@ -1410,7 +1410,7 @@ export default function CandidateOnboardingPortalPage({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                    <PenTool className="size-3.5 text-indigo-600" />
+                    <PenTool className="size-3.5 text-indigo-700 dark:text-indigo-300" />
                     <span>Draw Your Signature in the Box Below:</span>
                   </Label>
                   <Button
@@ -1418,7 +1418,7 @@ export default function CandidateOnboardingPortalPage({
                     variant="ghost"
                     size="sm"
                     onClick={clearCanvas}
-                    className="h-7 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 gap-1 rounded-lg"
+                    className="h-7 text-xs text-rose-700 dark:text-rose-300 hover:bg-rose-500/10 gap-1 rounded-lg"
                   >
                     <Eraser className="size-3.5" />
                     <span>Clear Signature</span>
@@ -1465,7 +1465,7 @@ export default function CandidateOnboardingPortalPage({
               <div className="p-4 rounded-lg border border-border/80 bg-muted/20 space-y-3 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-2 text-xs font-bold text-foreground mb-2">
-                    <ShieldCheck className="size-4 text-emerald-600" />
+                    <ShieldCheck className="size-4 text-emerald-700 dark:text-emerald-300" />
                     <span>Captured Signature Metadata Audit Trail</span>
                   </div>
                   <div className="space-y-2 text-[11px] font-mono text-muted-foreground divide-y divide-border/40">
@@ -1498,7 +1498,7 @@ export default function CandidateOnboardingPortalPage({
                       type="checkbox"
                       checked={signConsent}
                       onChange={(e) => setSignConsent(e.target.checked)}
-                      className="size-4 mt-0.5 rounded text-indigo-600 cursor-pointer"
+                      className="size-4 mt-0.5 rounded text-indigo-700 dark:text-indigo-300 cursor-pointer"
                     />
                     <span className="leading-tight font-medium">
                       I confirm that I have reviewed the complete text of this document and intend to execute it with this digital signature.
@@ -1531,7 +1531,7 @@ export default function CandidateOnboardingPortalPage({
         <DialogContent className="w-[90vw] max-w-[90vw] sm:max-w-[90vw] h-[90vh] max-h-[90vh] rounded-lg border border-border shadow-2xl p-0 overflow-hidden flex flex-col bg-card/95 backdrop-blur-md">
           <DialogHeader className="p-6 pb-4 border-b border-border/40 bg-muted/20 shrink-0">
             <DialogTitle className="text-lg font-bold flex items-center gap-2">
-              <BookOpen className="size-5 text-indigo-500" />
+              <BookOpen className="size-5 text-indigo-700 dark:text-indigo-300" />
               {viewingPolicy?.title}
             </DialogTitle>
           </DialogHeader>
@@ -1547,7 +1547,7 @@ export default function CandidateOnboardingPortalPage({
             <Button
               size="sm"
               onClick={() => viewingPolicy && handleTogglePolicy(viewingPolicy.type, true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg"
+              className="bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg"
             >
               Mark as Read & Understood
             </Button>
@@ -1560,7 +1560,7 @@ export default function CandidateOnboardingPortalPage({
         <DialogContent className="w-[90vw] max-w-[90vw] sm:max-w-[90vw] h-[90vh] max-h-[90vh] rounded-lg border border-border shadow-2xl p-0 overflow-hidden flex flex-col bg-card/95 backdrop-blur-md">
           <DialogHeader className="p-6 pb-4 border-b border-border/40 bg-muted/20 shrink-0">
             <DialogTitle className="text-lg font-bold flex items-center gap-2">
-              <FileText className="size-5 text-indigo-500" />
+              <FileText className="size-5 text-indigo-700 dark:text-indigo-300" />
               {previewDoc?.title}
             </DialogTitle>
           </DialogHeader>
@@ -1582,7 +1582,7 @@ export default function CandidateOnboardingPortalPage({
       <Dialog open={correctionDialogOpen} onOpenChange={setCorrectionDialogOpen}>
         <DialogContent className="w-[90vw] max-w-[90vw] sm:max-w-[90vw] h-[90vh] max-h-[90vh] rounded-lg border border-border shadow-2xl p-0 overflow-hidden flex flex-col bg-card/95 backdrop-blur-md">
           <DialogHeader className="p-6 pb-4 border-b border-border/40 bg-muted/20 shrink-0">
-            <DialogTitle className="text-lg font-bold text-amber-600 flex items-center gap-2">
+            <DialogTitle className="text-lg font-bold text-amber-700 dark:text-amber-300 flex items-center gap-2">
               <AlertCircle className="size-5" />
               Request Employment Details Correction
             </DialogTitle>
@@ -1591,7 +1591,7 @@ export default function CandidateOnboardingPortalPage({
             </DialogDescription>
           </DialogHeader>
           <div className="flex-1 p-6 overflow-y-auto space-y-4">
-            <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/40 dark:bg-amber-950/20 text-xs text-amber-800 dark:text-amber-200">
+            <div className="p-4 rounded-lg border border-amber-500/30 bg-amber-50/40 dark:bg-amber-950/20 text-xs text-amber-800 dark:text-amber-200">
               Please note: Submitting a correction request flags the record for P&C review. Your onboarding will remain active while adjustments are evaluated.
             </div>
             <div className="space-y-2">
@@ -1613,7 +1613,7 @@ export default function CandidateOnboardingPortalPage({
               size="sm"
               onClick={() => handleConfirmEmployment(false, employmentCorrection)}
               disabled={saving || !employmentCorrection.trim()}
-              className="bg-amber-600 hover:bg-amber-700 text-white rounded-lg"
+              className="bg-amber-700 hover:bg-amber-800 text-white rounded-lg"
             >
               Submit Request to P&C
             </Button>

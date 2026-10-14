@@ -230,7 +230,7 @@ export function ProfileForm({
       {/* Success Notification Alert */}
       {savedSuccess && (
         <div className="p-4 rounded-lg border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 flex items-center gap-3 text-emerald-800 dark:text-emerald-300 text-sm shadow-xs animate-in fade-in duration-200">
-          <CheckCircle2 className="size-5 shrink-0 text-emerald-600" />
+          <CheckCircle2 className="size-5 shrink-0 text-emerald-700 dark:text-emerald-300" />
           <p className="font-semibold">
             Employee profile details have been saved and synchronized successfully!
           </p>
@@ -242,7 +242,7 @@ export function ProfileForm({
         <Card className="rounded-lg border border-border bg-card shadow-xs animate-in fade-in duration-200">
           <CardHeader className="pb-4 border-b border-border/50">
             <CardTitle className="text-base font-bold flex items-center gap-2">
-              <User className="size-5 text-indigo-600" />
+              <User className="size-5 text-indigo-700 dark:text-indigo-300" />
               Personal, Address & Emergency Contact Details
             </CardTitle>
             <CardDescription className="text-xs">
@@ -254,14 +254,14 @@ export function ProfileForm({
             {/* Identity & Basic Contact */}
             <div className="p-4 rounded-lg border border-border/70 bg-muted/10 space-y-4">
               <div className="flex items-center gap-2 text-foreground font-bold text-xs uppercase tracking-wider">
-                <User className="size-4 text-indigo-600" />
+                <User className="size-4 text-indigo-700 dark:text-indigo-300" />
                 <span>Identity & Basic Contact Details</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label className="text-xs font-semibold">
-                    First Name <span className="text-rose-500">*</span>
+                    First Name <span className="text-rose-700 dark:text-rose-300">*</span>
                   </Label>
                   <Input
                     className="rounded-lg bg-background"
@@ -273,7 +273,7 @@ export function ProfileForm({
 
                 <div className="space-y-2">
                   <Label className="text-xs font-semibold">
-                    Last Name <span className="text-rose-500">*</span>
+                    Last Name <span className="text-rose-700 dark:text-rose-300">*</span>
                   </Label>
                   <Input
                     className="rounded-lg bg-background"
@@ -320,12 +320,12 @@ export function ProfileForm({
             {/* Permanent Address Section */}
             <div className="p-4 rounded-lg border border-border/70 bg-muted/10 space-y-4">
               <div className="flex items-center gap-2 text-foreground font-bold text-xs uppercase tracking-wider">
-                <MapPin className="size-4 text-indigo-600" />
+                <MapPin className="size-4 text-indigo-700 dark:text-indigo-300" />
                 <span>Permanent Address (As per official ID proof)</span>
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-semibold">
-                  Permanent Address Line <span className="text-rose-500">*</span>
+                  Permanent Address Line <span className="text-rose-700 dark:text-rose-300">*</span>
                 </Label>
                 <Textarea
                   rows={2}
@@ -369,7 +369,7 @@ export function ProfileForm({
             {!mailingAddressSame && (
               <div className="p-4 rounded-lg border border-border/70 bg-card space-y-4">
                 <div className="flex items-center gap-2 text-foreground font-bold text-xs uppercase tracking-wider">
-                  <MapPin className="size-4 text-purple-600" />
+                  <MapPin className="size-4 text-purple-700 dark:text-purple-300" />
                   <span>Current / Mailing Address</span>
                 </div>
                 <div className="space-y-2">
@@ -388,13 +388,13 @@ export function ProfileForm({
             {/* Emergency Contact */}
             <div className="p-4 rounded-lg border border-border/70 bg-muted/10 space-y-4">
               <div className="flex items-center gap-2 text-foreground font-bold text-xs uppercase tracking-wider">
-                <HeartHandshake className="size-4 text-rose-600" />
+                <HeartHandshake className="size-4 text-rose-700 dark:text-rose-300" />
                 <span>Emergency Contact Person</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label className="text-xs font-semibold">
-                    Contact Name <span className="text-rose-500">*</span>
+                    Contact Name <span className="text-rose-700 dark:text-rose-300">*</span>
                   </Label>
                   <Input
                     className="rounded-lg bg-background"
@@ -424,7 +424,7 @@ export function ProfileForm({
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-semibold">
-                    Emergency Phone <span className="text-rose-500">*</span>
+                    Emergency Phone <span className="text-rose-700 dark:text-rose-300">*</span>
                   </Label>
                   <Input
                     className="rounded-lg bg-background"
@@ -440,7 +440,7 @@ export function ProfileForm({
             {/* Identity & Address Proofs */}
             <div className="p-4 rounded-lg border border-border/70 bg-muted/10 space-y-4">
               <div className="flex items-center gap-2 text-foreground font-bold text-xs uppercase tracking-wider">
-                <ShieldCheck className="size-4 text-emerald-600" />
+                <ShieldCheck className="size-4 text-emerald-700 dark:text-emerald-300" />
                 <span>Identity & Address Proof Documents</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

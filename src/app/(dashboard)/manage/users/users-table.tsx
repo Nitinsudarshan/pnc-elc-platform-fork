@@ -398,7 +398,7 @@ export function UsersTable({ initialUsers, canEdit = true }: UsersTableProps) {
           <DialogContent className="sm:max-w-[420px] rounded-lg border bg-card p-5 shadow-xl animate-in zoom-in-95 duration-200">
             <DialogHeader className="space-y-1 pb-1">
               <DialogTitle className="text-lg font-bold tracking-tight flex items-center gap-2">
-                <Edit3 className="h-4 w-4 text-indigo-500" />
+                <Edit3 className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
                 Edit User Role & Team
               </DialogTitle>
               <DialogDescription className="text-muted-foreground text-xs">

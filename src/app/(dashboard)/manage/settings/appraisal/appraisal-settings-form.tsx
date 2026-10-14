@@ -127,7 +127,7 @@ export function AppraisalSettingsForm({
       <Card className="border-border/80 bg-card/60 backdrop-blur-sm shadow-xs rounded-xl overflow-hidden">
         <CardHeader className="p-4 pb-3 border-b border-border/60 bg-muted/10">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+            <div className="p-2.5 rounded-lg bg-teal-500/10 text-teal-700 dark:text-teal-400 border border-teal-500/20">
               <TrendingUp className="w-4 h-4" />
             </div>
             <div>
@@ -230,7 +230,7 @@ export function AppraisalSettingsForm({
       <Card className="border-border/80 bg-card/60 backdrop-blur-sm shadow-xs rounded-xl overflow-hidden">
         <CardHeader className="p-5 pb-2">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
               <Calendar className="w-4 h-4" />
             </div>
             <div>
@@ -330,7 +330,7 @@ export function AppraisalSettingsForm({
       <div className="flex items-center justify-between p-4 bg-card rounded-xl border border-border/80 shadow-xs">
         <div className="flex items-center gap-2">
           {saved && (
-            <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+            <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
               <CheckCircle2 className="w-4 h-4" />
               <span>Appraisal configurations saved successfully</span>
             </div>

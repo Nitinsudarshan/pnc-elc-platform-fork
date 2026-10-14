@@ -382,7 +382,7 @@ export function SignatoriesTable({
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Active Signing Authorities
           </p>
-          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{activeCount}</p>
+          <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{activeCount}</p>
           <p className="text-[11px] text-muted-foreground">Available to stamp candidate letters</p>
         </div>
 
@@ -669,7 +669,7 @@ export function SignatoriesTable({
               <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-xs font-semibold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+                    <Sparkles className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-300" />
                     Digital Signature Asset
                   </Label>
                   <p className="text-[11px] text-muted-foreground">
@@ -750,7 +750,7 @@ export function SignatoriesTable({
                     <div className="text-xs text-muted-foreground">
                       <label
                         htmlFor="sig-upload-input"
-                        className="font-semibold text-indigo-600 hover:text-indigo-700 cursor-pointer underline mr-1"
+                        className="font-semibold text-indigo-700 dark:text-indigo-300 cursor-pointer underline mr-1"
                       >
                         Choose signature file
                       </label>
@@ -798,7 +798,7 @@ export function SignatoriesTable({
                   type="checkbox"
                   checked={formIsDefault}
                   onChange={(e) => setFormIsDefault(e.target.checked)}
-                  className="rounded border-border text-indigo-600 focus:ring-indigo-500"
+                  className="rounded border-border text-indigo-700 dark:text-indigo-300 focus:ring-indigo-500"
                 />
                 <span className="font-semibold">Set as Primary Default Signatory</span>
                 <span className="text-muted-foreground text-[11px]">— automatically stamped on newly generated letters</span>
@@ -809,7 +809,7 @@ export function SignatoriesTable({
                   type="checkbox"
                   checked={formIsActive}
                   onChange={(e) => setFormIsActive(e.target.checked)}
-                  className="rounded border-border text-indigo-600 focus:ring-indigo-500"
+                  className="rounded border-border text-indigo-700 dark:text-indigo-300 focus:ring-indigo-500"
                 />
                 <span className="font-semibold">Active Authority</span>
                 <span className="text-muted-foreground text-[11px]">— available in letter author dropdowns</span>
@@ -845,7 +845,7 @@ export function SignatoriesTable({
         <DialogContent className="max-w-md rounded-2xl p-0 overflow-hidden">
           <DialogHeader className="p-4 border-b border-border/60 bg-muted/20">
             <DialogTitle className="text-sm font-bold flex items-center gap-2">
-              <PenTool className="w-4 h-4 text-indigo-600" />
+              <PenTool className="w-4 h-4 text-indigo-700 dark:text-indigo-300" />
               <span>Signature of {previewSig?.name}</span>
             </DialogTitle>
             <DialogDescription className="text-xs">

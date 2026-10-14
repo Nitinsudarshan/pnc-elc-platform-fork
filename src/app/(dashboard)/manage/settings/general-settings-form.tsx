@@ -67,7 +67,7 @@ export function GeneralSettingsForm({ initialSettings }: { initialSettings: Gene
       <Card className="border-border/80 bg-card/60 backdrop-blur-sm shadow-xs rounded-xl overflow-hidden">
         <CardHeader className="p-5 pb-2">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
+            <div className="p-2.5 rounded-lg bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20">
               <Building2 className="w-4 h-4" />
             </div>
             <div>
@@ -113,7 +113,7 @@ export function GeneralSettingsForm({ initialSettings }: { initialSettings: Gene
       <Card className="border-border/80 bg-card/60 backdrop-blur-sm shadow-xs rounded-xl overflow-hidden">
         <CardHeader className="p-5 pb-2">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+            <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
               <Clock className="w-4 h-4" />
             </div>
             <div>
@@ -165,7 +165,7 @@ export function GeneralSettingsForm({ initialSettings }: { initialSettings: Gene
       <Card className="border-border/80 bg-card/60 backdrop-blur-sm shadow-xs rounded-xl overflow-hidden">
         <CardHeader className="p-5 pb-2">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
               <Briefcase className="w-4 h-4" />
             </div>
             <div>
@@ -221,7 +221,7 @@ export function GeneralSettingsForm({ initialSettings }: { initialSettings: Gene
       <div className="flex items-center justify-between p-4 bg-card rounded-xl border border-border/80 shadow-xs">
         <div className="flex items-center gap-2">
           {saved && (
-            <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+            <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
               <CheckCircle2 className="w-4 h-4" />
               <span>General settings updated successfully</span>
             </div>

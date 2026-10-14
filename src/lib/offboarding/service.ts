@@ -1,6 +1,7 @@
 'use server';
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { auditOffboarding, auditAccess, auditLetters } from '@/lib/audit/events';
 import { revalidatePath } from 'next/cache';
 import { sendEmail } from '@/lib/email/sendEmail';
 import {
@@ -1172,6 +1173,19 @@ async function recordAuditLog(
 /**
  * Fetch all offboarding cases.
  */
+/**
+ * Audit subject for an offboarding case. Both keys are carried: the employee
+ * ID links to their directory record, and the email keeps the trail resolvable
+ * after that record is archived at exit.
+ */
+function auditSubject(c: { employee_id: string; employee_email: string; employee_name: string }) {
+  return {
+    employee_id: c.employee_id,
+    employee_email: c.employee_email,
+    employee_name: c.employee_name,
+  };
+}
+
 export async function getAllOffboardingCases(): Promise<OffboardingCase[]> {
   try {
     const supabase = await createServerSupabaseClient();
@@ -1595,6 +1609,18 @@ export async function initiateOffboardingCase(
 
     revalidatePath('/offboarding');
     revalidatePath('/employees');
+    await auditOffboarding.caseOpened({
+      subject: auditSubject(newCase),
+      actorName: newCase.initiated_by,
+      entityId: caseId,
+      exitType: newCase.exit_type,
+      metadata: {
+        proposed_lwd: newCase.proposed_lwd,
+        notice_period_days: noticeDays,
+        reason: newCase.reason,
+      },
+    });
+
     return { success: true, caseId };
   } catch (err: any) {
     console.error('Error initiating offboarding:', err);
@@ -1723,6 +1749,16 @@ export async function updateAssetClearance(
     return_status: updatedAsset.return_status,
   });
 
+  await auditOffboarding.clearanceUpdated({
+    subject: auditSubject(existing.caseRecord),
+    actorName: updates.verified_by || 'IT Asset Desk',
+    entityId: caseId,
+    area: `Asset — ${updatedAsset.asset_name}`,
+    status: updatedAsset.return_status,
+    severity: updatedAsset.return_status === 'under_recovery' ? 'warning' : 'info',
+    metadata: { asset_id: assetId, recovery_amount: updatedAsset.recovery_amount },
+  });
+
   revalidatePath(`/offboarding/${caseId}`);
   return { success: true };
 }
@@ -1789,6 +1825,16 @@ export async function updateNDCDepartment(
     status: updatedNdc.status,
   });
 
+  await auditOffboarding.clearanceUpdated({
+    subject: auditSubject(existing.caseRecord),
+    actorName: updates.cleared_by || 'Department Authority',
+    entityId: caseId,
+    area: updatedNdc.department_label,
+    status: updatedNdc.status,
+    severity: updatedNdc.status === 'blocked' ? 'warning' : 'info',
+    metadata: { department, remarks: updates.remarks },
+  });
+
   revalidatePath(`/offboarding/${caseId}`);
   return { success: true };
 }
@@ -1833,6 +1879,18 @@ export async function updateFnFDetails(
   await recordAuditLog('offboarding_fnf', caseId, 'update', {
     status: updatedFnf.status,
     payable_days: updatedFnf.payable_days,
+  });
+
+  await auditOffboarding.fnfSettled({
+    subject: auditSubject(existing.caseRecord),
+    actorName: updates.processed_by || 'Finance Lead',
+    entityId: caseId,
+    metadata: {
+      status: updatedFnf.status,
+      payable_days: updatedFnf.payable_days,
+      payment_reference: updatedFnf.payment_reference,
+      net_payable_estimate: updatedFnf.net_payable_estimate,
+    },
   });
 
   revalidatePath(`/offboarding/${caseId}`);
@@ -1882,6 +1940,18 @@ export async function updateExitDates(
     oldProposed,
     newProposed: proposedLwd,
     actualLwd,
+  });
+
+  await auditOffboarding.statusChanged({
+    subject: auditSubject(existing.caseRecord),
+    entityId: caseId,
+    to: existing.caseRecord.status,
+    severity: 'notice',
+    changes: [
+      { field: 'proposed_lwd', label: 'Proposed Last Working Day', from: oldProposed, to: proposedLwd },
+      ...(actualLwd ? [{ field: 'actual_lwd', label: 'Actual Last Working Day', to: actualLwd }] : []),
+    ],
+    metadata: { reason: reasonForAdjustment },
   });
 
   revalidatePath(`/offboarding/${caseId}`);
@@ -1981,6 +2051,23 @@ export async function closeOffboardingCase(
     status: 'completed',
     actual_lwd: finalLwd,
     closedBy,
+  });
+
+  await auditOffboarding.statusChanged({
+    subject: auditSubject(existing.caseRecord),
+    actorName: closedBy,
+    entityId: caseId,
+    to: 'completed',
+    severity: 'critical',
+    metadata: { actual_lwd: finalLwd },
+  });
+
+  // Exit closure revokes platform access as a matter of record.
+  await auditAccess.revoked({
+    subject: auditSubject(existing.caseRecord),
+    actorName: closedBy,
+    entityId: caseId,
+    system: 'All NavGurukul systems',
   });
 
   // Send formal relieving & experience letter email
@@ -2675,6 +2762,19 @@ export async function submitResignationRequest(
       console.warn('Could not dispatch resignation notification email:', mailErr);
     }
 
+    await auditOffboarding.resignationReceived({
+      subject: auditSubject(newRequest),
+      actorType: newRequest.source === 'platform' ? 'employee' : 'pnc',
+      actorName: newRequest.employee_name,
+      entityId: newRequest.id,
+      channel: newRequest.source,
+      lastWorkingDay: newRequest.proposed_lwd,
+      metadata: {
+        reason: newRequest.reason,
+        notice_period_days: newRequest.notice_period_days,
+      },
+    });
+
     revalidatePath('/offboarding');
     return { success: true, request: newRequest };
   } catch (err: any) {
@@ -2797,6 +2897,23 @@ export async function submitReviewDecision(
     decision,
     newStatus: req.status,
     notes,
+  });
+
+  await auditOffboarding.statusChanged({
+    subject: auditSubject(req),
+    actorType: reviewerRole === 'manager' ? 'manager' : 'pnc',
+    actorName: reviewerRole === 'manager' ? req.manager_decision_by : req.pnc_decision_by,
+    entityId: requestId,
+    to: req.status,
+    severity: 'notice',
+    changes: [
+      {
+        field: `${reviewerRole}_decision`,
+        label: reviewerRole === 'manager' ? 'Manager Decision' : 'P&C Decision',
+        to: decision,
+      },
+    ],
+    metadata: { notes, hold_until: req.hold_until_date },
   });
 
   revalidatePath('/offboarding');

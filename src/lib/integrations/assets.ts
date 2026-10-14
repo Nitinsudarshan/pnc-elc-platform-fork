@@ -27,8 +27,39 @@ export interface ExternalAssetQueryResponse {
   assets: ExternalAssetItem[];
 }
 
+/**
+ * Status of a joiner's hardware request in the external Asset Management
+ * System. ELC never creates or fulfils these — it reports what that system
+ * says, so P&C can see whether a laptop is on its way without leaving ELC.
+ */
+export type AssetAllocationStage =
+  | 'not_requested'
+  | 'requested'
+  | 'approved'
+  | 'in_procurement'
+  | 'allocated'
+  | 'handed_over';
+
+export interface ExternalAssetAllocationStatus {
+  source_system: 'Enterprise_Asset_Management_API';
+  fetched_at: string;
+  /** Employee code the external system knows this person by. */
+  employee_reference: string;
+  stage: AssetAllocationStage;
+  /** External system's own ticket/request reference, when one exists. */
+  request_reference?: string;
+  requested_at?: string;
+  expected_handover_date?: string;
+  handed_over_at?: string;
+  /** Deep link into the external system for the full request. */
+  external_url?: string;
+  assets: ExternalAssetItem[];
+}
+
 export interface IAssetIntegrationService {
   getEmployeeAssignedAssets(employeeId: string): Promise<ExternalAssetQueryResponse>;
+  /** Read-only allocation status for a joiner, for the onboarding view. */
+  getOnboardingAllocationStatus(employeeReference: string): Promise<ExternalAssetAllocationStatus>;
 }
 
 // ----------------------------------------------------------------------------
@@ -163,6 +194,65 @@ export class MockAssetIntegrationService implements IAssetIntegrationService {
       total_assigned_count: assets.length,
       total_recovery_required: totalRecovery,
       assets,
+    };
+  }
+
+  async getOnboardingAllocationStatus(
+    employeeReference: string
+  ): Promise<ExternalAssetAllocationStatus> {
+    // Deterministic mock: the stage is derived from the employee reference so a
+    // given joiner always shows the same state across reloads.
+    const stages: AssetAllocationStage[] = [
+      'not_requested',
+      'requested',
+      'approved',
+      'in_procurement',
+      'allocated',
+      'handed_over',
+    ];
+
+    let hash = 0;
+    for (let i = 0; i < employeeReference.length; i++) {
+      hash = (hash << 5) - hash + employeeReference.charCodeAt(i);
+      hash |= 0;
+    }
+    const stage = stages[Math.abs(hash) % stages.length];
+
+    const now = Date.now();
+    const requestedAt = new Date(now - 86400000 * 6).toISOString();
+
+    const allocated: ExternalAssetItem[] =
+      stage === 'allocated' || stage === 'handed_over'
+        ? [
+            {
+              asset_id: `ast-onb-${Math.abs(hash) % 1000}`,
+              asset_name: 'Lenovo ThinkPad E14 Gen 5 (16GB / 512GB)',
+              asset_tag: `NG-LAP-${new Date().getFullYear()}-${(Math.abs(hash) % 900) + 100}`,
+              asset_type: 'laptop',
+              assigned_date: new Date(now - 86400000 * 2).toISOString().split('T')[0],
+              serial_number: `PF-${Math.abs(hash) % 100000}`,
+              assignment_status: 'assigned',
+              external_return_status: 'pending_return',
+              estimated_recovery_amount: 62000,
+              specifications: 'Standard joiner configuration, Windows 11 Pro, pre-enrolled in MDM',
+            },
+          ]
+        : [];
+
+    return {
+      source_system: 'Enterprise_Asset_Management_API',
+      fetched_at: new Date().toISOString(),
+      employee_reference: employeeReference,
+      stage,
+      request_reference: stage === 'not_requested' ? undefined : `AMS-REQ-${Math.abs(hash) % 10000}`,
+      requested_at: stage === 'not_requested' ? undefined : requestedAt,
+      expected_handover_date:
+        stage === 'not_requested' || stage === 'handed_over'
+          ? undefined
+          : new Date(now + 86400000 * 3).toISOString().split('T')[0],
+      handed_over_at: stage === 'handed_over' ? new Date(now - 86400000).toISOString() : undefined,
+      external_url: 'https://assets.navgurukul.org/requests',
+      assets: allocated,
     };
   }
 }

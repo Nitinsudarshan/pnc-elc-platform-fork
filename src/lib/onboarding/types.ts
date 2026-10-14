@@ -1,3 +1,5 @@
+import type { CtcFrequency } from './compensation';
+
 export type OnboardingStatus =
   | 'draft'
   | 'invited'
@@ -35,7 +37,12 @@ export interface OnboardingRecord {
   joining_date: string;
   probation_period?: string;
   notice_period?: string;
+  /** Display string derived from `ctc_amount` + `ctc_frequency`, e.g. "₹60,000 / month". */
   ctc?: string;
+  /** Compensation figure as entered. */
+  ctc_amount?: number | null;
+  /** The period `ctc_amount` is paid over, so it is never labelled with the wrong one. */
+  ctc_frequency?: CtcFrequency | null;
   is_alumni: boolean;
   role_responsibilities?: string;
   status: OnboardingStatus;
@@ -96,6 +103,8 @@ export interface OnboardingEmploymentDetails {
   probation_period?: string;
   notice_period?: string;
   ctc?: string;
+  ctc_amount?: number | null;
+  ctc_frequency?: CtcFrequency | null;
   is_alumni: boolean;
   role_responsibilities?: string;
   candidate_confirmed?: boolean;
@@ -182,15 +191,32 @@ export interface EmployeeOrientationChecklist {
 export interface ProbationMilestone {
   status: 'pending' | 'scheduled' | 'completed';
   notes?: string;
+  /** `YYYY-MM-DD` the check-in is booked for. */
   due_date?: string;
+  /** ISO 8601 start of the booked slot, set by the auto-scheduler. */
+  starts_at?: string;
+  /** ISO 8601 end of the booked slot. */
+  ends_at?: string;
   completed_at?: string | null;
   reviewer_name?: string;
+  /** True when ELC placed this slot rather than a human. */
+  auto_scheduled?: boolean;
+  /** True once a human has moved the slot; the auto-scheduler then leaves it alone. */
+  rescheduled?: boolean;
+  /** Why the scheduler chose this slot. */
+  scheduling_note?: string;
 }
 
+/**
+ * Probation check-ins tracked during onboarding.
+ *
+ * Only the 30- and 60-day conversations live here. Employment confirmation at
+ * the end of probation is a separate process with its own rules and belongs to
+ * the Confirmation module, not to onboarding.
+ */
 export interface EmployeeProbationMilestones {
   day_30?: ProbationMilestone;
   day_60?: ProbationMilestone;
-  day_90?: ProbationMilestone;
 }
 
 export interface EmployeeAccountProvisioning {

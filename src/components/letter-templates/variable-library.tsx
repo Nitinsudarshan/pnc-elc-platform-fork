@@ -92,7 +92,7 @@ export function VariableLibrary({
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <div className="mt-8 [writing-mode:vertical-lr] rotate-180 flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-wider uppercase">
-          <Sparkles className="h-3.5 w-3.5 text-indigo-500 rotate-90" />
+          <Sparkles className="h-3.5 w-3.5 text-indigo-700 dark:text-indigo-300 rotate-90" />
           <span>Variable Library</span>
         </div>
       </div>
@@ -179,7 +179,7 @@ export function VariableLibrary({
           return (
             <div key={cat} className="space-y-1.5">
               <div className="flex items-center gap-1.5 px-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                <CatIcon className="h-3 w-3 text-indigo-500" />
+                <CatIcon className="h-3 w-3 text-indigo-700 dark:text-indigo-300" />
                 <span>{cat}</span>
                 <span className="text-[10px] font-normal text-muted-foreground/80">
                   ({list.length})

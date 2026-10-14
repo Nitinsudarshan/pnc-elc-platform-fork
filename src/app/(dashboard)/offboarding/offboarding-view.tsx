@@ -505,7 +505,7 @@ export function OffboardingView({
               disabled={isPending}
               className="text-xs border-border bg-card/60 hover:bg-muted text-foreground"
             >
-              <Send className="size-3.5 mr-1.5 text-indigo-500" />
+              <Send className="size-3.5 mr-1.5 text-indigo-700 dark:text-indigo-300" />
               Send Reminders
             </Button>
 
@@ -515,7 +515,7 @@ export function OffboardingView({
                 setResEntrySource('platform');
                 setNewResModalOpen(true);
               }}
-              className="text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+              className="text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs"
             >
               <Plus className="size-3.5 mr-1.5" />
               Initiate Resignation
@@ -555,12 +555,12 @@ export function OffboardingView({
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <CheckCircle2 className="size-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
             <span>Stage 2: Active Offboarding & Clearances</span>
             <Badge
               variant="secondary"
               className={`text-[10px] h-4.5 px-1.5 font-bold ${
-                activeStage === 'stage2_cases' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : ''
+                activeStage === 'stage2_cases' ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400' : ''
               }`}
             >
               {caseMetrics.total}
@@ -570,12 +570,12 @@ export function OffboardingView({
 
         <div className="hidden lg:flex items-center gap-2 px-3 text-[11px] text-muted-foreground shrink-0">
           {activeStage === 'stage1_resignations' ? (
-            <span className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-medium">
+            <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-medium">
               <AlertCircle className="size-3.5 shrink-0" />
               Resignation requests are not yet Offboarding Cases.
             </span>
           ) : (
-            <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
+            <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium">
               <CheckCircle className="size-3.5 shrink-0" />
               Exit officially initiated. Assets, NDC & F&F active.
             </span>
@@ -605,7 +605,7 @@ export function OffboardingView({
             </Card>
 
             <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
-              <div className="text-[11px] font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1 truncate">
+              <div className="text-[11px] font-medium text-amber-700 dark:text-amber-400 flex items-center gap-1 truncate">
                 <RotateCcw className="size-3 shrink-0" /> 7-Day Hold
               </div>
               <div className="text-xl font-bold text-foreground mt-1">{resMetrics.onHold}</div>
@@ -621,7 +621,7 @@ export function OffboardingView({
             </Card>
 
             <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
-              <div className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1 truncate">
+              <div className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 flex items-center gap-1 truncate">
                 <CheckCircle2 className="size-3 shrink-0" /> Accepted Exits
               </div>
               <div className="text-xl font-bold text-foreground mt-1">{resMetrics.accepted}</div>
@@ -769,15 +769,15 @@ export function OffboardingView({
                           {/* Manager Decision */}
                           <TableCell className="py-3">
                             {r.manager_decision === 'accepted' ? (
-                              <Badge className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-[10px] font-semibold">
+                              <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 text-[10px] font-semibold">
                                 <Check className="size-2.5 mr-1" /> Accepted
                               </Badge>
                             ) : r.manager_decision === 'retention_proposed' ? (
-                              <Badge className="bg-amber-500/10 text-amber-600 border border-amber-500/20 text-[10px] font-semibold">
+                              <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 text-[10px] font-semibold">
                                 <RotateCcw className="size-2.5 mr-1" /> Retention
                               </Badge>
                             ) : r.manager_decision === 'on_hold' ? (
-                              <Badge className="bg-blue-500/10 text-blue-600 border border-blue-500/20 text-[10px] font-semibold">
+                              <Badge className="bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 text-[10px] font-semibold">
                                 <Clock className="size-2.5 mr-1" /> On Hold
                               </Badge>
                             ) : (
@@ -790,15 +790,15 @@ export function OffboardingView({
                           {/* P&C Decision */}
                           <TableCell className="py-3">
                             {r.pnc_decision === 'accepted' ? (
-                              <Badge className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-[10px] font-semibold">
+                              <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 text-[10px] font-semibold">
                                 <Check className="size-2.5 mr-1" /> Accepted
                               </Badge>
                             ) : r.pnc_decision === 'retention_proposed' ? (
-                              <Badge className="bg-amber-500/10 text-amber-600 border border-amber-500/20 text-[10px] font-semibold">
+                              <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 text-[10px] font-semibold">
                                 <RotateCcw className="size-2.5 mr-1" /> Retention
                               </Badge>
                             ) : r.pnc_decision === 'on_hold' ? (
-                              <Badge className="bg-blue-500/10 text-blue-600 border border-blue-500/20 text-[10px] font-semibold">
+                              <Badge className="bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-500/20 text-[10px] font-semibold">
                                 <Clock className="size-2.5 mr-1" /> On Hold
                               </Badge>
                             ) : (
@@ -811,19 +811,19 @@ export function OffboardingView({
                           {/* Overall State */}
                           <TableCell className="py-3">
                             {r.status === 'resignation_accepted' ? (
-                              <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white text-[10px] font-semibold">
+                              <Badge className="bg-emerald-700 hover:bg-emerald-700 text-white text-[10px] font-semibold">
                                 Resignation Accepted
                               </Badge>
                             ) : r.status === 'on_hold' ? (
-                              <Badge variant="outline" className="border-amber-500 text-amber-600 text-[10px] font-semibold bg-amber-500/10">
+                              <Badge variant="outline" className="border-amber-500 text-amber-700 dark:text-amber-300 text-[10px] font-semibold bg-amber-500/10">
                                 7-Day Hold Active
                               </Badge>
                             ) : r.status === 'withdrawal_proposed' ? (
-                              <Badge variant="outline" className="border-indigo-500 text-indigo-600 text-[10px] font-semibold bg-indigo-500/10">
+                              <Badge variant="outline" className="border-indigo-500 text-indigo-700 dark:text-indigo-300 text-[10px] font-semibold bg-indigo-500/10">
                                 Employee Response Pending
                               </Badge>
                             ) : r.status === 'decision_pending' ? (
-                              <Badge className="bg-rose-500/15 text-rose-600 border border-rose-500/30 text-[10px] font-semibold">
+                              <Badge className="bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30 text-[10px] font-semibold">
                                 Disagreement Resolution
                               </Badge>
                             ) : r.status === 'withdrawn_by_employee' ? (
@@ -905,7 +905,7 @@ export function OffboardingView({
             </Card>
 
             <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
-              <div className="text-[11px] font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1 truncate">
+              <div className="text-[11px] font-medium text-amber-700 dark:text-amber-400 flex items-center gap-1 truncate">
                 <Laptop className="size-3 shrink-0" /> Clearances Pending
               </div>
               <div className="text-xl font-bold text-foreground mt-1">{caseMetrics.clearanceInProgress}</div>
@@ -921,7 +921,7 @@ export function OffboardingView({
             </Card>
 
             <Card className="rounded-xl border border-border bg-card p-3 shadow-xs overflow-hidden">
-              <div className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1 truncate">
+              <div className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400 flex items-center gap-1 truncate">
                 <CheckCircle2 className="size-3 shrink-0" /> Completed
               </div>
               <div className="text-xl font-bold text-foreground mt-1">{caseMetrics.completed}</div>
@@ -1040,7 +1040,7 @@ export function OffboardingView({
 
                         <TableCell className="py-3 text-xs">
                           {c.immediate_relieving ? (
-                            <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-500/30">
+                            <Badge variant="outline" className="text-[10px] text-amber-700 dark:text-amber-300 border-amber-500/30">
                               Waived
                             </Badge>
                           ) : (
@@ -1050,22 +1050,22 @@ export function OffboardingView({
 
                         <TableCell className="py-3">
                           {c.status === 'notice_period' && (
-                            <Badge className="bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 text-[10px] font-semibold">
+                            <Badge className="bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20 text-[10px] font-semibold">
                               Notice Period
                             </Badge>
                           )}
                           {c.status === 'clearance_in_progress' && (
-                            <Badge className="bg-amber-500/10 text-amber-600 border border-amber-500/20 text-[10px] font-semibold">
+                            <Badge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 text-[10px] font-semibold">
                               Clearance Active
                             </Badge>
                           )}
                           {c.status === 'settlement_pending' && (
-                            <Badge className="bg-rose-500/10 text-rose-600 border border-rose-500/20 text-[10px] font-semibold">
+                            <Badge className="bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-500/20 text-[10px] font-semibold">
                               F&F Pending
                             </Badge>
                           )}
                           {c.status === 'completed' && (
-                            <Badge className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-[10px] font-semibold">
+                            <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 text-[10px] font-semibold">
                               Completed / Exited
                             </Badge>
                           )}
@@ -1110,7 +1110,7 @@ export function OffboardingView({
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
                 <RotateCcw className="size-5" />
               </div>
               <div>
@@ -1154,7 +1154,7 @@ export function OffboardingView({
                       : 'border-border hover:bg-muted/50 text-foreground'
                   }`}
                 >
-                  <Mail className="size-4 mb-1 text-amber-600 dark:text-amber-400" />
+                  <Mail className="size-4 mb-1 text-amber-700 dark:text-amber-400" />
                   <div className="text-xs font-bold">Ingest Email</div>
                   <div className="text-[10px] text-muted-foreground">Evidence captured</div>
                 </button>
@@ -1326,7 +1326,7 @@ export function OffboardingView({
               size="sm"
               onClick={handleSubmitNewResignation}
               disabled={isPending || !newResForm.employee_id || !newResForm.proposed_lwd}
-              className="text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white min-w-[140px]"
+              className="text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white min-w-[140px]"
             >
               {isPending ? 'Submitting...' : 'Submit for Review'}
             </Button>
@@ -1442,7 +1442,7 @@ export function OffboardingView({
                     <span className="flex items-center gap-1.5 font-bold text-blue-700 dark:text-blue-300">
                       <Clock className="size-4" /> 7-Day Retention Discussion Window Active
                     </span>
-                    <Badge variant="outline" className="border-blue-500 text-blue-600 bg-background text-[11px]">
+                    <Badge variant="outline" className="border-blue-500 text-blue-700 dark:text-blue-300 bg-background text-[11px]">
                       Hold Expiry: {selectedRequest.hold_until_date || '7 Days'}
                     </Badge>
                   </div>
@@ -1468,7 +1468,7 @@ export function OffboardingView({
                       size="sm"
                       onClick={() => handleResolveDisagreement('accepted')}
                       disabled={isPending}
-                      className="h-8 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white"
+                      className="h-8 text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white"
                     >
                       <Check className="size-3.5 mr-1" /> Resolve: Accept Resignation & Initiate Exit
                     </Button>
@@ -1477,7 +1477,7 @@ export function OffboardingView({
                       variant="outline"
                       onClick={() => handleResolveDisagreement('retention_proposed')}
                       disabled={isPending}
-                      className="h-8 text-xs font-semibold text-amber-600 border-amber-500/40 hover:bg-amber-50"
+                      className="h-8 text-xs font-semibold text-amber-700 dark:text-amber-300 border-amber-500/40 hover:bg-amber-500/10"
                     >
                       <RotateCcw className="size-3.5 mr-1" /> Resolve: Propose Retention to Employee
                     </Button>
@@ -1500,7 +1500,7 @@ export function OffboardingView({
                       size="sm"
                       onClick={() => handleEmployeeRetentionResponse('accepted_withdrawal')}
                       disabled={isPending}
-                      className="h-8 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white"
+                      className="h-8 text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white"
                     >
                       <Check className="size-3.5 mr-1" /> Employee Accepts Withdrawal (Stay at NavGurukul)
                     </Button>
@@ -1509,7 +1509,7 @@ export function OffboardingView({
                       variant="outline"
                       onClick={() => handleEmployeeRetentionResponse('declined_withdrawal')}
                       disabled={isPending}
-                      className="h-8 text-xs font-semibold text-rose-600 border-rose-500/40 hover:bg-rose-50"
+                      className="h-8 text-xs font-semibold text-rose-700 dark:text-rose-300 border-rose-500/40 hover:bg-rose-500/10"
                     >
                       <UserMinus className="size-3.5 mr-1" /> Employee Declines (Proceed with Exit)
                     </Button>
@@ -1526,7 +1526,7 @@ export function OffboardingView({
                   </div>
                   {selectedRequest.offboarding_case_id && (
                     <Link href={`/offboarding/${selectedRequest.offboarding_case_id}`}>
-                      <Button size="sm" className="h-7 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white">
+                      <Button size="sm" className="h-7 text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white">
                         Open Offboarding Case <ArrowRight className="size-3 ml-1" />
                       </Button>
                     </Link>
@@ -1557,7 +1557,7 @@ export function OffboardingView({
                 <Card className="rounded-xl border border-border bg-card p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 font-bold text-xs">
-                      <User className="size-3.5 text-indigo-500" />
+                      <User className="size-3.5 text-indigo-700 dark:text-indigo-300" />
                       <span>Reporting Manager Review</span>
                     </div>
                     <Badge variant="outline" className="text-[10px] capitalize">
@@ -1582,7 +1582,7 @@ export function OffboardingView({
                       size="sm"
                       onClick={() => handleReviewDecision('manager', 'accepted')}
                       disabled={isPending || selectedRequest.status === 'resignation_accepted'}
-                      className="h-7 text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white"
+                      className="h-7 text-[11px] font-semibold bg-emerald-700 hover:bg-emerald-800 text-white"
                     >
                       <Check className="size-3 mr-1" /> Accept Resignation
                     </Button>
@@ -1592,7 +1592,7 @@ export function OffboardingView({
                       variant="outline"
                       onClick={() => handleReviewDecision('manager', 'retention_proposed')}
                       disabled={isPending || selectedRequest.status === 'resignation_accepted'}
-                      className="h-7 text-[11px] font-semibold text-amber-600 border-amber-500/40 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+                      className="h-7 text-[11px] font-semibold text-amber-700 dark:text-amber-300 border-amber-500/40 hover:bg-amber-50 dark:hover:bg-amber-950/20"
                     >
                       <RotateCcw className="size-3 mr-1" /> Propose Retention
                     </Button>
@@ -1602,7 +1602,7 @@ export function OffboardingView({
                       variant="outline"
                       onClick={() => handleReviewDecision('manager', 'on_hold')}
                       disabled={isPending || selectedRequest.status === 'resignation_accepted'}
-                      className="h-7 text-[11px] font-semibold text-blue-600 border-blue-500/40 hover:bg-blue-50 dark:hover:bg-blue-950/20"
+                      className="h-7 text-[11px] font-semibold text-blue-700 dark:text-blue-300 border-blue-500/40 hover:bg-blue-50 dark:hover:bg-blue-950/20"
                     >
                       <Clock className="size-3 mr-1" /> Put on Hold (7d)
                     </Button>
@@ -1613,7 +1613,7 @@ export function OffboardingView({
                 <Card className="rounded-xl border border-border bg-card p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 font-bold text-xs">
-                      <Users className="size-3.5 text-purple-500" />
+                      <Users className="size-3.5 text-purple-700 dark:text-purple-300" />
                       <span>People & Culture (P&C) Review</span>
                     </div>
                     <Badge variant="outline" className="text-[10px] capitalize">
@@ -1638,7 +1638,7 @@ export function OffboardingView({
                       size="sm"
                       onClick={() => handleReviewDecision('pnc', 'accepted')}
                       disabled={isPending || selectedRequest.status === 'resignation_accepted'}
-                      className="h-7 text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white"
+                      className="h-7 text-[11px] font-semibold bg-emerald-700 hover:bg-emerald-800 text-white"
                     >
                       <Check className="size-3 mr-1" /> Accept Resignation
                     </Button>
@@ -1648,7 +1648,7 @@ export function OffboardingView({
                       variant="outline"
                       onClick={() => handleReviewDecision('pnc', 'retention_proposed')}
                       disabled={isPending || selectedRequest.status === 'resignation_accepted'}
-                      className="h-7 text-[11px] font-semibold text-amber-600 border-amber-500/40 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+                      className="h-7 text-[11px] font-semibold text-amber-700 dark:text-amber-300 border-amber-500/40 hover:bg-amber-50 dark:hover:bg-amber-950/20"
                     >
                       <RotateCcw className="size-3 mr-1" /> Propose Retention
                     </Button>
@@ -1658,7 +1658,7 @@ export function OffboardingView({
                       variant="outline"
                       onClick={() => handleReviewDecision('pnc', 'on_hold')}
                       disabled={isPending || selectedRequest.status === 'resignation_accepted'}
-                      className="h-7 text-[11px] font-semibold text-blue-600 border-blue-500/40 hover:bg-blue-50 dark:hover:bg-blue-950/20"
+                      className="h-7 text-[11px] font-semibold text-blue-700 dark:text-blue-300 border-blue-500/40 hover:bg-blue-50 dark:hover:bg-blue-950/20"
                     >
                       <Clock className="size-3 mr-1" /> Put on Hold (7d)
                     </Button>

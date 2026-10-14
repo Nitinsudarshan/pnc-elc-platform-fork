@@ -223,17 +223,17 @@ export function EmployeesTable({ employees }: { employees: Employee[] }) {
     const formatted = formatEmploymentType(type);
     const clean = (type || '').toLowerCase();
 
-    let colorClasses = 'border-slate-300 bg-slate-50 text-slate-700 dark:bg-slate-900/40 dark:text-slate-300';
+    let colorClasses = 'border-slate-500/30 bg-slate-50 text-slate-700 dark:bg-slate-900/40 dark:text-slate-300';
     if (clean === 'fte') {
-      colorClasses = 'border-blue-300 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300';
+      colorClasses = 'border-blue-500/30 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300';
     } else if (clean === 'ftc') {
-      colorClasses = 'border-purple-300 bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300';
+      colorClasses = 'border-purple-500/30 bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300';
     } else if (clean.includes('apprentice')) {
-      colorClasses = 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300';
+      colorClasses = 'border-emerald-500/30 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300';
     } else if (clean === 'intern') {
-      colorClasses = 'border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300';
+      colorClasses = 'border-amber-500/30 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300';
     } else if (clean === 'contractor') {
-      colorClasses = 'border-zinc-300 bg-zinc-50 text-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-300';
+      colorClasses = 'border-zinc-500/30 bg-zinc-50 text-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-300';
     }
 
     return (
@@ -260,7 +260,7 @@ export function EmployeesTable({ employees }: { employees: Employee[] }) {
               value="active"
               className="gap-2 text-xs font-semibold data-[state=active]:bg-background data-[state=active]:shadow-xs px-3.5 py-1.5 rounded-lg"
             >
-              <UserCheck className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+              <UserCheck className="size-3.5 text-emerald-700 dark:text-emerald-400" />
               <span>Active Employees</span>
               <span className="ml-1 px-1.5 py-0.2 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300">
                 {activeEmployees.length}

@@ -1,6 +1,8 @@
 'use server'
 
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { auditConfirmation } from '@/lib/audit/events'
+import { resolveEmployeeSubject } from '@/lib/audit/subject'
 
 export async function updateManagerDecision(
   confirmationId: string,
@@ -32,6 +34,24 @@ export async function updateManagerDecision(
   if (error) {
     console.error('Error updating manager decision:', error.message, error.details, error.hint)
     return null
+  }
+
+  const subject = await resolveEmployeeSubject(data.employee_id)
+  if (decision === 'yes') {
+    await auditConfirmation.managerDecision({
+      subject,
+      entityId: confirmationId,
+      entityType: 'confirmation',
+      decision: 'Confirm employment',
+    })
+  } else {
+    await auditConfirmation.extended({
+      subject,
+      entityId: confirmationId,
+      entityType: 'confirmation',
+      until: rescheduleDate,
+      reason: 'Manager deferred confirmation',
+    })
   }
 
   return data

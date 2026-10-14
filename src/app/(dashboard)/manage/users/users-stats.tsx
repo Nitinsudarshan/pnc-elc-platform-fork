@@ -63,7 +63,7 @@ export function UsersStatsCards({ users }: UsersStatsProps) {
       <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-muted-foreground">Activation Rate</span>
-          <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
+          <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400">
             <CheckCircle2 className="h-4 w-4" />
           </div>
         </div>

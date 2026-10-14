@@ -294,7 +294,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
             <Button asChild size="sm" variant="outline" className="gap-1.5 text-xs rounded-lg font-semibold shadow-xs">
               <Link href={`/onboarding/${record.invitation_token}`} target="_blank" rel="noreferrer">
                 <span>Candidate Form</span>
-                <ExternalLink className="size-3.5 text-indigo-600" />
+                <ExternalLink className="size-3.5 text-indigo-700 dark:text-indigo-300" />
               </Link>
             </Button>
 
@@ -304,7 +304,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
               variant="outline"
               onClick={handleSendInvitation}
               disabled={actionLoading}
-              className="gap-1.5 text-xs rounded-lg font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-50 border-blue-200 dark:border-blue-900"
+              className="gap-1.5 text-xs rounded-lg font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 border-blue-200 dark:border-blue-900"
             >
               <Send className="size-3.5" />
               <span>{record.status === 'draft' ? 'Send Invitation' : 'Resend Link'}</span>
@@ -318,7 +318,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                   size="sm"
                   onClick={() => handleStatusUpdate('changes_requested', 'P&C requested candidate to update specific details or re-upload documents.')}
                   disabled={actionLoading}
-                  className="gap-1.5 text-xs text-rose-600 hover:text-rose-700 border-rose-200 hover:bg-rose-50 rounded-lg font-semibold"
+                  className="gap-1.5 text-xs text-rose-700 dark:text-rose-300 border-rose-500/30 hover:bg-rose-500/10 rounded-lg font-semibold"
                 >
                   <AlertCircle className="size-3.5" />
                   <span>Request Changes</span>
@@ -327,7 +327,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                   size="sm"
                   onClick={() => handleStatusUpdate('approved', 'P&C verified all documents and approved the onboarding dossier.')}
                   disabled={actionLoading}
-                  className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-xs"
+                  className="gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-lg shadow-xs"
                 >
                   <CheckCircle2 className="size-3.5" />
                   <span>Approve Dossier</span>
@@ -375,7 +375,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
         {/* Visits Metadata */}
         <div className="flex flex-wrap items-center gap-3 font-mono text-[11px] text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <Globe className="size-3.5 text-indigo-500" />
+            <Globe className="size-3.5 text-indigo-700 dark:text-indigo-300" />
             <span>Portal Visits: <strong className="text-foreground">{record.visit_count || 0}</strong></span>
           </div>
           {record.first_visited_at && (
@@ -494,7 +494,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
               {/* Permanent Address */}
               <div className="col-span-1 md:col-span-2 lg:col-span-3 p-4 rounded-xl border border-border/80 bg-muted/10 space-y-2">
                 <div className="flex items-center gap-1.5 font-bold text-xs text-foreground uppercase tracking-wider">
-                  <MapPin className="size-4 text-indigo-600" />
+                  <MapPin className="size-4 text-indigo-700 dark:text-indigo-300" />
                   <span>Permanent Address (As per ID proof)</span>
                 </div>
                 <p className="text-sm text-foreground/90 leading-relaxed font-medium">
@@ -509,7 +509,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
               {/* Current Address */}
               <div className="col-span-1 md:col-span-2 lg:col-span-3 p-4 rounded-xl border border-border/80 bg-muted/10 space-y-2">
                 <div className="flex items-center gap-1.5 font-bold text-xs text-foreground uppercase tracking-wider">
-                  <MapPin className="size-4 text-purple-600" />
+                  <MapPin className="size-4 text-purple-700 dark:text-purple-300" />
                   <span>Current Residential Accommodation</span>
                 </div>
                 <p className="text-sm text-foreground/90 leading-relaxed font-medium">
@@ -524,7 +524,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
               {/* Emergency Contact Dossier */}
               <div className="col-span-1 md:col-span-2 lg:col-span-3 p-4 rounded-xl border border-rose-200/60 dark:border-rose-950/60 bg-rose-50/20 dark:bg-rose-950/10 space-y-3">
                 <div className="flex items-center gap-1.5 font-bold text-xs text-rose-700 dark:text-rose-300 uppercase tracking-wider">
-                  <HeartHandshake className="size-4 text-rose-600" />
+                  <HeartHandshake className="size-4 text-rose-700 dark:text-rose-300" />
                   <span>Emergency Contact Information</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -561,12 +561,12 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                   </CardDescription>
                 </div>
                 {employmentDetails?.candidate_confirmed ? (
-                  <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-xs gap-1.5 px-2.5 py-1">
+                  <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 text-xs gap-1.5 px-2.5 py-1">
                     <CheckCircle2 className="size-3.5" />
                     Confirmed by Candidate
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="text-xs text-amber-600 border-amber-300 bg-amber-50/50 px-2.5 py-1">
+                  <Badge variant="outline" className="text-xs text-amber-700 dark:text-amber-300 border-amber-500/30 bg-amber-500/10 px-2.5 py-1">
                     Pending Candidate Confirmation
                   </Badge>
                 )}
@@ -652,11 +652,11 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                         <div
                           className={`p-2.5 rounded-xl shrink-0 ${
                             doc.status === 'verified'
-                              ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50'
+                              ? 'bg-emerald-50 text-emerald-700 dark:text-emerald-300 dark:bg-emerald-950/50'
                               : doc.status === 'rejected'
-                              ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/50'
+                              ? 'bg-rose-50 text-rose-700 dark:text-rose-300 dark:bg-rose-950/50'
                               : doc.status === 'uploaded'
-                              ? 'bg-blue-50 text-blue-600 dark:bg-blue-950/50'
+                              ? 'bg-blue-50 text-blue-700 dark:text-blue-300 dark:bg-blue-950/50'
                               : 'bg-muted text-muted-foreground'
                           }`}
                         >
@@ -669,11 +669,11 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                               variant="outline"
                               className={`text-[10px] uppercase font-mono px-2 py-0.5 rounded ${
                                 doc.status === 'verified'
-                                  ? 'bg-emerald-50 text-emerald-600 border-emerald-300'
+                                  ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
                                   : doc.status === 'rejected'
-                                  ? 'bg-rose-50 text-rose-600 border-rose-300'
+                                  ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30'
                                   : doc.status === 'uploaded'
-                                  ? 'bg-blue-50 text-blue-600 border-blue-300'
+                                  ? 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30'
                                   : 'text-muted-foreground'
                               }`}
                             >
@@ -729,7 +729,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                             size="sm"
                             onClick={() => handleVerifyDocument(doc.id)}
                             disabled={actionLoading}
-                            className="text-xs h-8 gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg"
+                            className="text-xs h-8 gap-1 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-lg"
                           >
                             <Check className="size-3.5" />
                             <span>Verify</span>
@@ -745,7 +745,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                               setRejectDialogOpen(true);
                             }}
                             disabled={actionLoading}
-                            className="text-xs h-8 gap-1 text-rose-600 border-rose-200 hover:bg-rose-50 rounded-lg"
+                            className="text-xs h-8 gap-1 text-rose-700 dark:text-rose-300 border-rose-500/30 hover:bg-rose-500/10 rounded-lg"
                           >
                             <FileX2 className="size-3.5" />
                             <span>Reject</span>
@@ -785,8 +785,8 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                         variant="outline"
                         className={`text-[10px] rounded ${
                           p.status === 'completed'
-                            ? 'bg-emerald-50 text-emerald-600 border-emerald-300'
-                            : 'bg-slate-50 text-slate-600 border-slate-300'
+                            ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                            : 'bg-slate-500/10 text-slate-700 dark:text-slate-300 border-slate-500/30'
                         }`}
                       >
                         {p.status === 'completed' ? 'Completed' : 'Not Started'}
@@ -794,7 +794,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                     </div>
                     <p className="text-xs text-muted-foreground">{p.description}</p>
                     {p.completed_at && (
-                      <p className="text-[11px] text-emerald-600 font-mono">
+                      <p className="text-[11px] text-emerald-700 dark:text-emerald-300 font-mono">
                         Acknowledged on {new Date(p.completed_at).toLocaleString('en-IN')}
                       </p>
                     )}
@@ -828,14 +828,14 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
               <CardHeader className="pb-4 border-b border-border/60">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Award className="size-5 text-indigo-600" />
+                    <Award className="size-5 text-indigo-700 dark:text-indigo-300" />
                     <CardTitle className="text-base font-bold">Offer Letter</CardTitle>
                   </div>
                   <Badge
                     className={`text-xs ${
                       offerDoc?.status === 'signed'
-                        ? 'bg-emerald-50 text-emerald-600 border-emerald-300'
-                        : 'bg-blue-50 text-blue-600 border-blue-300'
+                        ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                        : 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30'
                     }`}
                   >
                     {offerDoc?.status === 'signed' ? 'Signed & Accepted' : 'Generated (Unsigned)'}
@@ -882,14 +882,14 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
               <CardHeader className="pb-4 border-b border-border/60">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <FileCheck2 className="size-5 text-indigo-600" />
+                    <FileCheck2 className="size-5 text-indigo-700 dark:text-indigo-300" />
                     <CardTitle className="text-base font-bold">Appointment Letter</CardTitle>
                   </div>
                   <Badge
                     className={`text-xs ${
                       apptDoc?.status === 'signed'
-                        ? 'bg-emerald-50 text-emerald-600 border-emerald-300'
-                        : 'bg-blue-50 text-blue-600 border-blue-300'
+                        ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                        : 'bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30'
                     }`}
                   >
                     {apptDoc?.status === 'signed' ? 'Signed & Accepted' : 'Generated (Unsigned)'}
@@ -952,9 +952,9 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-foreground">1. Personal & Contact Dossier</span>
                     {isPersonalComplete ? (
-                      <CheckCircle2 className="size-4 text-emerald-500" />
+                      <CheckCircle2 className="size-4 text-emerald-700 dark:text-emerald-300" />
                     ) : (
-                      <AlertCircle className="size-4 text-amber-500" />
+                      <AlertCircle className="size-4 text-amber-700 dark:text-amber-300" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -967,9 +967,9 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-foreground">2. Employment Terms</span>
                     {isEmploymentConfirmed ? (
-                      <CheckCircle2 className="size-4 text-emerald-500" />
+                      <CheckCircle2 className="size-4 text-emerald-700 dark:text-emerald-300" />
                     ) : (
-                      <AlertCircle className="size-4 text-amber-500" />
+                      <AlertCircle className="size-4 text-amber-700 dark:text-amber-300" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -982,9 +982,9 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-foreground">3. Document Dossier</span>
                     {verifiedDocsCount >= 3 ? (
-                      <CheckCircle2 className="size-4 text-emerald-500" />
+                      <CheckCircle2 className="size-4 text-emerald-700 dark:text-emerald-300" />
                     ) : (
-                      <AlertCircle className="size-4 text-amber-500" />
+                      <AlertCircle className="size-4 text-amber-700 dark:text-amber-300" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -997,9 +997,9 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-foreground">4. Pre-Joining Policies</span>
                     {arePoliciesComplete ? (
-                      <CheckCircle2 className="size-4 text-emerald-500" />
+                      <CheckCircle2 className="size-4 text-emerald-700 dark:text-emerald-300" />
                     ) : (
-                      <AlertCircle className="size-4 text-amber-500" />
+                      <AlertCircle className="size-4 text-amber-700 dark:text-amber-300" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -1012,9 +1012,9 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-foreground">5. Offer Letter</span>
                     {isOfferSigned ? (
-                      <CheckCircle2 className="size-4 text-emerald-500" />
+                      <CheckCircle2 className="size-4 text-emerald-700 dark:text-emerald-300" />
                     ) : (
-                      <AlertCircle className="size-4 text-amber-500" />
+                      <AlertCircle className="size-4 text-amber-700 dark:text-amber-300" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -1027,9 +1027,9 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-foreground">6. Appointment Letter</span>
                     {isApptSigned ? (
-                      <CheckCircle2 className="size-4 text-emerald-500" />
+                      <CheckCircle2 className="size-4 text-emerald-700 dark:text-emerald-300" />
                     ) : (
-                      <AlertCircle className="size-4 text-amber-500" />
+                      <AlertCircle className="size-4 text-amber-700 dark:text-amber-300" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -1047,7 +1047,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                   <Button
                     onClick={() => handleStatusUpdate('approved', 'P&C completed final review and approved onboarding dossier.')}
                     disabled={actionLoading}
-                    className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg shadow-sm"
+                    className="gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs rounded-lg shadow-sm"
                   >
                     <CheckCircle2 className="size-4" />
                     <span>Approve Onboarding Dossier</span>
@@ -1107,12 +1107,12 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
                             variant="outline"
                             className={`text-[9px] uppercase px-1.5 py-0 font-mono ${
                               isVisit
-                                ? 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border-blue-200'
+                                ? 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 border-blue-500/30'
                                 : isPnc
-                                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-200'
+                                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-500/30'
                                 : isSystem
-                                ? 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300 border-purple-200'
-                                : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200'
+                                ? 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300 border-purple-500/30'
+                                : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-500/30'
                             }`}
                           >
                             {log.actor_type}
@@ -1136,7 +1136,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
       <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
         <DialogContent className="w-[90vw] max-w-[90vw] sm:max-w-[90vw] h-[90vh] max-h-[90vh] rounded-2xl border border-border shadow-2xl p-0 overflow-hidden flex flex-col bg-card/95 backdrop-blur-md">
           <DialogHeader className="p-6 pb-4 border-b border-border/40 bg-muted/20 shrink-0">
-            <DialogTitle className="text-lg font-bold flex items-center gap-2 text-rose-600">
+            <DialogTitle className="text-lg font-bold flex items-center gap-2 text-rose-700 dark:text-rose-300">
               <AlertCircle className="size-5" />
               Reject Candidate Document
             </DialogTitle>
@@ -1145,12 +1145,12 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
             </DialogDescription>
           </DialogHeader>
           <div className="flex-1 p-6 overflow-y-auto space-y-4">
-            <div className="p-4 rounded-xl border border-rose-200 bg-rose-50/40 dark:bg-rose-950/20 text-xs text-rose-800 dark:text-rose-200">
+            <div className="p-4 rounded-xl border border-rose-500/30 bg-rose-50/40 dark:bg-rose-950/20 text-xs text-rose-800 dark:text-rose-200">
               Please note: Rejecting a document will update the document status to <strong>Rejected</strong> and alert the candidate to re-upload.
             </div>
             <div className="space-y-2">
               <Label htmlFor="rejection_reason" className="text-xs font-semibold">
-                Rejection Feedback / Notes <span className="text-rose-500">*</span>
+                Rejection Feedback / Notes <span className="text-rose-700 dark:text-rose-300">*</span>
               </Label>
               <Textarea
                 id="rejection_reason"
@@ -1183,7 +1183,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
         <DialogContent className="w-[90vw] max-w-[90vw] sm:max-w-[90vw] h-[90vh] max-h-[90vh] rounded-2xl border border-border shadow-2xl p-0 overflow-hidden flex flex-col bg-card/95 backdrop-blur-md">
           <DialogHeader className="p-6 pb-4 border-b border-border/40 bg-muted/20 shrink-0">
             <DialogTitle className="text-lg font-bold flex items-center gap-2">
-              <FileText className="size-5 text-indigo-500" />
+              <FileText className="size-5 text-indigo-700 dark:text-indigo-300" />
               {previewDoc?.title}
             </DialogTitle>
           </DialogHeader>
@@ -1205,7 +1205,7 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
       <Dialog open={provisionDialogOpen} onOpenChange={setProvisionDialogOpen}>
         <DialogContent className="w-[90vw] max-w-[90vw] sm:max-w-[90vw] h-[90vh] max-h-[90vh] rounded-2xl border border-border shadow-2xl p-0 overflow-hidden flex flex-col bg-card/95 backdrop-blur-md">
           <DialogHeader className="p-6 pb-4 border-b border-border/40 bg-muted/20 shrink-0">
-            <DialogTitle className="text-lg font-bold flex items-center gap-2 text-indigo-600">
+            <DialogTitle className="text-lg font-bold flex items-center gap-2 text-indigo-700 dark:text-indigo-300">
               <Sparkles className="size-5" />
               Provision Official NavGurukul Account
             </DialogTitle>
@@ -1215,19 +1215,19 @@ export default function OnboardingReviewPage({ params }: { params: Promise<{ tok
           </DialogHeader>
           <div className="flex-1 p-6 overflow-y-auto space-y-6 text-xs">
             <div className="p-5 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900 space-y-3">
-              <div className="flex justify-between py-1 border-b border-indigo-200/50">
+              <div className="flex justify-between py-1 border-b border-indigo-500/30">
                 <span className="text-muted-foreground font-semibold">Candidate Full Name:</span>
                 <span className="font-bold text-foreground">{record.candidate_name}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-indigo-200/50">
+              <div className="flex justify-between py-1 border-b border-indigo-500/30">
                 <span className="text-muted-foreground font-semibold">Designation:</span>
                 <span className="font-medium text-foreground">{record.designation}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-indigo-200/50">
+              <div className="flex justify-between py-1 border-b border-indigo-500/30">
                 <span className="text-muted-foreground font-semibold">Department / Team:</span>
                 <span className="font-medium text-foreground">{record.team_name || record.department || 'NavGurukul'}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-indigo-200/50">
+              <div className="flex justify-between py-1 border-b border-indigo-500/30">
                 <span className="text-muted-foreground font-semibold">Generated Official Email:</span>
                 <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400">
                   {record.candidate_name.toLowerCase().replace(/\s+/g, '.')}@navgurukul.org

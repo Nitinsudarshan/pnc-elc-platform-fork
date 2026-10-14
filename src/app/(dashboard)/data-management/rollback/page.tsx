@@ -86,7 +86,7 @@ export default function RollbackCenterPage() {
       <PageBanner
         title="Rollback Center"
         description="Safely restore single employee records to historical points in time or undo bulk import batches."
-        icon={<RotateCcw className="h-8 w-8 text-teal-500" />}
+        icon={<RotateCcw className="h-8 w-8 text-teal-700 dark:text-teal-300" />}
         actions={
           <div className="flex items-center gap-2">
             <Link
@@ -102,7 +102,7 @@ export default function RollbackCenterPage() {
 
       {/* Safety Notice */}
       <div className="p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-xs">
-        <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+        <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
         <div>
           <strong className="font-semibold text-amber-800 dark:text-amber-300">
             Immutable Audit Trail Protection

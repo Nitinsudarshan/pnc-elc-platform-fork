@@ -60,7 +60,7 @@ export default function ImportHistoryPage() {
       <PageBanner
         title="Import History"
         description="Review details, processing statistics, and logs of all previous system batch imports."
-        icon={<History className="h-8 w-8 text-teal-500" />}
+        icon={<History className="h-8 w-8 text-teal-700 dark:text-teal-300" />}
         actions={
           <div className="flex items-center gap-2">
             <Link
@@ -88,7 +88,7 @@ export default function ImportHistoryPage() {
               <TableHead className="text-xs font-bold uppercase tracking-wider py-2.5 px-3 text-muted-foreground">Import ID / File</TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider py-2.5 px-3 text-muted-foreground">Uploaded By</TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider py-2.5 px-3 text-center text-muted-foreground">Processed</TableHead>
-              <TableHead className="text-xs font-bold uppercase tracking-wider py-2.5 px-3 text-center text-emerald-600 dark:text-emerald-400">Created</TableHead>
+              <TableHead className="text-xs font-bold uppercase tracking-wider py-2.5 px-3 text-center text-emerald-700 dark:text-emerald-400">Created</TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider py-2.5 px-3 text-center text-blue-600 dark:text-blue-400">Updated</TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider py-2.5 px-3 text-center text-rose-600 dark:text-rose-400">Failed</TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider py-2.5 px-3 text-muted-foreground">Status</TableHead>
@@ -115,7 +115,7 @@ export default function ImportHistoryPage() {
                 <TableCell className="py-2.5 px-3 text-center font-mono text-xs font-bold">
                   {batch.processed}
                 </TableCell>
-                <TableCell className="py-2.5 px-3 text-center font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                <TableCell className="py-2.5 px-3 text-center font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400">
                   +{batch.created}
                 </TableCell>
                 <TableCell className="py-2.5 px-3 text-center font-mono text-xs font-bold text-blue-600 dark:text-blue-400">

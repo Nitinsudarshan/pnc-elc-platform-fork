@@ -79,6 +79,15 @@ import {
   EmployeeOrientationChecklist,
   ProbationMilestone,
 } from '@/lib/onboarding/types';
+import {
+  MILESTONE_DEFINITIONS,
+  MILESTONE_KEYS,
+  formatSlotDate,
+  formatSlotTime,
+  type MilestoneKey,
+} from '@/lib/onboarding/probation-scheduling';
+import { AssetAllocationCard } from '@/components/onboarding/asset-allocation-card';
+import { TONES, statusTone } from '@/lib/ui/tone';
 import { toast } from 'sonner';
 
 function EmployeeOnboardingContent() {
@@ -98,13 +107,13 @@ function EmployeeOnboardingContent() {
   const [provisionModalOpen, setProvisionModalOpen] = useState(false);
   const [orientationModalOpen, setOrientationModalOpen] = useState(false);
   const [milestoneModalOpen, setMilestoneModalOpen] = useState(false);
-  const [activeMilestoneKey, setActiveMilestoneKey] = useState<'day_30' | 'day_60' | 'day_90'>('day_30');
+  const [activeMilestoneKey, setActiveMilestoneKey] = useState<MilestoneKey>('day_30');
 
-  // Form states for dialogs
+  // Form states for dialogs. IT hardware is intentionally absent: it lives in
+  // the external Asset Management System and is never edited here.
   const [provisionForm, setProvisionForm] = useState({
     official_email: '',
     employee_id_code: '',
-    it_assets_notes: '',
   });
 
   const [orientationForm, setOrientationForm] = useState<EmployeeOrientationChecklist>({
@@ -192,7 +201,6 @@ function EmployeeOnboardingContent() {
     return (
       m?.day_30?.status === 'scheduled' ||
       m?.day_60?.status === 'scheduled' ||
-      m?.day_90?.status === 'scheduled' ||
       m?.day_30?.status === 'pending'
     );
   }).length;
@@ -207,7 +215,6 @@ function EmployeeOnboardingContent() {
     setProvisionForm({
       official_email: item.provisioning?.official_email || defaultEmail,
       employee_id_code: item.provisioning?.employee_id_code || defaultCode,
-      it_assets_notes: item.provisioning?.orientation_checklist?.it_assets_notes || '',
     });
     setProvisionModalOpen(true);
   };
@@ -225,7 +232,9 @@ function EmployeeOnboardingContent() {
       });
       const json = await res.json();
       if (json.success) {
-        toast.success(`Account and IT details provisioned for ${selectedRecord.record.candidate_name}`);
+        toast.success(
+          `Account provisioned for ${selectedRecord.record.candidate_name}. 30 & 60-day check-ins scheduled with the manager.`
+        );
         setProvisionModalOpen(false);
         fetchData();
       } else {
@@ -277,10 +286,7 @@ function EmployeeOnboardingContent() {
   };
 
   // Open Milestone Modal
-  const openMilestoneModal = (
-    item: FullOnboardingData,
-    milestoneKey: 'day_30' | 'day_60' | 'day_90'
-  ) => {
+  const openMilestoneModal = (item: FullOnboardingData, milestoneKey: MilestoneKey) => {
     setSelectedRecord(item);
     setActiveMilestoneKey(milestoneKey);
     const existing = item.provisioning?.probation_milestones?.[milestoneKey] || {
@@ -334,7 +340,7 @@ function EmployeeOnboardingContent() {
       {/* Header Banner */}
       <PageBanner
         title="Employee Onboarding"
-        description="Post-joining pipeline: Account provisioning, hardware allocation, Day-1 orientation, and milestones."
+        description="Post-joining pipeline: account provisioning, Day-1 orientation, and probation check-ins."
         icon={<Users className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
         actions={
           <div className="flex items-center gap-2">
@@ -360,7 +366,7 @@ function EmployeeOnboardingContent() {
           </div>
           <div className="space-y-0.5">
             <div className="text-2xl font-bold tracking-tight text-foreground">{totalEmployees}</div>
-            <p className="text-[11px] text-muted-foreground">Approved candidates in Day 1-90 cycle</p>
+            <p className="text-[11px] text-muted-foreground">Approved candidates in the joining cycle</p>
           </div>
         </div>
 
@@ -402,7 +408,7 @@ function EmployeeOnboardingContent() {
           </div>
           <div className="space-y-0.5">
             <div className="text-2xl font-bold tracking-tight text-foreground">{upcomingMilestones}</div>
-            <p className="text-[11px] text-muted-foreground">30-60-90 Day milestones scheduled</p>
+            <p className="text-[11px] text-muted-foreground">30 & 60-day check-ins scheduled</p>
           </div>
         </div>
       </div>
@@ -415,7 +421,7 @@ function EmployeeOnboardingContent() {
               All Post-Joining ({postJoiningRecords.length})
             </TabsTrigger>
             <TabsTrigger value="provisioning" className="rounded-lg text-xs font-semibold py-1.5 px-3">
-              Account & IT Setup
+              Account Setup
             </TabsTrigger>
             <TabsTrigger value="orientation" className="rounded-lg text-xs font-semibold py-1.5 px-3">
               Day 1 & Orientation
@@ -424,7 +430,7 @@ function EmployeeOnboardingContent() {
               Training & POSH
             </TabsTrigger>
             <TabsTrigger value="milestones" className="rounded-lg text-xs font-semibold py-1.5 px-3">
-              30-60-90 Milestones
+              Probation Check-ins
             </TabsTrigger>
           </TabsList>
 
@@ -501,7 +507,7 @@ function EmployeeOnboardingContent() {
                           <TableCell>
                             <div className="flex items-center gap-3">
                               <Avatar className="h-9 w-9 border border-border shrink-0">
-                                <AvatarFallback className="bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold text-xs">
+                                <AvatarFallback className={`font-bold text-xs ${TONES.success.chip}`}>
                                   {r.candidate_name.slice(0, 2).toUpperCase()}
                                 </AvatarFallback>
                               </Avatar>
@@ -516,13 +522,13 @@ function EmployeeOnboardingContent() {
                             {prov?.official_email ? (
                               <div className="space-y-0.5">
                                 <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                                  <Mail className="h-3 w-3 text-emerald-600" />
+                                  <Mail className={`h-3 w-3 ${TONES.success.text}`} />
                                   <span>{prov.official_email}</span>
                                 </p>
                                 <p className="text-[10px] font-mono text-muted-foreground">ID: {prov.employee_id_code}</p>
                               </div>
                             ) : (
-                              <Badge variant="outline" className="border-amber-300 text-amber-700 bg-amber-50 text-[10px]">
+                              <Badge variant="outline" className={`text-[10px] ${TONES.warning.soft}`}>
                                 Provisioning Pending
                               </Badge>
                             )}
@@ -546,56 +552,40 @@ function EmployeeOnboardingContent() {
                           </TableCell>
 
                           <TableCell>
-                            <div className="flex items-center gap-1.5">
-                              <Badge
-                                variant="outline"
-                                className={`text-[9px] px-1.5 py-0 ${
-                                  miles?.day_30?.status === 'completed'
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                                    : miles?.day_30?.status === 'scheduled'
-                                    ? 'bg-blue-50 text-blue-700 border-blue-300'
-                                    : 'bg-muted text-muted-foreground'
-                                }`}
-                              >
-                                30d
-                              </Badge>
-                              <Badge
-                                variant="outline"
-                                className={`text-[9px] px-1.5 py-0 ${
-                                  miles?.day_60?.status === 'completed'
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                                    : miles?.day_60?.status === 'scheduled'
-                                    ? 'bg-blue-50 text-blue-700 border-blue-300'
-                                    : 'bg-muted text-muted-foreground'
-                                }`}
-                              >
-                                60d
-                              </Badge>
-                              <Badge
-                                variant="outline"
-                                className={`text-[9px] px-1.5 py-0 ${
-                                  miles?.day_90?.status === 'completed'
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                                    : miles?.day_90?.status === 'scheduled'
-                                    ? 'bg-blue-50 text-blue-700 border-blue-300'
-                                    : 'bg-muted text-muted-foreground'
-                                }`}
-                              >
-                                90d
-                              </Badge>
+                            <div className="flex flex-col gap-1">
+                              {MILESTONE_KEYS.map((key) => {
+                                const milestone = miles?.[key];
+                                const when = formatSlotDate(milestone);
+                                return (
+                                  <div key={key} className="flex items-center gap-1.5">
+                                    <Badge
+                                      variant="outline"
+                                      className={`text-[9px] px-1.5 py-0 shrink-0 ${
+                                        TONES[statusTone(milestone?.status)].soft
+                                      }`}
+                                    >
+                                      {key === 'day_30' ? '30d' : '60d'}
+                                    </Badge>
+                                    <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                                      {when || 'Not scheduled'}
+                                    </span>
+                                  </div>
+                                );
+                              })}
                             </div>
                           </TableCell>
 
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-1.5">
+                              {/* One account action, labelled for what it will do. */}
                               <Button
                                 size="sm"
                                 variant="outline"
                                 onClick={() => openProvisionModal(item)}
                                 className="h-7 text-xs font-semibold rounded-lg px-2.5 gap-1"
                               >
-                                <Laptop className="h-3 w-3" />
-                                <span>Setup</span>
+                                <Mail className="h-3 w-3" />
+                                <span>{prov?.official_email ? 'Edit Account' : 'Set Up Account'}</span>
                               </Button>
 
                               <DropdownMenu>
@@ -605,30 +595,21 @@ function EmployeeOnboardingContent() {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="w-52">
-                                  <DropdownMenuItem onClick={() => openProvisionModal(item)} className="text-xs cursor-pointer gap-2">
-                                    <Laptop className="h-3.5 w-3.5 text-muted-foreground" />
-                                    <span>Edit IT & Email Account</span>
-                                  </DropdownMenuItem>
-
                                   <DropdownMenuItem onClick={() => openOrientationModal(item)} className="text-xs cursor-pointer gap-2">
                                     <HeartHandshake className="h-3.5 w-3.5 text-muted-foreground" />
                                     <span>Orientation Checklist</span>
                                   </DropdownMenuItem>
 
-                                  <DropdownMenuItem onClick={() => openMilestoneModal(item, 'day_30')} className="text-xs cursor-pointer gap-2">
-                                    <Award className="h-3.5 w-3.5 text-muted-foreground" />
-                                    <span>30-Day Check-in</span>
-                                  </DropdownMenuItem>
-
-                                  <DropdownMenuItem onClick={() => openMilestoneModal(item, 'day_60')} className="text-xs cursor-pointer gap-2">
-                                    <Award className="h-3.5 w-3.5 text-muted-foreground" />
-                                    <span>60-Day Review</span>
-                                  </DropdownMenuItem>
-
-                                  <DropdownMenuItem onClick={() => openMilestoneModal(item, 'day_90')} className="text-xs cursor-pointer gap-2">
-                                    <Award className="h-3.5 w-3.5 text-muted-foreground" />
-                                    <span>90-Day Confirmation</span>
-                                  </DropdownMenuItem>
+                                  {MILESTONE_KEYS.map((key) => (
+                                    <DropdownMenuItem
+                                      key={key}
+                                      onClick={() => openMilestoneModal(item, key)}
+                                      className="text-xs cursor-pointer gap-2"
+                                    >
+                                      <Award className="h-3.5 w-3.5 text-muted-foreground" />
+                                      <span>{MILESTONE_DEFINITIONS[key].label}</span>
+                                    </DropdownMenuItem>
+                                  ))}
 
                                   <DropdownMenuSeparator />
 
@@ -636,6 +617,15 @@ function EmployeeOnboardingContent() {
                                     <Link href={`/onboarding/review/${item.record.invitation_token || item.record.id}`}>
                                       <FileText className="h-3.5 w-3.5 text-muted-foreground" />
                                       <span>View Complete Dossier</span>
+                                    </Link>
+                                  </DropdownMenuItem>
+
+                                  <DropdownMenuItem asChild className="text-xs cursor-pointer">
+                                    <Link
+                                      href={`/audit?employee_email=${encodeURIComponent(r.personal_email)}`}
+                                    >
+                                      <FileCheck2 className="h-3.5 w-3.5 text-muted-foreground" />
+                                      <span>View Audit Trail</span>
                                     </Link>
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -666,9 +656,9 @@ function EmployeeOnboardingContent() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm font-bold text-foreground">{r.candidate_name}</CardTitle>
                       {prov?.official_email ? (
-                        <Badge className="bg-emerald-600 text-white text-[10px]">Active Account</Badge>
+                        <Badge className={`text-[10px] ${TONES.success.solid}`}>Active Account</Badge>
                       ) : (
-                        <Badge variant="outline" className="border-amber-300 text-amber-700 bg-amber-50 text-[10px]">
+                        <Badge variant="outline" className={`text-[10px] ${TONES.warning.soft}`}>
                           Setup Required
                         </Badge>
                       )}
@@ -686,15 +676,26 @@ function EmployeeOnboardingContent() {
                       <p className="font-mono font-bold text-foreground">{prov?.employee_id_code || 'Pending'}</p>
                     </div>
 
-                    <div className="space-y-1">
-                      <span className="text-muted-foreground font-medium text-[11px]">Hardware / Laptop Asset:</span>
-                      <p className="text-muted-foreground">{chk?.it_assets_notes || 'No laptop/asset recorded'}</p>
+                    {/* Hardware is owned by the external asset platform — read-only here. */}
+                    <div className="space-y-1.5">
+                      <span className="text-muted-foreground font-medium text-[11px] flex items-center gap-1.5">
+                        <Laptop className="h-3 w-3" />
+                        <span>Hardware (External Asset System):</span>
+                      </span>
+                      <AssetAllocationCard
+                        employeeReference={prov?.employee_id_code}
+                        variant="compact"
+                      />
                     </div>
                   </CardContent>
                   <div className="p-3 border-t border-border/60 bg-muted/10 flex items-center justify-end">
-                    <Button size="sm" onClick={() => openProvisionModal(item)} className="h-7 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5">
+                    <Button
+                      size="sm"
+                      onClick={() => openProvisionModal(item)}
+                      className={`h-7 text-xs font-semibold rounded-lg gap-1.5 ${TONES.success.solid} hover:opacity-90`}
+                    >
                       <Edit className="h-3 w-3" />
-                      <span>Configure IT & Email</span>
+                      <span>{prov?.official_email ? 'Edit Account' : 'Set Up Account'}</span>
                     </Button>
                   </div>
                 </Card>
@@ -726,27 +727,36 @@ function EmployeeOnboardingContent() {
                   <CardContent className="p-4 space-y-2 text-xs">
                     <div className="flex items-center justify-between py-1 border-b border-border/40">
                       <span>Welcome Email Dispatched</span>
-                      {chk?.welcome_email_sent ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <Clock className="h-4 w-4 text-muted-foreground" />}
+                      {chk?.welcome_email_sent ? <CheckCircle2 className={`h-4 w-4 ${TONES.success.text}`} /> : <Clock className="h-4 w-4 text-muted-foreground" />}
                     </div>
                     <div className="flex items-center justify-between py-1 border-b border-border/40">
-                      <span>IT Laptop & Hardware Handed Over</span>
-                      {chk?.it_assets_assigned ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <Clock className="h-4 w-4 text-muted-foreground" />}
+                      <span className="flex items-center gap-1.5">
+                        <span>IT Laptop &amp; Hardware Handed Over</span>
+                        <Badge variant="outline" className={`text-[9px] px-1 py-0 ${TONES.accent.soft}`}>
+                          External
+                        </Badge>
+                      </span>
+                      {chk?.it_assets_assigned ? (
+                        <CheckCircle2 className={`h-4 w-4 ${TONES.success.text}`} />
+                      ) : (
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                      )}
                     </div>
                     <div className="flex items-center justify-between py-1 border-b border-border/40">
                       <span>Slack & Google Workspace Access</span>
-                      {chk?.slack_access_granted ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <Clock className="h-4 w-4 text-muted-foreground" />}
+                      {chk?.slack_access_granted ? <CheckCircle2 className={`h-4 w-4 ${TONES.success.text}`} /> : <Clock className="h-4 w-4 text-muted-foreground" />}
                     </div>
                     <div className="flex items-center justify-between py-1 border-b border-border/40">
                       <span>Buddy Introduction Call Completed</span>
-                      {chk?.buddy_introduced ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <Clock className="h-4 w-4 text-muted-foreground" />}
+                      {chk?.buddy_introduced ? <CheckCircle2 className={`h-4 w-4 ${TONES.success.text}`} /> : <Clock className="h-4 w-4 text-muted-foreground" />}
                     </div>
                     <div className="flex items-center justify-between py-1 border-b border-border/40">
                       <span>Manager 1-on-1 Kickoff</span>
-                      {chk?.manager_1on1_done ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <Clock className="h-4 w-4 text-muted-foreground" />}
+                      {chk?.manager_1on1_done ? <CheckCircle2 className={`h-4 w-4 ${TONES.success.text}`} /> : <Clock className="h-4 w-4 text-muted-foreground" />}
                     </div>
                     <div className="flex items-center justify-between py-1">
                       <span>P&C Cultural Induction Session</span>
-                      {chk?.pnc_induction_done ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <Clock className="h-4 w-4 text-muted-foreground" />}
+                      {chk?.pnc_induction_done ? <CheckCircle2 className={`h-4 w-4 ${TONES.success.text}`} /> : <Clock className="h-4 w-4 text-muted-foreground" />}
                     </div>
                   </CardContent>
                 </Card>
@@ -767,7 +777,9 @@ function EmployeeOnboardingContent() {
                   <CardHeader className="pb-3 border-b border-border/60 bg-muted/20">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm font-bold">{r.candidate_name}</CardTitle>
-                      <Badge className={chk?.posh_training_completed ? 'bg-emerald-600' : 'bg-amber-600'}>
+                      <Badge
+                        className={chk?.posh_training_completed ? TONES.success.solid : TONES.warning.solid}
+                      >
                         {chk?.posh_training_completed ? 'Compliant' : 'Training Pending'}
                       </Badge>
                     </div>
@@ -780,7 +792,7 @@ function EmployeeOnboardingContent() {
                         <p className="text-[11px] text-muted-foreground">Prevention of Sexual Harassment awareness session</p>
                       </div>
                       {chk?.posh_training_completed ? (
-                        <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                        <CheckCircle2 className={`h-5 w-5 ${TONES.success.text}`} />
                       ) : (
                         <Button size="sm" variant="outline" onClick={() => openOrientationModal(item)} className="h-7 text-xs">
                           Mark Done
@@ -793,7 +805,7 @@ function EmployeeOnboardingContent() {
                         <p className="font-semibold text-foreground">Org IT Security & Code of Conduct</p>
                         <p className="text-[11px] text-muted-foreground">Security protocols & device usage guidelines</p>
                       </div>
-                      <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                      <CheckCircle2 className={`h-5 w-5 ${TONES.success.text}`} />
                     </div>
                   </CardContent>
                 </Card>
@@ -802,8 +814,24 @@ function EmployeeOnboardingContent() {
           </div>
         </TabsContent>
 
-        {/* Tab 5: 30-60-90 Milestones */}
+        {/* Tab 5: Probation Check-ins (30 & 60 day, auto-scheduled) */}
         <TabsContent value="milestones" className="m-0 space-y-4">
+          {/* How scheduling works, stated once. */}
+          <div className={`rounded-xl border p-3.5 flex items-start gap-2.5 ${TONES.accent.border} ${TONES.accent.surface}`}>
+            <div className={`p-2 rounded-lg shrink-0 ${TONES.accent.chip}`}>
+              <Calendar className="h-4 w-4" />
+            </div>
+            <div className="text-xs">
+              <p className="font-semibold text-foreground">Check-ins are scheduled automatically</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                The 30-day check-in and 60-day review are booked with the reporting manager as soon
+                as the account is set up — always on a weekday, in the first half of the day, on the
+                first slot their calendar has open. Either party can move a meeting afterwards; once
+                moved, it is left alone.
+              </p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {paginatedRecords.map((item) => {
               const r = item.record;
@@ -814,42 +842,74 @@ function EmployeeOnboardingContent() {
                   <CardHeader className="pb-3 border-b border-border/60 bg-muted/20">
                     <CardTitle className="text-sm font-bold">{r.candidate_name}</CardTitle>
                     <CardDescription className="text-xs">
-                      Joining Date: {r.joining_date} • Manager: {r.manager_name || 'P&C'}
+                      Joined {r.joining_date} • Manager: {r.manager_name || 'P&C'}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="p-4 space-y-3 text-xs">
-                    {/* 30 Day */}
-                    <div className="p-2.5 rounded-lg border bg-card flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-foreground">30-Day Check-in</p>
-                        <p className="text-[10px] text-muted-foreground">Status: {miles?.day_30?.status || 'pending'}</p>
-                      </div>
-                      <Button size="sm" variant="outline" onClick={() => openMilestoneModal(item, 'day_30')} className="h-7 text-xs">
-                        Update
-                      </Button>
-                    </div>
+                    {MILESTONE_KEYS.map((key) => {
+                      const def = MILESTONE_DEFINITIONS[key];
+                      const milestone = miles?.[key];
+                      const slotDate = formatSlotDate(milestone);
+                      const slotTime = formatSlotTime(milestone);
 
-                    {/* 60 Day */}
-                    <div className="p-2.5 rounded-lg border bg-card flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-foreground">60-Day Mid-Probation</p>
-                        <p className="text-[10px] text-muted-foreground">Status: {miles?.day_60?.status || 'pending'}</p>
-                      </div>
-                      <Button size="sm" variant="outline" onClick={() => openMilestoneModal(item, 'day_60')} className="h-7 text-xs">
-                        Update
-                      </Button>
-                    </div>
+                      return (
+                        <div key={key} className="p-2.5 rounded-lg border border-border bg-card space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="font-semibold text-foreground">{def.label}</p>
+                              {slotDate ? (
+                                <p className="text-[11px] text-foreground/80 font-medium">
+                                  {slotDate}
+                                  {slotTime && <span className="text-muted-foreground"> · {slotTime}</span>}
+                                </p>
+                              ) : (
+                                <p className="text-[10px] text-muted-foreground">
+                                  Not scheduled yet — set up the account to book it.
+                                </p>
+                              )}
+                            </div>
 
-                    {/* 90 Day */}
-                    <div className="p-2.5 rounded-lg border bg-card flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-foreground">90-Day Confirmation</p>
-                        <p className="text-[10px] text-muted-foreground">Status: {miles?.day_90?.status || 'pending'}</p>
-                      </div>
-                      <Button size="sm" variant="outline" onClick={() => openMilestoneModal(item, 'day_90')} className="h-7 text-xs">
-                        Update
-                      </Button>
-                    </div>
+                            <Badge
+                              variant="outline"
+                              className={`text-[9px] px-1.5 py-0 shrink-0 ${
+                                TONES[statusTone(milestone?.status)].soft
+                              }`}
+                            >
+                              {milestone?.status || 'pending'}
+                            </Badge>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              {milestone?.auto_scheduled && (
+                                <Badge variant="outline" className={`text-[9px] px-1.5 py-0 ${TONES.info.soft}`}>
+                                  Auto-scheduled
+                                </Badge>
+                              )}
+                              {milestone?.rescheduled && (
+                                <Badge variant="outline" className={`text-[9px] px-1.5 py-0 ${TONES.warning.soft}`}>
+                                  Moved manually
+                                </Badge>
+                              )}
+                              {milestone?.reviewer_name && (
+                                <span className="text-[10px] text-muted-foreground truncate">
+                                  with {milestone.reviewer_name}
+                                </span>
+                              )}
+                            </div>
+
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => openMilestoneModal(item, key)}
+                              className="h-7 text-xs rounded-lg shrink-0"
+                            >
+                              Update
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </CardContent>
                 </Card>
               );
@@ -858,16 +918,17 @@ function EmployeeOnboardingContent() {
         </TabsContent>
       </Tabs>
 
-      {/* MODAL 1: Account & IT Provisioning */}
+      {/* MODAL 1: Official account provisioning */}
       <Dialog open={provisionModalOpen} onOpenChange={setProvisionModalOpen}>
         <DialogContent className="max-w-md rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-sm font-bold flex items-center gap-2">
-              <Laptop className="h-4 w-4 text-emerald-600" />
-              <span>Provision Employee Account & IT Assets</span>
+              <Mail className={`h-4 w-4 ${TONES.success.text}`} />
+              <span>Set Up Employee Account</span>
             </DialogTitle>
             <DialogDescription className="text-xs">
-              Configure official Google Workspace credentials and hardware assignment for {selectedRecord?.record.candidate_name}.
+              Configure the official Google Workspace identity for {selectedRecord?.record.candidate_name}.
+              Saving also books their 30 and 60-day check-ins with the manager.
             </DialogDescription>
           </DialogHeader>
 
@@ -890,15 +951,21 @@ function EmployeeOnboardingContent() {
               />
             </div>
 
+            {/* Hardware is requested and allocated on the asset platform; ELC only reports it. */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">IT Assets / Laptop Details</Label>
-              <Textarea
-                rows={2}
-                placeholder="e.g., MacBook Air M2 (Serial: C02G... Asset ID: NG-LAP-2026-088)"
-                value={provisionForm.it_assets_notes}
-                onChange={(e) => setProvisionForm({ ...provisionForm, it_assets_notes: e.target.value })}
-                className="text-xs rounded-lg"
+              <Label className="text-xs font-medium flex items-center gap-1.5">
+                <Laptop className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>IT Hardware</span>
+              </Label>
+              <AssetAllocationCard
+                employeeReference={provisionForm.employee_id_code}
+                variant="compact"
+                className="rounded-lg border border-border/80 bg-muted/20 p-2.5"
               />
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                Laptops and other assets are requested and allocated in the external Asset Management
+                System. They cannot be edited here.
+              </p>
             </div>
           </div>
 
@@ -906,8 +973,12 @@ function EmployeeOnboardingContent() {
             <Button variant="outline" size="sm" onClick={() => setProvisionModalOpen(false)} className="rounded-lg text-xs">
               Cancel
             </Button>
-            <Button size="sm" onClick={handleSaveProvisioning} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold">
-              Save Provisioning Details
+            <Button
+              size="sm"
+              onClick={handleSaveProvisioning}
+              className={`rounded-lg text-xs font-semibold hover:opacity-90 ${TONES.success.solid}`}
+            >
+              Save Account Details
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -918,7 +989,7 @@ function EmployeeOnboardingContent() {
         <DialogContent className="max-w-lg rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-sm font-bold flex items-center gap-2">
-              <HeartHandshake className="h-4 w-4 text-emerald-600" />
+              <HeartHandshake className={`h-4 w-4 ${TONES.success.text}`} />
               <span>Update Orientation Checklist</span>
             </DialogTitle>
             <DialogDescription className="text-xs">
@@ -936,7 +1007,12 @@ function EmployeeOnboardingContent() {
             </div>
 
             <div className="flex items-center justify-between p-2.5 rounded-lg border bg-muted/20">
-              <span>IT Assets / Laptop Assigned</span>
+              <span className="flex items-center gap-1.5">
+                <span>Laptop Handed Over</span>
+                <Badge variant="outline" className={`text-[9px] px-1 py-0 ${TONES.accent.soft}`}>
+                  External
+                </Badge>
+              </span>
               <Switch
                 checked={orientationForm.it_assets_assigned}
                 onCheckedChange={(c) => setOrientationForm({ ...orientationForm, it_assets_assigned: c })}
@@ -988,7 +1064,11 @@ function EmployeeOnboardingContent() {
             <Button variant="outline" size="sm" onClick={() => setOrientationModalOpen(false)} className="rounded-lg text-xs">
               Cancel
             </Button>
-            <Button size="sm" onClick={handleSaveOrientation} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold">
+            <Button
+              size="sm"
+              onClick={handleSaveOrientation}
+              className={`rounded-lg text-xs font-semibold hover:opacity-90 ${TONES.success.solid}`}
+            >
               Save Checklist Progress
             </Button>
           </DialogFooter>
@@ -1000,11 +1080,12 @@ function EmployeeOnboardingContent() {
         <DialogContent className="max-w-md rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-sm font-bold flex items-center gap-2">
-              <Award className="h-4 w-4 text-emerald-600" />
-              <span>Update Probation Milestone ({activeMilestoneKey.replace('_', ' ').toUpperCase()})</span>
+              <Award className={`h-4 w-4 ${TONES.success.text}`} />
+              <span>Update {MILESTONE_DEFINITIONS[activeMilestoneKey].label}</span>
             </DialogTitle>
             <DialogDescription className="text-xs">
-              Record review progress and notes for {selectedRecord?.record.candidate_name}.
+              {MILESTONE_DEFINITIONS[activeMilestoneKey].purpose} Changing the date marks this
+              check-in as manually moved, and it will not be auto-rescheduled again.
             </DialogDescription>
           </DialogHeader>
 
@@ -1025,6 +1106,45 @@ function EmployeeOnboardingContent() {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">Scheduled Date</Label>
+                <Input
+                  type="date"
+                  value={milestoneForm.due_date || ''}
+                  onChange={(e) => setMilestoneForm({ ...milestoneForm, due_date: e.target.value })}
+                  className="h-9 text-xs rounded-lg"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">Start Time</Label>
+                <Input
+                  type="time"
+                  value={
+                    milestoneForm.starts_at
+                      ? new Date(milestoneForm.starts_at).toTimeString().slice(0, 5)
+                      : ''
+                  }
+                  onChange={(e) => {
+                    const baseDate = milestoneForm.due_date || new Date().toISOString().split('T')[0];
+                    const next = new Date(`${baseDate}T${e.target.value || '10:00'}`);
+                    setMilestoneForm({
+                      ...milestoneForm,
+                      starts_at: next.toISOString(),
+                      ends_at: new Date(next.getTime() + 45 * 60000).toISOString(),
+                    });
+                  }}
+                  className="h-9 text-xs rounded-lg"
+                />
+              </div>
+            </div>
+
+            {milestoneForm.scheduling_note && (
+              <p className="text-[11px] text-muted-foreground -mt-1">
+                {milestoneForm.scheduling_note}
+              </p>
+            )}
 
             <div className="space-y-1.5">
               <Label className="text-xs font-medium">Reviewer Name</Label>
@@ -1052,8 +1172,12 @@ function EmployeeOnboardingContent() {
             <Button variant="outline" size="sm" onClick={() => setMilestoneModalOpen(false)} className="rounded-lg text-xs">
               Cancel
             </Button>
-            <Button size="sm" onClick={handleSaveMilestone} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold">
-              Save Milestone
+            <Button
+              size="sm"
+              onClick={handleSaveMilestone}
+              className={`rounded-lg text-xs font-semibold hover:opacity-90 ${TONES.success.solid}`}
+            >
+              Save Check-in
             </Button>
           </DialogFooter>
         </DialogContent>

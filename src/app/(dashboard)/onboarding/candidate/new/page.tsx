@@ -57,6 +57,15 @@ import {
 } from '@/components/ui/dialog';
 import { LetterTemplate, STANDARD_PLACEHOLDERS } from '@/lib/letter-templates/types';
 import { populateTemplatePlaceholders } from '@/lib/letter-templates/utils';
+import {
+  CTC_FREQUENCY_LABELS,
+  annualisedCtc,
+  compensationLabel,
+  formatCompensation,
+  formatIndianNumber,
+  type CtcFrequency,
+} from '@/lib/onboarding/compensation';
+import { TONES } from '@/lib/ui/tone';
 
 export default function CreateCandidateOnboardingPage() {
   const router = useRouter();
@@ -83,12 +92,18 @@ export default function CreateCandidateOnboardingPage() {
     joining_date: new Date().toISOString().split('T')[0],
     probation_period: '3 Months',
     notice_period: '1 Month',
-    ctc: '₹60,000 / month',
+    ctc_amount: 60000,
+    ctc_frequency: 'monthly' as CtcFrequency,
     is_alumni: false,
     role_responsibilities:
       'Lead key engineering deliverables, mentor student cohorts, collaborate with cross-functional campus teams, and actively support student technical learning.',
     send_invite_immediately: true,
   });
+
+  // Rendered compensation string, derived so the figure and its period can
+  // never drift apart.
+  const compensationDisplay = formatCompensation(formData.ctc_amount, formData.ctc_frequency);
+  const annualised = annualisedCtc(formData.ctc_amount, formData.ctc_frequency);
 
   // Letter Customization State
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
@@ -184,7 +199,7 @@ export default function CreateCandidateOnboardingPage() {
       manager_name: formData.manager_name || 'Reporting Manager',
       joining_date: formData.joining_date,
       location: formData.location,
-      ctc: formData.ctc,
+      ctc: compensationDisplay,
       probation_period: formData.probation_period,
       notice_period: formData.notice_period,
       role_responsibilities: formData.role_responsibilities,
@@ -218,7 +233,9 @@ export default function CreateCandidateOnboardingPage() {
       const res = await fetch('/api/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        // `ctc` stays on the payload as the rendered string letters read from;
+        // the amount and period travel alongside it as the source of truth.
+        body: JSON.stringify({ ...formData, ctc: compensationDisplay }),
       });
 
       const json = await res.json();
@@ -304,7 +321,7 @@ export default function CreateCandidateOnboardingPage() {
         <Card className="rounded-xl border border-border/80 shadow-xs">
           <CardHeader className="pb-4 border-b border-border/60 bg-muted/20">
             <CardTitle className="text-sm font-bold flex items-center gap-2">
-              <User className="h-4 w-4 text-blue-600" />
+              <User className="h-4 w-4 text-blue-700 dark:text-blue-300" />
               <span>1. Candidate Profile & Contact</span>
             </CardTitle>
             <CardDescription className="text-xs">
@@ -364,7 +381,7 @@ export default function CreateCandidateOnboardingPage() {
         <Card className="rounded-xl border border-border/80 shadow-xs">
           <CardHeader className="pb-4 border-b border-border/60 bg-muted/20">
             <CardTitle className="text-sm font-bold flex items-center gap-2">
-              <Briefcase className="h-4 w-4 text-blue-600" />
+              <Briefcase className="h-4 w-4 text-blue-700 dark:text-blue-300" />
               <span>2. Role, Department & Team Assignment</span>
             </CardTitle>
             <CardDescription className="text-xs">
@@ -423,7 +440,7 @@ export default function CreateCandidateOnboardingPage() {
                 value={formData.employee_type_name}
                 onValueChange={(val) => handleChange('employee_type_name', val)}
               >
-                <SelectTrigger className="h-9 text-xs rounded-lg border-indigo-200 dark:border-indigo-800 bg-indigo-50/20">
+                <SelectTrigger className="h-9 text-xs rounded-lg">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -490,7 +507,7 @@ export default function CreateCandidateOnboardingPage() {
         <Card className="rounded-xl border border-border/80 shadow-xs">
           <CardHeader className="pb-4 border-b border-border/60 bg-muted/20">
             <CardTitle className="text-sm font-bold flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-blue-600" />
+              <Calendar className="h-4 w-4 text-blue-700 dark:text-blue-300" />
               <span>3. Compensation, Joining Date & Terms</span>
             </CardTitle>
             <CardDescription className="text-xs">
@@ -510,13 +527,51 @@ export default function CreateCandidateOnboardingPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Compensation / Retainer (CTC)</Label>
-              <Input
-                placeholder="e.g., ₹60,000 / month or ₹8,50,000 PA"
-                value={formData.ctc}
-                onChange={(e) => handleChange('ctc', e.target.value)}
-                className="h-9 text-xs rounded-lg"
-              />
+              <Label className="text-xs font-medium">{compensationLabel(formData.ctc_frequency)} *</Label>
+              <div className="flex items-stretch gap-2">
+                <div className="relative flex-1 min-w-0">
+                  <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    type="number"
+                    min={0}
+                    step={1000}
+                    inputMode="numeric"
+                    placeholder="60000"
+                    value={formData.ctc_amount ?? ''}
+                    onChange={(e) =>
+                      handleChange('ctc_amount', e.target.value === '' ? null : Number(e.target.value))
+                    }
+                    className="h-9 text-xs rounded-lg pl-7"
+                  />
+                </div>
+                <Select
+                  value={formData.ctc_frequency}
+                  onValueChange={(val) => handleChange('ctc_frequency', val as CtcFrequency)}
+                >
+                  <SelectTrigger className="h-9 text-xs rounded-lg w-[125px] shrink-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(Object.keys(CTC_FREQUENCY_LABELS) as CtcFrequency[]).map((f) => (
+                      <SelectItem key={f} value={f}>
+                        {CTC_FREQUENCY_LABELS[f]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                {compensationDisplay ? (
+                  <>
+                    Letters will read <strong className="text-foreground">{compensationDisplay}</strong>
+                    {formData.ctc_frequency === 'monthly' && annualised ? (
+                      <span> · ₹{formatIndianNumber(annualised)} annualised</span>
+                    ) : null}
+                  </>
+                ) : (
+                  'Enter the figure and the period it is paid over.'
+                )}
+              </p>
             </div>
 
             <div className="space-y-1.5">
@@ -551,12 +606,12 @@ export default function CreateCandidateOnboardingPage() {
         </Card>
 
         {/* 4. Letter Template Selection & Customization Section */}
-        <Card className="rounded-xl border border-indigo-200/90 dark:border-indigo-900/70 bg-gradient-to-br from-indigo-50/20 via-card to-card shadow-xs">
+        <Card className="rounded-xl border border-border/80 bg-card shadow-xs">
           <CardHeader className="pb-4 border-b border-border/60 bg-muted/20">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
               <div>
                 <CardTitle className="text-sm font-bold flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-indigo-600" />
+                  <FileText className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
                   <span>4. Letters & Document Generation</span>
                 </CardTitle>
                 <CardDescription className="text-xs">
@@ -617,7 +672,7 @@ export default function CreateCandidateOnboardingPage() {
               <div className="space-y-3 pt-2 animate-in fade-in duration-200">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Badge className="bg-emerald-600 text-white text-[10px]">
+                    <Badge className={`text-[10px] ${TONES.success.solid}`}>
                       <Check className="h-3 w-3 mr-1" /> Template Loaded & Mapped
                     </Badge>
                     <span className="text-xs text-muted-foreground">
@@ -649,7 +704,7 @@ export default function CreateCandidateOnboardingPage() {
                             toast.error('Failed to generate PDF');
                           }
                         }}
-                        className="h-7 text-xs rounded-lg font-semibold gap-1 text-indigo-600 dark:text-indigo-400 border-indigo-200 hover:bg-indigo-50 dark:hover:bg-indigo-950"
+                        className={`h-7 text-xs rounded-lg font-semibold gap-1 ${TONES.accent.text} ${TONES.accent.border} hover:bg-indigo-500/10`}
                       >
                         <Download className="h-3 w-3" />
                         <span>Download PDF</span>
@@ -671,7 +726,7 @@ export default function CreateCandidateOnboardingPage() {
                     rows={14}
                     value={customizedLetterContent}
                     onChange={(e) => setCustomizedLetterContent(e.target.value)}
-                    className="font-mono text-xs rounded-xl p-3 leading-relaxed border-indigo-200 dark:border-indigo-800 bg-card"
+                    className={`font-mono text-xs rounded-xl p-3 leading-relaxed bg-card ${TONES.accent.border}`}
                     placeholder="Letter content..."
                   />
                 </div>
@@ -687,11 +742,11 @@ export default function CreateCandidateOnboardingPage() {
           </Card>
 
           {/* 5. Dispatch Settings */}
-          <Card className="rounded-xl border border-blue-200/80 dark:border-blue-900/60 bg-blue-50/20 shadow-xs">
+          <Card className="rounded-xl border border-border/80 bg-card shadow-xs">
             <CardContent className="p-4 sm:p-6 flex items-center justify-between gap-4">
               <div className="space-y-1">
                 <Label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                  <Send className="h-3.5 w-3.5 text-blue-600" />
+                  <Send className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300" />
                   <span>Send Portal Invitation Email Immediately</span>
                 </Label>
                 <p className="text-[11px] text-muted-foreground">
@@ -743,7 +798,7 @@ export default function CreateCandidateOnboardingPage() {
           >
             <DialogHeader className="p-4 border-b border-border/60 bg-muted/20 shrink-0">
               <DialogTitle className="text-sm font-bold flex items-center gap-2">
-                <Eye className="h-4 w-4 text-indigo-600" />
+                <Eye className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
                 <span>Candidate Letter Preview</span>
               </DialogTitle>
             </DialogHeader>

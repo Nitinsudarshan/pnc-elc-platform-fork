@@ -376,7 +376,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
     switch (status) {
       case 'completed':
         return (
-          <Badge className="bg-emerald-600 text-white hover:bg-emerald-700">
+          <Badge className="bg-emerald-700 text-white hover:bg-emerald-800">
             Officially Exited
           </Badge>
         );
@@ -388,7 +388,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
         );
       case 'clearance_in_progress':
         return (
-          <Badge className="bg-amber-600 text-white hover:bg-amber-700">
+          <Badge className="bg-amber-700 text-white hover:bg-amber-800">
             Clearance In Progress
           </Badge>
         );
@@ -487,11 +487,11 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
                 </span>
                 <span className="text-[11px] text-muted-foreground block">
                   {caseRec.status === 'completed' ? (
-                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Exit Formally Closed</span>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-semibold">Exit Formally Closed</span>
                   ) : isLwdPassed ? (
-                    <span className="text-rose-600 font-semibold">{Math.abs(daysDiff)} days elapsed since LWD</span>
+                    <span className="text-rose-700 dark:text-rose-300 font-semibold">{Math.abs(daysDiff)} days elapsed since LWD</span>
                   ) : (
-                    <span className="text-amber-600 font-medium">{daysDiff} days remaining</span>
+                    <span className="text-amber-700 dark:text-amber-300 font-medium">{daysDiff} days remaining</span>
                   )}
                 </span>
               </div>
@@ -512,22 +512,22 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-4 text-[11px]">
-            <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
+            <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold">
               <CheckCircle2 className="size-3.5" /> 1. Initiated
             </div>
-            <div className={`flex items-center gap-1.5 ${caseRec.status !== 'initiated' ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-muted-foreground'}`}>
+            <div className={`flex items-center gap-1.5 ${caseRec.status !== 'initiated' ? 'text-emerald-700 dark:text-emerald-400 font-semibold' : 'text-muted-foreground'}`}>
               <CheckCircle2 className="size-3.5" /> 2. Notice Period
             </div>
-            <div className={`flex items-center gap-1.5 ${checklistPct >= 80 ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-foreground font-medium'}`}>
+            <div className={`flex items-center gap-1.5 ${checklistPct >= 80 ? 'text-emerald-700 dark:text-emerald-400 font-semibold' : 'text-foreground font-medium'}`}>
               <CheckCircle2 className="size-3.5" /> 3. Clearances
             </div>
-            <div className={`flex items-center gap-1.5 ${ndcCleared === ndcTotal ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-foreground font-medium'}`}>
+            <div className={`flex items-center gap-1.5 ${ndcCleared === ndcTotal ? 'text-emerald-700 dark:text-emerald-400 font-semibold' : 'text-foreground font-medium'}`}>
               <CheckCircle2 className="size-3.5" /> 4. NDC Sign-Off
             </div>
-            <div className={`flex items-center gap-1.5 ${data.fnf.status === 'processed' ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-foreground font-medium'}`}>
+            <div className={`flex items-center gap-1.5 ${data.fnf.status === 'processed' ? 'text-emerald-700 dark:text-emerald-400 font-semibold' : 'text-foreground font-medium'}`}>
               <CheckCircle2 className="size-3.5" /> 5. F&F Settlement
             </div>
-            <div className={`flex items-center gap-1.5 ${caseRec.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-muted-foreground'}`}>
+            <div className={`flex items-center gap-1.5 ${caseRec.status === 'completed' ? 'text-emerald-700 dark:text-emerald-400 font-semibold' : 'text-muted-foreground'}`}>
               <CheckCircle2 className="size-3.5" /> 6. Exit Closed
             </div>
           </div>
@@ -744,7 +744,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
                               checked={isComplete}
                               onChange={() => handleToggleChecklist(item)}
                               disabled={isPending}
-                              className="size-4 rounded text-rose-600 focus:ring-rose-500 cursor-pointer"
+                              className="size-4 rounded text-rose-700 dark:text-rose-300 focus:ring-rose-500 cursor-pointer"
                             />
                           </TableCell>
                           <TableCell className="py-3">
@@ -780,11 +780,11 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
                               variant="outline"
                               className={`text-[10px] capitalize ${
                                 item.status === 'completed'
-                                  ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200'
+                                  ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30'
                                   : item.status === 'blocked'
-                                  ? 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200'
+                                  ? 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/30'
                                   : item.status === 'in_progress'
-                                  ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200'
+                                  ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30'
                                   : 'bg-muted text-muted-foreground'
                               }`}
                             >
@@ -827,7 +827,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
               <div>
                 <div className="font-semibold text-foreground flex items-center gap-2">
                   <span>External Asset Management API</span>
-                  <Badge variant="outline" className="text-[10px] border-indigo-500 text-indigo-600">
+                  <Badge variant="outline" className="text-[10px] border-indigo-500 text-indigo-700 dark:text-indigo-300">
                     Source of Truth
                   </Badge>
                 </div>
@@ -858,7 +858,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <Laptop className="size-4 text-indigo-600" />
+                    <Laptop className="size-4 text-indigo-700 dark:text-indigo-300" />
                     Hardware & Company Asset Clearances
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -924,10 +924,10 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
                               variant="outline"
                               className={`text-[10px] font-semibold capitalize ${
                                 asset.return_status === 'cleared' || asset.return_status === 'returned'
-                                  ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200'
+                                  ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30'
                                   : asset.return_status === 'under_recovery' || asset.return_status === 'damaged'
-                                  ? 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-200'
-                                  : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200'
+                                  ? 'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/30'
+                                  : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30'
                               }`}
                             >
                               {asset.return_status.replace(/_/g, ' ')}
@@ -997,10 +997,10 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
                         variant="outline"
                         className={`text-[10px] capitalize font-semibold ${
                           isCleared
-                            ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-300'
+                            ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
                             : isBlocked
-                            ? 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-300'
-                            : 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200'
+                            ? 'bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-500/30'
+                            : 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30'
                         }`}
                       >
                         {dept.status.replace(/_/g, ' ')}
@@ -1017,7 +1017,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
                       </div>
                     )}
                     {dept.cleared_at && (
-                      <span className="text-[11px] text-emerald-600 dark:text-emerald-400 block">
+                      <span className="text-[11px] text-emerald-700 dark:text-emerald-400 block">
                         Cleared by {dept.cleared_by || 'Department'} on {formatDate(dept.cleared_at)}
                       </span>
                     )}
@@ -1075,7 +1075,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
                   <Clock className="size-3.5" />
                   <span>External Attendance Cloud API</span>
                 </div>
-                <Badge variant="outline" className="text-[10px] border-blue-500 text-blue-600 bg-background">
+                <Badge variant="outline" className="text-[10px] border-blue-500 text-blue-700 dark:text-blue-300 bg-background">
                   Source of Truth
                 </Badge>
               </div>
@@ -1105,7 +1105,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
                   <Calendar className="size-3.5" />
                   <span>External Enterprise HRMS Leave API</span>
                 </div>
-                <Badge variant="outline" className="text-[10px] border-emerald-500 text-emerald-600 bg-background">
+                <Badge variant="outline" className="text-[10px] border-emerald-500 text-emerald-700 dark:text-emerald-300 bg-background">
                   Source of Truth
                 </Badge>
               </div>
@@ -1121,7 +1121,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
                 </div>
                 <div>
                   <span className="text-[10px] text-muted-foreground block">Per-Day Encashment Rate:</span>
-                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">
                     ₹{(data.externalLeaveSummary?.per_day_encashment_rate_inr ?? 2500).toLocaleString()} / day
                   </span>
                 </div>
@@ -1135,7 +1135,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <Banknote className="size-4 text-purple-600" />
+                    <Banknote className="size-4 text-purple-700 dark:text-purple-300" />
                     Full & Final Settlement (F&F) Computation
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -1204,7 +1204,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-card">
                 <div className="flex items-center gap-3">
-                  <div className="size-9 rounded-lg bg-indigo-500/10 text-indigo-600 flex items-center justify-center">
+                  <div className="size-9 rounded-lg bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 flex items-center justify-center">
                     <FileCheck2 className="size-5" />
                   </div>
                   <div>
@@ -1230,7 +1230,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
 
               <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-card">
                 <div className="flex items-center gap-3">
-                  <div className="size-9 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                  <div className="size-9 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
                     <FileText className="size-5" />
                   </div>
                   <div>
@@ -1260,7 +1260,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
           <Card className="rounded-xl border border-rose-500/30 bg-rose-500/5 shadow-xs">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <ShieldCheck className="size-5 text-rose-600" />
+                <ShieldCheck className="size-5 text-rose-700 dark:text-rose-300" />
                 <CardTitle className="text-base font-semibold text-rose-950 dark:text-rose-100">
                   Official Exit Confirmation & Case Closure
                 </CardTitle>
@@ -1519,7 +1519,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
 
             {ndcEditForm.status === 'blocked' && (
               <div className="space-y-1">
-                <Label className="text-xs font-semibold text-rose-600">Blocker Reason *</Label>
+                <Label className="text-xs font-semibold text-rose-700 dark:text-rose-300">Blocker Reason *</Label>
                 <Input
                   placeholder="Specify why clearance cannot be granted..."
                   value={ndcEditForm.blocker_reason}
@@ -1660,7 +1660,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
       <Dialog open={closeExitModalOpen} onOpenChange={setCloseExitModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-sm font-semibold flex items-center gap-2 text-rose-600">
+            <DialogTitle className="text-sm font-semibold flex items-center gap-2 text-rose-700 dark:text-rose-300">
               <ShieldAlert className="size-4" /> Confirm Official Exit Closure
             </DialogTitle>
             <DialogDescription className="text-xs">
@@ -1704,7 +1704,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
         <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-sm font-semibold flex items-center gap-2">
-              <FileCheck2 className="size-4 text-indigo-600" />
+              <FileCheck2 className="size-4 text-indigo-700 dark:text-indigo-300" />
               {previewDocType === 'ndc' ? 'No Dues Certificate (NDC)' : 'Relieving & Experience Certificate'}
             </DialogTitle>
             <DialogDescription className="text-xs">
@@ -1746,7 +1746,7 @@ export function CaseDetailView({ data: initialData }: CaseDetailViewProps) {
                         <tr key={n.department}>
                           <td className="py-2 px-3 font-medium">{n.department_label}</td>
                           <td className="py-2 px-3">
-                            <span className="text-emerald-600 dark:text-emerald-400 font-semibold capitalize">
+                            <span className="text-emerald-700 dark:text-emerald-400 font-semibold capitalize">
                               {n.status}
                             </span>
                           </td>

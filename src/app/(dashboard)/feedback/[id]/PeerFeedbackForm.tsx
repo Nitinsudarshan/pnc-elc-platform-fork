@@ -17,7 +17,7 @@ export function PeerFeedbackForm({ peerFeedbackId }: { peerFeedbackId: string })
   }
 
   if (success) {
-    return <p className="text-green-600 font-medium">Thank you for your feedback!</p>
+    return <p className="text-green-700 dark:text-green-300 font-medium">Thank you for your feedback!</p>
   }
 
   return (

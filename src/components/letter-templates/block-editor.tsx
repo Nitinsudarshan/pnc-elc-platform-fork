@@ -465,9 +465,9 @@ export function BlockEditor({
             }`}
           >
             {saveStatus === 'Saved' ? (
-              <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+              <CheckCircle2 className="h-3 w-3 text-emerald-700 dark:text-emerald-300" />
             ) : (
-              <Clock className="h-3 w-3 text-amber-600" />
+              <Clock className="h-3 w-3 text-amber-700 dark:text-amber-300" />
             )}
             <span>{saveStatus}</span>
           </Badge>
@@ -519,7 +519,7 @@ export function BlockEditor({
           {/* Document Sections Header */}
           <div className="flex items-center justify-between pb-2 border-b border-border/60 select-none">
             <div className="flex items-center gap-2">
-              <Layers className="h-4 w-4 text-indigo-600" />
+              <Layers className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
               <h2 className="text-xs font-bold text-foreground tracking-wide uppercase">
                 Document Sections ({sections.length})
               </h2>
@@ -568,7 +568,7 @@ export function BlockEditor({
         <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-sm font-bold flex items-center gap-2">
-              <Settings2 className="h-4 w-4 text-indigo-600" />
+              <Settings2 className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
               <span>Template Settings &amp; Metadata</span>
             </DialogTitle>
             <DialogDescription className="text-xs">
@@ -680,7 +680,7 @@ export function BlockEditor({
           <DialogHeader className="p-4 border-b border-border/60 bg-muted/20 shrink-0 flex flex-row items-center justify-between">
             <div className="space-y-0.5">
               <DialogTitle className="text-sm font-bold flex items-center gap-2">
-                <Eye className="h-4 w-4 text-indigo-600" />
+                <Eye className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
                 <span>Letter Document Preview</span>
               </DialogTitle>
               <p className="text-[11px] text-muted-foreground">

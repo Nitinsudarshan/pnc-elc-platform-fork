@@ -63,7 +63,7 @@ export default function RecordHistoryPage() {
       <PageBanner
         title="Record History"
         description="Track granular field-level updates and timeline changes for individual employee records."
-        icon={<UserRoundCog className="h-8 w-8 text-teal-500" />}
+        icon={<UserRoundCog className="h-8 w-8 text-teal-700 dark:text-teal-300" />}
         actions={
           <div className="flex items-center gap-2">
             <Link
@@ -137,7 +137,7 @@ export default function RecordHistoryPage() {
                       <span className="font-semibold">{item.old_value}</span>
                     </div>
                     <div className="p-2.5 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-foreground">
-                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 block uppercase tracking-wider mb-0.5">
+                      <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 block uppercase tracking-wider mb-0.5">
                         Updated Value
                       </span>
                       <span className="font-semibold">{item.new_value}</span>

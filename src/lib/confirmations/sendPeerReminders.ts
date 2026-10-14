@@ -3,6 +3,8 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { sendEmail } from '@/lib/email/sendEmail'
 import { getNotificationSettings } from '@/lib/settings/service'
+import { auditPeerFeedback } from '@/lib/audit/events'
+import { resolveSubjectFromConfirmation } from '@/lib/audit/subject'
 
 export async function sendPeerReminders() {
   const notificationSettings = await getNotificationSettings().catch(() => null)
@@ -49,6 +51,15 @@ export async function sendPeerReminders() {
         .from('peer_feedback')
         .update({ response_status: 'reminded' })
         .eq('id', feedback.id)
+
+      // Recorded against the employee under review, not the peer reminded.
+      await auditPeerFeedback.reminded({
+        subject: await resolveSubjectFromConfirmation(feedback.confirmation_id),
+        actorType: 'system',
+        entityId: feedback.id,
+        entityType: 'peer_feedback',
+        reviewer: feedback.peer_name,
+      })
     }
   }
 

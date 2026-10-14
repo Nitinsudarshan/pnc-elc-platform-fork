@@ -49,7 +49,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
       {/* Migration Notice Banner if tables are not yet created in Supabase */}
       {tablesExist === false && (
         <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-900 dark:text-amber-200 text-xs leading-relaxed animate-in fade-in">
-          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <AlertTriangle className="w-5 h-5 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <span className="font-bold text-sm block">Database Setup Note</span>
             <p>

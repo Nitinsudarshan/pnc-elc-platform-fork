@@ -17,6 +17,42 @@ import {
 } from './types';
 import { DEFAULT_PREJOINING_POLICIES } from './default-policies';
 import { generateOfferLetterData, generateAppointmentLetterData } from './templates';
+import { auditOnboarding, auditLetters } from '@/lib/audit/events';
+import {
+  buildProbationSchedule,
+  MILESTONE_DEFINITIONS,
+  MILESTONE_KEYS,
+  type MilestoneKey,
+} from './probation-scheduling';
+
+/**
+ * Audit subject for an onboarding record.
+ *
+ * A candidate has no employee ID until provisioning mints one, so the personal
+ * email is the durable join key that links pre-hire events to the rest of the
+ * person's history. Once provisioned, the official employee code is carried too.
+ */
+function auditSubject(record: OnboardingRecord) {
+  return {
+    employee_id: record.employee_id || null,
+    employee_email: record.personal_email,
+    employee_name: record.candidate_name,
+  };
+}
+
+/**
+ * A 10:00–10:45 local-time slot on the given date, as ISO instants.
+ * Used by the seed data so demo check-ins read as morning slots regardless of
+ * the server's timezone, the same way the auto-scheduler builds real ones.
+ */
+function localMorningSlot(date: string, hour = 10, durationMinutes = 45) {
+  const start = new Date(`${date}T00:00:00`);
+  start.setHours(hour, 0, 0, 0);
+  return {
+    startsAt: start.toISOString(),
+    endsAt: new Date(start.getTime() + durationMinutes * 60000).toISOString(),
+  };
+}
 
 export function generateInvitationToken(candidateName: string): string {
   // Generate 8-character unique alphanumeric token (e.g., "k7m3p9q2")
@@ -639,11 +675,14 @@ function initSeedData() {
       day_60: {
         status: 'scheduled',
         due_date: '2026-12-10',
-        notes: 'Mid-probation milestone scheduled with Rohit Verma.',
-      },
-      day_90: {
-        status: 'pending',
-        due_date: '2027-01-10',
+        // Built from a local 10:00 so the demo slot reads as a morning slot in
+        // whatever timezone the app runs in, matching what the scheduler produces.
+        starts_at: localMorningSlot('2026-12-10').startsAt,
+        ends_at: localMorningSlot('2026-12-10').endsAt,
+        reviewer_name: 'Rohit Verma',
+        auto_scheduled: true,
+        notes: 'Mid-probation review against the first-90-days plan and agreed goals.',
+        scheduling_note: "First open slot in the manager's morning on the target day.",
       },
     },
   };
@@ -832,6 +871,15 @@ export async function recordPortalVisit(
       created_at: now,
       metadata,
     });
+    await auditOnboarding.portalVisited({
+      subject: auditSubject(data.record),
+      actorType: 'candidate',
+      actorName: data.record.candidate_name,
+      actorEmail: data.record.personal_email,
+      entityId: data.record.id,
+      visitCount: 1,
+      metadata,
+    });
   } else {
     // Only log if previous visit was > 1 minute ago to avoid duplicate logs on rapid re-renders
     const lastVisitTime = data.record.last_visited_at ? new Date(data.record.last_visited_at).getTime() : 0;
@@ -846,6 +894,15 @@ export async function recordPortalVisit(
         action: 'Candidate Portal Accessed',
         description: `Candidate visited the onboarding portal (Visit #${data.record.visit_count}).`,
         created_at: now,
+        metadata,
+      });
+      await auditOnboarding.portalVisited({
+        subject: auditSubject(data.record),
+        actorType: 'candidate',
+        actorName: data.record.candidate_name,
+        actorEmail: data.record.personal_email,
+        entityId: data.record.id,
+        visitCount: data.record.visit_count,
         metadata,
       });
     }
@@ -938,6 +995,8 @@ export async function createOnboardingRecord(
       probation_period: record.probation_period,
       notice_period: record.notice_period,
       ctc: record.ctc,
+      ctc_amount: record.ctc_amount ?? null,
+      ctc_frequency: record.ctc_frequency ?? null,
       is_alumni: record.is_alumni,
       role_responsibilities: record.role_responsibilities,
       status: 'draft',
@@ -948,6 +1007,19 @@ export async function createOnboardingRecord(
   } catch (err) {
     // Suppress in-memory fallback
   }
+
+  await auditOnboarding.created({
+    subject: auditSubject(record),
+    actorName: record.created_by,
+    entityId: newId,
+    designation: record.designation,
+    metadata: {
+      joining_date: record.joining_date,
+      employee_type: record.employee_type_name,
+      manager: record.manager_name,
+      team: record.team_name || record.department,
+    },
+  });
 
   MEMORY_ONBOARDING_STORE.set(newId, fullData);
   return fullData;
@@ -969,6 +1041,13 @@ export async function sendOnboardingInvitation(id: string): Promise<FullOnboardi
     action: 'Invitation Sent to Candidate',
     description: `Onboarding invitation sent to ${data.record.personal_email}. Access link generated.`,
     created_at: now,
+  });
+
+  await auditOnboarding.invitationSent({
+    subject: auditSubject(data.record),
+    actorType: 'system',
+    entityId: id,
+    to: data.record.personal_email,
   });
 
   MEMORY_ONBOARDING_STORE.set(id, data);
@@ -1059,6 +1138,19 @@ export async function confirmEmploymentDetails(
       : `Candidate requested correction: "${correctionNotes}"`,
     created_at: now,
   });
+
+  const confirmOpts = {
+    subject: auditSubject(data.record),
+    actorType: 'candidate' as const,
+    actorName: data.record.candidate_name,
+    actorEmail: data.record.personal_email,
+    entityId: id,
+  };
+  if (confirmed) {
+    await auditOnboarding.detailsConfirmed(confirmOpts);
+  } else if (correctionRequested) {
+    await auditOnboarding.correctionRequested({ ...confirmOpts, notes: correctionNotes });
+  }
 
   MEMORY_ONBOARDING_STORE.set(id, data);
   return data;
@@ -1187,6 +1279,16 @@ export async function signGeneratedDocument(
     created_at: now,
   });
 
+  await auditLetters.signed({
+    subject: auditSubject(data.record),
+    actorType: 'candidate',
+    actorName: signerName,
+    actorEmail: data.record.personal_email,
+    entityId: doc?.id || id,
+    letterType: docType === 'offer_letter' ? 'Offer Letter' : 'Appointment Letter',
+    metadata: signatureMetadata as Record<string, unknown> | undefined,
+  });
+
   MEMORY_ONBOARDING_STORE.set(id, data);
   return data;
 }
@@ -1208,6 +1310,15 @@ export async function submitCandidateOnboarding(id: string): Promise<FullOnboard
     action: 'Onboarding Submitted to P&C',
     description: 'Candidate submitted all personal details, verified documents, policy confirmations, and signed letters.',
     created_at: now,
+  });
+
+  await auditOnboarding.detailsSubmitted({
+    subject: auditSubject(data.record),
+    actorType: 'candidate',
+    actorName: data.record.candidate_name,
+    actorEmail: data.record.personal_email,
+    entityId: id,
+    severity: 'notice',
   });
 
   MEMORY_ONBOARDING_STORE.set(id, data);
@@ -1244,6 +1355,15 @@ export async function verifyOrRejectDocument(
     created_at: now,
   });
 
+  await auditOnboarding.documentReviewed({
+    subject: auditSubject(data.record),
+    actorName: reviewerName,
+    entityId: documentId,
+    documentType: doc?.document_type || 'Document',
+    status,
+    reason: status === 'rejected' ? rejectionReason : undefined,
+  });
+
   MEMORY_ONBOARDING_STORE.set(id, data);
   return data;
 }
@@ -1257,6 +1377,7 @@ export async function updateOnboardingStatus(
   if (!data) return null;
 
   const now = new Date().toISOString();
+  const previousStatus = data.record.status;
   data.record.status = status;
   data.record.updated_at = now;
   if (status === 'approved') {
@@ -1272,6 +1393,15 @@ export async function updateOnboardingStatus(
     action: `Status Changed to ${status.replace('_', ' ').toUpperCase()}`,
     description: reviewerNote || `P&C updated onboarding lifecycle state to ${status}.`,
     created_at: now,
+  });
+
+  await auditOnboarding.statusChanged({
+    subject: auditSubject(data.record),
+    entityId: id,
+    from: previousStatus,
+    to: status,
+    note: reviewerNote,
+    severity: status === 'approved' || status === 'completed' ? 'notice' : 'info',
   });
 
   MEMORY_ONBOARDING_STORE.set(id, data);
@@ -1321,6 +1451,18 @@ export async function provisionOfficialAccount(id: string): Promise<FullOnboardi
     description: `Candidate officially activated and linked in the central NG workforce directory.`,
     created_at: now,
   });
+
+  await auditOnboarding.accountProvisioned({
+    subject: { ...auditSubject(data.record), employee_id: employeeCode },
+    actorType: 'system',
+    entityId: id,
+    officialEmail,
+    employeeCode,
+  });
+
+  // Probation check-ins are booked the moment the account exists, so nobody has
+  // to remember to arrange them later.
+  await autoScheduleProbationCheckins(data);
 
   MEMORY_ONBOARDING_STORE.set(id, data);
   return data;
@@ -1386,6 +1528,8 @@ export async function updateOrientationChecklist(
   const data = await getOnboardingById(id);
   if (!data) return null;
 
+  const previousChecklist = data.provisioning?.orientation_checklist;
+
   if (!data.provisioning) {
     data.provisioning = {
       id: `prov-${id}`,
@@ -1420,13 +1564,39 @@ export async function updateOrientationChecklist(
     created_at: now,
   });
 
+  const checklistFlags = [
+    'welcome_email_sent',
+    'it_assets_assigned',
+    'slack_access_granted',
+    'buddy_introduced',
+    'manager_1on1_done',
+    'pnc_induction_done',
+    'posh_training_completed',
+  ] as const;
+  const current = data.provisioning.orientation_checklist;
+
+  await auditOnboarding.orientationUpdated({
+    subject: auditSubject(data.record),
+    entityId: id,
+    completed: checklistFlags.filter((f) => current?.[f]).length,
+    total: checklistFlags.length,
+    changes: checklistFlags
+      .filter((f) => f in checklist && checklist[f] !== previousChecklist?.[f])
+      .map((f) => ({
+        field: f,
+        label: f.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+        from: previousChecklist?.[f] ?? false,
+        to: checklist[f],
+      })),
+  });
+
   MEMORY_ONBOARDING_STORE.set(id, data);
   return data;
 }
 
 export async function updateProbationMilestone(
   id: string,
-  milestoneKey: 'day_30' | 'day_60' | 'day_90',
+  milestoneKey: MilestoneKey,
   milestoneData: Partial<ProbationMilestone>
 ): Promise<FullOnboardingData | null> {
   const data = await getOnboardingById(id);
@@ -1448,10 +1618,20 @@ export async function updateProbationMilestone(
     data.provisioning.probation_milestones = {};
   }
 
+  const previous = data.provisioning.probation_milestones[milestoneKey];
+  const label = MILESTONE_DEFINITIONS[milestoneKey].label;
+
+  // A human touching the date takes the slot out of the auto-scheduler's hands,
+  // so a later provisioning save will not move it back.
+  const dateMoved =
+    (milestoneData.due_date !== undefined && milestoneData.due_date !== previous?.due_date) ||
+    (milestoneData.starts_at !== undefined && milestoneData.starts_at !== previous?.starts_at);
+
   data.provisioning.probation_milestones[milestoneKey] = {
     status: 'pending',
-    ...(data.provisioning.probation_milestones[milestoneKey] || {}),
+    ...(previous || {}),
     ...milestoneData,
+    ...(dateMoved ? { rescheduled: true, auto_scheduled: false } : {}),
   };
 
   const now = new Date().toISOString();
@@ -1459,21 +1639,126 @@ export async function updateProbationMilestone(
     id: `log-${Date.now()}-prob`,
     onboarding_id: id,
     actor_type: 'pnc',
-    action: `Probation Milestone Updated (${milestoneKey.replace('_', ' ').toUpperCase()})`,
+    action: `Probation Milestone Updated (${label})`,
     description: `Updated milestone status to ${milestoneData.status || 'updated'}: ${milestoneData.notes || 'No notes'}`,
     created_at: now,
+  });
+
+  await auditOnboarding.milestoneUpdated({
+    subject: auditSubject(data.record),
+    entityId: `${id}:${milestoneKey}`,
+    milestone: label,
+    status: milestoneData.status || previous?.status || 'updated',
+    notes: milestoneData.notes,
+    changes: [
+      ...(milestoneData.status && milestoneData.status !== previous?.status
+        ? [{ field: 'status', label: 'Status', from: previous?.status, to: milestoneData.status }]
+        : []),
+      ...(dateMoved
+        ? [{ field: 'due_date', label: 'Scheduled For', from: previous?.due_date, to: milestoneData.due_date }]
+        : []),
+    ],
   });
 
   MEMORY_ONBOARDING_STORE.set(id, data);
   return data;
 }
 
+/**
+ * Place (or refresh) the 30- and 60-day check-ins on the manager's calendar and
+ * record each newly-booked slot in the audit trail.
+ *
+ * Called whenever provisioning is saved. Idempotent: completed and
+ * human-rescheduled milestones are left alone.
+ */
+async function autoScheduleProbationCheckins(data: FullOnboardingData): Promise<void> {
+  if (!data.provisioning) return;
+
+  const schedule = await buildProbationSchedule({
+    joiningDate: data.record.joining_date,
+    managerName: data.record.manager_name,
+    // The manager's official mailbox is their calendar id.
+    managerEmail: data.record.manager_name
+      ? `${data.record.manager_name.trim().toLowerCase().replace(/\s+/g, '.')}@navgurukul.org`
+      : null,
+    existing: data.provisioning.probation_milestones,
+  });
+
+  data.provisioning.probation_milestones = {
+    day_30: schedule.day_30,
+    day_60: schedule.day_60,
+  };
+
+  if (schedule.newlyScheduled.length === 0) return;
+
+  const now = new Date().toISOString();
+  for (const key of schedule.newlyScheduled) {
+    const milestone = schedule[key];
+    const def = MILESTONE_DEFINITIONS[key];
+    const when = milestone.starts_at
+      ? new Date(milestone.starts_at).toLocaleString('en-IN', {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : milestone.due_date || 'TBC';
+
+    data.activityLogs.unshift({
+      id: `log-${Date.now()}-sched-${key}`,
+      onboarding_id: data.record.id,
+      actor_type: 'system',
+      action: `${def.label} Auto-Scheduled`,
+      description: `${def.label} booked with ${milestone.reviewer_name} for ${when}. ${milestone.scheduling_note || ''}`.trim(),
+      created_at: now,
+    });
+
+    await auditOnboarding.milestoneScheduled({
+      subject: auditSubject(data.record),
+      actorType: 'system',
+      entityId: `${data.record.id}:${key}`,
+      milestone: def.label,
+      dueDate: when,
+      reviewer: milestone.reviewer_name,
+      metadata: {
+        starts_at: milestone.starts_at,
+        ends_at: milestone.ends_at,
+        scheduling_note: milestone.scheduling_note,
+        auto_scheduled: true,
+      },
+    });
+  }
+}
+
+/** Exposed so callers can re-run scheduling without a provisioning save. */
+export async function scheduleProbationCheckins(id: string): Promise<FullOnboardingData | null> {
+  const data = await getOnboardingById(id);
+  if (!data?.provisioning) return data;
+
+  await autoScheduleProbationCheckins(data);
+  MEMORY_ONBOARDING_STORE.set(id, data);
+  return data;
+}
+
+/**
+ * Save the official email and employee code for a joiner.
+ *
+ * IT hardware is deliberately NOT part of this payload. Laptops and other
+ * assets are requested and allocated in the external Asset Management System,
+ * which is the source of truth; ELC reads that allocation over the integration
+ * boundary and never records it locally.
+ */
 export async function updateProvisioningDetails(
   id: string,
-  details: { official_email?: string; employee_id_code?: string; it_assets_notes?: string }
+  details: { official_email?: string; employee_id_code?: string }
 ): Promise<FullOnboardingData | null> {
   const data = await getOnboardingById(id);
   if (!data) return null;
+
+  const previousEmail = data.provisioning?.official_email;
+  const previousCode = data.provisioning?.employee_id_code;
 
   if (!data.provisioning) {
     data.provisioning = {
@@ -1490,22 +1775,6 @@ export async function updateProvisioningDetails(
     if (details.employee_id_code) data.provisioning.employee_id_code = details.employee_id_code;
   }
 
-  if (details.it_assets_notes !== undefined) {
-    if (!data.provisioning.orientation_checklist) {
-      data.provisioning.orientation_checklist = {
-        welcome_email_sent: true,
-        it_assets_assigned: true,
-        slack_access_granted: true,
-        buddy_introduced: true,
-        manager_1on1_done: true,
-        pnc_induction_done: true,
-        posh_training_completed: true,
-      };
-    }
-    data.provisioning.orientation_checklist.it_assets_notes = details.it_assets_notes;
-    data.provisioning.orientation_checklist.it_assets_assigned = Boolean(details.it_assets_notes);
-  }
-
   data.record.status = 'completed';
   const now = new Date().toISOString();
   data.record.completed_at = now;
@@ -1519,6 +1788,24 @@ export async function updateProvisioningDetails(
     description: `Configured official email: ${data.provisioning.official_email}, Employee ID: ${data.provisioning.employee_id_code}`,
     created_at: now,
   });
+
+  await auditOnboarding.accountProvisioned({
+    subject: { ...auditSubject(data.record), employee_id: data.provisioning.employee_id_code },
+    entityId: id,
+    officialEmail: data.provisioning.official_email,
+    employeeCode: data.provisioning.employee_id_code,
+    changes: [
+      ...(previousEmail && previousEmail !== data.provisioning.official_email
+        ? [{ field: 'official_email', label: 'Official Email', from: previousEmail, to: data.provisioning.official_email }]
+        : []),
+      ...(previousCode && previousCode !== data.provisioning.employee_id_code
+        ? [{ field: 'employee_id_code', label: 'Employee ID', from: previousCode, to: data.provisioning.employee_id_code }]
+        : []),
+    ],
+  });
+
+  // Keep the probation check-ins in step with the account being set up.
+  await autoScheduleProbationCheckins(data);
 
   MEMORY_ONBOARDING_STORE.set(id, data);
   return data;

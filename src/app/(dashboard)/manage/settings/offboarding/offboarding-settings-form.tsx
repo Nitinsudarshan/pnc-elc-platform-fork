@@ -208,7 +208,7 @@ export function OffboardingSettingsForm({
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <FileCheck2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+                <FileCheck2 className="size-4 text-emerald-700 dark:text-emerald-400" />
                 <CardTitle className="text-base font-semibold">
                   Clearance Gates & Governance Rules
                 </CardTitle>

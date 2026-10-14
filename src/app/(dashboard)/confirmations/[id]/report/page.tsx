@@ -58,7 +58,7 @@ export default async function CompiledReportPage({
         <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Submitted</span>
-            <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
+            <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400">
               <CheckCircle2 className="h-4 w-4" />
             </div>
           </div>
@@ -71,7 +71,7 @@ export default async function CompiledReportPage({
         <div className="rounded-lg bg-card border border-border/80 shadow-xs p-4 flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">Pending</span>
-            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
+            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400">
               <Clock className="h-4 w-4" />
             </div>
           </div>
@@ -94,8 +94,8 @@ export default async function CompiledReportPage({
                 <span
                   className={`text-xs px-2.5 py-0.5 font-semibold rounded-lg capitalize ${
                     entry.responseStatus === 'submitted'
-                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                      : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                      ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20'
+                      : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20'
                   }`}
                 >
                   {entry.responseStatus}

@@ -103,7 +103,7 @@ export function AddUserDialog({ open, onOpenChange, onUserAdded }: AddUserDialog
             <div className="space-y-1">
               <label htmlFor="user-email" className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                 <Mail className="h-3 w-3 text-muted-foreground" />
-                Email Address <span className="text-rose-500">*</span>
+                Email Address <span className="text-rose-700 dark:text-rose-300">*</span>
               </label>
               <Input
                 id="user-email"

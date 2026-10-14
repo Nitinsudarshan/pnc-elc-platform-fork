@@ -1,6 +1,8 @@
 import { getProfileData } from "@/lib/profiles/getProfileData";
 import { ProfileForm } from "./ProfileForm";
 import { PageBanner } from "@/components/shared/page-banner";
+import { AuditTrail } from "@/components/shared/audit-trail";
+import { backfillAuditTrail } from "@/lib/audit/seed";
 import { UserCheck, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -12,6 +14,9 @@ export default async function EmployeeProfilePage({
   const { id } = await params;
   const { profile, relationshipTypes, idProofTypes, employee, employeeName } =
     await getProfileData(id);
+
+  // Project pre-existing module activity logs into the trail on first read.
+  await backfillAuditTrail();
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-20 animate-in fade-in duration-300">
@@ -38,6 +43,16 @@ export default async function EmployeeProfilePage({
         existingProfile={profile}
         relationshipTypes={relationshipTypes}
         idProofTypes={idProofTypes}
+      />
+
+      {/* Complete cross-module history for this person */}
+      <AuditTrail
+        employeeId={id}
+        employeeEmail={employee?.email || profile?.official_email || profile?.personal_email}
+        employeeName={employeeName || employee?.name}
+        title="Employee Audit Trail"
+        description="Every action recorded against this employee across onboarding, appraisal, confirmation, feedback and offboarding."
+        defaultPageSize={10}
       />
     </div>
   );

@@ -193,7 +193,7 @@ export default function AuditLogsPage() {
       <PageBanner
         title="Audit Logs"
         description="Append-only change log and system security audit trail across all user records."
-        icon={<FileSpreadsheet className="h-8 w-8 text-teal-500" />}
+        icon={<FileSpreadsheet className="h-8 w-8 text-teal-700 dark:text-teal-300" />}
         actions={
           <div className="flex items-center gap-2">
             <Link
@@ -290,7 +290,7 @@ export default function AuditLogsPage() {
                   </TableCell>
                   <TableCell className="py-3 px-4">{getActionBadge(log.action || log.action_type)}</TableCell>
                   <TableCell className="py-3 px-4 max-w-md">
-                    <pre className="font-mono text-[11px] bg-slate-900 text-emerald-400 p-2 rounded-lg overflow-x-auto leading-tight">
+                    <pre className="font-mono text-[11px] bg-slate-900 text-emerald-700 p-2 rounded-lg overflow-x-auto leading-tight">
                       {JSON.stringify(log.changed_data || {}, null, 2)}
                     </pre>
                   </TableCell>

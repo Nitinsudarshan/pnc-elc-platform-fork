@@ -564,7 +564,7 @@ export function SignatureBlockEditor({
       {/* Candidate Side */}
       <div className="p-3 rounded-xl border border-emerald-200/70 dark:border-emerald-800/60 bg-emerald-50/30 dark:bg-emerald-950/20 space-y-2">
         <div className="flex items-center gap-1.5 pb-1 border-b border-emerald-200/50 dark:border-emerald-800/40">
-          <UserCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+          <UserCheck className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
           <span className="text-xs font-bold text-emerald-950 dark:text-emerald-200">
             Candidate / Consultant Acceptance
           </span>

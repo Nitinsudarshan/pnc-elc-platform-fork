@@ -51,7 +51,7 @@ export function AuditTable({ initialLogs }: { initialLogs: any[] }) {
       <CardContent className="p-0">
         {initialLogs.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground text-sm border-t border-border/80">
-            <History className="w-8 h-8 mx-auto mb-2 opacity-30 text-indigo-500" />
+            <History className="w-8 h-8 mx-auto mb-2 opacity-30 text-indigo-700 dark:text-indigo-300" />
             <p className="font-semibold text-foreground">No configuration changes logged yet</p>
             <p className="text-xs mt-1 max-w-sm mx-auto">
               Modifications saved across the settings tabs will be automatically recorded here with before and after diffs.

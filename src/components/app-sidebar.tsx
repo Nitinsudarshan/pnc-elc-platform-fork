@@ -22,6 +22,7 @@ import {
   BarChart3,
   LayoutGrid,
   UserMinus,
+  History,
 } from "lucide-react"
 
 import { NavMain, NavItem } from "@/components/nav-main"
@@ -122,6 +123,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/reports",
       icon: BarChart3,
       isActive: pathname.startsWith("/reports"),
+    },
+    {
+      title: "Audit Trail",
+      url: "/audit",
+      icon: History,
+      isActive: pathname.startsWith("/audit"),
     },
     {
       title: "Manage",

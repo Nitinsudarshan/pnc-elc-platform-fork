@@ -65,12 +65,12 @@ const BLOCK_TYPE_INFO: Record<
   { label: string; icon: React.ElementType; color: string }
 > = {
   text: { label: 'Text', icon: FileText, color: 'text-blue-600 bg-blue-50 dark:bg-blue-950/60 dark:text-blue-400 border-blue-200 dark:border-blue-900' },
-  heading: { label: 'Heading', icon: Heading, color: 'text-amber-600 bg-amber-50 dark:bg-amber-950/60 dark:text-amber-400 border-amber-200 dark:border-amber-900' },
+  heading: { label: 'Heading', icon: Heading, color: 'text-amber-700 bg-amber-50 dark:bg-amber-950/60 dark:text-amber-400 border-amber-200 dark:border-amber-900' },
   details: { label: 'Field / Detail', icon: TableProperties, color: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 dark:text-indigo-400 border-indigo-200 dark:border-indigo-900' },
   rich_text: { label: 'Rich Text', icon: FileText, color: 'text-purple-600 bg-purple-50 dark:bg-purple-950/60 dark:text-purple-400 border-purple-200 dark:border-purple-900' },
-  bullet_list: { label: 'Bullet List', icon: List, color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900' },
+  bullet_list: { label: 'Bullet List', icon: List, color: 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900' },
   clause: { label: 'Clause', icon: ShieldAlert, color: 'text-rose-600 bg-rose-50 dark:bg-rose-950/60 dark:text-rose-400 border-rose-200 dark:border-rose-900' },
-  signature: { label: 'Signature Block', icon: PenTool, color: 'text-cyan-600 bg-cyan-50 dark:bg-cyan-950/60 dark:text-cyan-400 border-cyan-200 dark:border-cyan-900' },
+  signature: { label: 'Signature Block', icon: PenTool, color: 'text-cyan-700 bg-cyan-50 dark:bg-cyan-950/60 dark:text-cyan-400 border-cyan-200 dark:border-cyan-900' },
 };
 
 export function BlockCard({

@@ -22,7 +22,7 @@ export function ApproveButton({
 
   if (result?.success) {
     return (
-      <div className="bg-green-50 border border-green-300 text-green-800 rounded p-4 mt-6">
+      <div className="bg-green-500/10 border border-green-500/30 text-green-800 rounded p-4 mt-6">
         ✓ Confirmed. Confirmation date set to {result.confirmationDate}.
       </div>
     )
@@ -33,12 +33,12 @@ export function ApproveButton({
       <button
         onClick={handleApprove}
         disabled={submitting}
-        className="bg-green-600 text-white px-6 py-2 rounded disabled:opacity-50"
+        className="bg-green-700 text-white px-6 py-2 rounded disabled:opacity-50"
       >
         {submitting ? 'Approving...' : 'Approve & Complete Confirmation'}
       </button>
       {result && !result.success && (
-        <p className="text-red-600 text-sm mt-2">Something went wrong. Please try again.</p>
+        <p className="text-red-700 dark:text-red-300 text-sm mt-2">Something went wrong. Please try again.</p>
       )}
     </div>
   )

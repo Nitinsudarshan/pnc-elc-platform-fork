@@ -300,7 +300,7 @@ export function ConfirmationSettingsForm({
       <div className="flex items-center justify-between p-4 bg-card rounded-xl border border-border/80 shadow-xs">
         <div className="flex items-center gap-2">
           {saved && (
-            <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+            <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
               <CheckCircle2 className="w-4 h-4" />
               <span>Confirmation rules updated successfully</span>
             </div>
