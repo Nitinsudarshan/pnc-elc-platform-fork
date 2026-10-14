@@ -5,6 +5,9 @@ export type UserRow = { id: string; email: string; name: string; role: UserRole 
 
 export async function listUsersWithRoles(): Promise<UserRow[]> {
   const admin = createAdminSupabaseClient()
+  if (!admin) {
+    return []
+  }
   const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 })
   if (error) {
     console.error('Error listing users:', error.message)
