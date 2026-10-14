@@ -26,10 +26,23 @@ export type VersionEntry = {
   changes: VersionChange[]
 }
 
-export const CURRENT_VERSION = '1.02.02'
+export const CURRENT_VERSION = '1.02.03'
 
 /** Newest first. Prepend new entries; never rewrite a released one. */
 export const VERSION_HISTORY: VersionEntry[] = [
+  {
+    version: '1.02.03',
+    date: '2026-10-14',
+    title: 'Remove Header Eye Helper',
+    type: 'patch',
+    changes: [
+      {
+        category: 'Improvements',
+        description:
+          'Removed the HeaderHelpTrigger eye icon button from the main site header for a cleaner toolbar layout.',
+      },
+    ],
+  },
   {
     version: '1.02.02',
     date: '2026-10-14',
