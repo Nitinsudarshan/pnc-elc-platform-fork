@@ -5,6 +5,7 @@ import { OnboardingBoard } from '@/app/(dashboard)/onboarding/_components/Onboar
 import { OnboardingHub } from '@/app/(dashboard)/onboarding/_components/OnboardingHub'
 import { OnboardingStats } from '@/app/(dashboard)/onboarding/_components/OnboardingStats'
 import { OnboardingTabs } from '@/app/(dashboard)/onboarding/_components/OnboardingTabs'
+import { RunModeBadge } from '@/app/(dashboard)/onboarding/_components/RunModeBadge'
 import { PageBanner } from '@/components/shared/page-banner'
 import { Button } from '@/components/ui/button'
 import { getOnboardingDashboard } from '@/lib/onboarding/automation/getOnboardingDashboard'
@@ -33,6 +34,7 @@ export default async function OnboardingPage() {
         icon={<Compass className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
         actions={
           <div className="flex items-center gap-2">
+            <RunModeBadge />
             <Button
               asChild
               variant="outline"

@@ -34,6 +34,27 @@ export const ONBOARDED_AFTER_DAYS = 15
 /** Slack introductions are pointless long after the fact; the script capped it. */
 export const SLACK_INTRO_MAX_AGE_DAYS = 30
 
+/**
+ * How late a step may be dispatched.
+ *
+ * Without this the first live run would fire every historical step for every
+ * journey at once — a joiner three months in would receive their day-one mail.
+ * Anything past the cap expires unsent.
+ */
+export const MAX_LATE_DAYS = 5
+
+/**
+ * How many dispatch attempts a step gets before it stops being retried.
+ * A permanently failing step should raise an alert, not retry nightly forever.
+ */
+export const MAX_ATTEMPTS = 3
+
+/**
+ * How long a claim may be held before it is treated as abandoned. A run that
+ * dies mid-dispatch would otherwise strand its steps in `in_flight`.
+ */
+export const STALE_CLAIM_MINUTES = 30
+
 /** Employee statuses that halt every automation for that person. */
 export const DROPPED_EMPLOYEE_STATUSES = [
   'resigned',
@@ -287,6 +308,7 @@ export const CHANNEL_LABELS: Record<OnboardingChannel, string> = {
 
 export const STEP_STATUS_LABELS: Record<OnboardingStepStatus, string> = {
   pending: 'Pending',
+  in_flight: 'Sending',
   sent: 'Done',
   skipped: 'Skipped',
   failed: 'Failed',

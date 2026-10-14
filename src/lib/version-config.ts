@@ -26,10 +26,43 @@ export type VersionEntry = {
   changes: VersionChange[]
 }
 
-export const CURRENT_VERSION = '1.01.00'
+export const CURRENT_VERSION = '1.02.00'
 
 /** Newest first. Prepend new entries; never rewrite a released one. */
 export const VERSION_HISTORY: VersionEntry[] = [
+  {
+    version: '1.02.00',
+    date: '2026-10-15',
+    title: 'Onboarding automation safety rails',
+    type: 'minor',
+    changes: [
+      {
+        category: 'Security',
+        description:
+          'ONBOARDING_MODE (off | dry_run | sandbox | live), defaulting to off and enforced inside the channel adapters so no code path can dispatch without it. Sandbox redirects every recipient and defers rather than falling through to a real joiner when unconfigured.',
+      },
+      {
+        category: 'Fixes',
+        description:
+          'Due-step triage now caps lateness at 5 days and attempts at 3. Previously a step had no upper bound, so a first live run would have dispatched every historical step for every journey at once.',
+      },
+      {
+        category: 'Security',
+        description:
+          'Steps are claimed atomically before dispatch, with stale-claim recovery, and runs are recorded in onboarding_runs, so an overlapping or retried cron cannot send the same message twice.',
+      },
+      {
+        category: 'Improvements',
+        description:
+          'ONBOARDING_TODAY_OVERRIDE lets staging time-travel through a joiner timeline; ignored in live mode. Run mode is shown as a badge in the onboarding header.',
+      },
+      {
+        category: 'Improvements',
+        description:
+          'Vitest added with 53 tests covering the late window, mode matrix, date handling, eligibility carve-outs and stage boundaries. Decisions log and .env.example added.',
+      },
+    ],
+  },
   {
     version: '1.01.00',
     date: '2026-10-14',

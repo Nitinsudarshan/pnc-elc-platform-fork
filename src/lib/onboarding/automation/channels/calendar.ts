@@ -2,6 +2,11 @@ import { google } from 'googleapis'
 
 import { ORG_TIME_ZONE } from '@/lib/onboarding/automation/dates'
 import {
+  canDispatch,
+  getRunMode,
+  resolveEmailRecipients,
+} from '@/lib/onboarding/automation/runMode'
+import {
   CALENDAR_TEMPLATES,
   getBatchAttendees,
 } from '@/lib/onboarding/automation/templates/calendarTemplates'
@@ -158,6 +163,14 @@ export const dispatchCalendarStep = async (
   input: DispatchInput
 ): Promise<DispatchOutcome> => {
   const { definition, context, step, batchMates = [] } = input
+  const mode = getRunMode()
+
+  if (!canDispatch(mode)) {
+    return {
+      status: 'deferred',
+      reason: `Run mode "${mode}" does not create calendar events`,
+    }
+  }
 
   const calendar = getCalendarClient()
   if (!calendar) {
@@ -169,9 +182,19 @@ export const dispatchCalendarStep = async (
     return { status: 'skipped', reason: 'No calendar template for this step' }
   }
 
-  const attendees = buildAttendees(definition.key, context, batchMates)
-  if (attendees.length === 0) {
+  const intendedAttendees = buildAttendees(definition.key, context, batchMates)
+  if (intendedAttendees.length === 0) {
     return { status: 'deferred', reason: 'No attendees resolved yet' }
+  }
+
+  // In sandbox the whole guest list collapses to the sandbox address, so no
+  // real joiner, manager or buddy receives an invite.
+  const attendees = resolveEmailRecipients(mode, intendedAttendees)
+  if (!attendees || attendees.length === 0) {
+    return {
+      status: 'deferred',
+      reason: 'Sandbox mode is on but ONBOARDING_SANDBOX_EMAIL is not set',
+    }
   }
 
   const durationMinutes = definition.durationMinutes ?? 30

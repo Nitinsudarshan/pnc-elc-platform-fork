@@ -1,4 +1,9 @@
 import { INDUCTION_TASKS } from '@/lib/onboarding/automation/constants'
+import {
+  canDispatch,
+  getRunMode,
+  resolveSlackChannel,
+} from '@/lib/onboarding/automation/runMode'
 import { SLACK_TEMPLATES } from '@/lib/onboarding/automation/templates/slackTemplates'
 
 import type { DispatchInput, DispatchOutcome } from '@/lib/onboarding/automation/channels/types'
@@ -118,17 +123,37 @@ export const dispatchSlackStep = async (
   input: DispatchInput
 ): Promise<DispatchOutcome> => {
   const { definition, context, tasks } = input
+  const mode = getRunMode()
+
+  if (!canDispatch(mode)) {
+    return { status: 'deferred', reason: `Run mode "${mode}" does not post to Slack` }
+  }
 
   if (!process.env.SLACK_BOT_TOKEN) {
     return { status: 'deferred', reason: 'Slack integration not configured' }
   }
 
+  // Sandbox must not create real onboarding channels in the workspace.
   if (definition.key === 'slack_channel') {
+    if (mode === 'sandbox') {
+      return {
+        status: 'skipped',
+        reason: 'Sandbox mode does not create Slack channels',
+      }
+    }
     return createChannel(context)
   }
 
-  if (!context.slackChannelId) {
+  if (!context.slackChannelId && mode !== 'sandbox') {
     return { status: 'deferred', reason: 'Slack channel not created yet' }
+  }
+
+  const channel = resolveSlackChannel(mode, context.slackChannelId ?? '')
+  if (!channel) {
+    return {
+      status: 'deferred',
+      reason: 'Sandbox mode is on but ONBOARDING_SANDBOX_SLACK_CHANNEL is not set',
+    }
   }
 
   const completedTaskLabels = tasks
@@ -173,7 +198,7 @@ export const dispatchSlackStep = async (
   })
 
   const posted = await callSlack('chat.postMessage', {
-    channel: context.slackChannelId,
+    channel,
     text: message,
   })
 

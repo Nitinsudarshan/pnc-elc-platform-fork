@@ -12,7 +12,13 @@ export type OnboardingStage =
 
 export type OnboardingChannel = 'email' | 'slack' | 'calendar' | 'task'
 
-export type OnboardingStepStatus = 'pending' | 'sent' | 'skipped' | 'failed'
+export type OnboardingStepStatus =
+  | 'pending'
+  /** Claimed by a run and currently being dispatched. */
+  | 'in_flight'
+  | 'sent'
+  | 'skipped'
+  | 'failed'
 
 export type EmployeeType =
   | 'apprentice_nontech'
