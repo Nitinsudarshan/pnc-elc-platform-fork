@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageBanner } from "@/components/shared/page-banner";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
 
 const SAMPLE_BATCHES = [
   {
@@ -47,6 +48,8 @@ const SAMPLE_BATCHES = [
 
 export default function RollbackCenterPage() {
   const [batches, setBatches] = useState<any[]>(SAMPLE_BATCHES);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [email, setEmail] = useState("");
   const [tableName, setTableName] = useState("employees");
   const [targetDate, setTargetDate] = useState("");
@@ -83,7 +86,7 @@ export default function RollbackCenterPage() {
       <PageBanner
         title="Rollback Center"
         description="Safely restore single employee records to historical points in time or undo bulk import batches."
-        icon={<RotateCcw className="h-8 w-8 text-teal-500" />}
+        icon={<RotateCcw className="h-8 w-8 text-teal-700 dark:text-teal-300" />}
         actions={
           <div className="flex items-center gap-2">
             <Link
@@ -99,7 +102,7 @@ export default function RollbackCenterPage() {
 
       {/* Safety Notice */}
       <div className="p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-start gap-3 text-xs">
-        <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+        <AlertTriangle className="h-4 w-4 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
         <div>
           <strong className="font-semibold text-amber-800 dark:text-amber-300">
             Immutable Audit Trail Protection
@@ -231,6 +234,16 @@ export default function RollbackCenterPage() {
               )}
             </TableBody>
           </Table>
+
+          <DataTablePagination
+            pageIndex={currentPage}
+            pageSize={pageSize}
+            totalItems={batches.length}
+            pageSizeOptions={[10, 25, 50, 100]}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            itemLabel="batches"
+          />
         </div>
       </div>
     </div>

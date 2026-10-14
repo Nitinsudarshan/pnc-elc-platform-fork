@@ -13,8 +13,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Next.js Shadcn Boilerplate",
-  description: "A clean, modern boilerplate with Next.js, Tailwind CSS, and Shadcn UI.",
+  title: {
+    default: "NG ELC | Navgurukul Employee Lifecycle",
+    template: "%s | NG ELC",
+  },
+  description: "Navgurukul Employee Life Cycle (ELC) Platform - Onboarding, Confirmations, Appraisals, and Data Management.",
+  icons: {
+    icon: [
+      { url: "/ng-icon.png", sizes: "any" },
+      { url: "/navgurukul-logo.png", type: "image/png" },
+    ],
+    shortcut: "/ng-icon.png",
+    apple: "/apple-icon.png",
+  },
 };
 
 import { ThemeProvider } from "@/components/theme-provider"

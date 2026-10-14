@@ -61,19 +61,19 @@ export const LoadingSpinner = ({
         );
       case 2:
         return (
-          <div className="w-full h-full flex items-center justify-center bg-sky-500 text-white animate-in slide-in-from-right duration-500">
+          <div className="w-full h-full flex items-center justify-center bg-sky-700 text-white animate-in slide-in-from-right duration-500">
             <i className={`fa-solid fa-file-signature ${iconSizeClasses[size]}`}></i>
           </div>
         );
       case 3:
         return (
-          <div className="w-full h-full flex items-center justify-center bg-emerald-500 text-white animate-in slide-in-from-right duration-500">
+          <div className="w-full h-full flex items-center justify-center bg-emerald-700 text-white animate-in slide-in-from-right duration-500">
             <i className={`fa-solid fa-clipboard-check ${iconSizeClasses[size]}`}></i>
           </div>
         );
       case 4:
         return (
-          <div className="w-full h-full flex items-center justify-center bg-amber-500 text-white animate-in slide-in-from-right duration-500">
+          <div className="w-full h-full flex items-center justify-center bg-amber-700 text-white animate-in slide-in-from-right duration-500">
             <i className={`fa-solid fa-award ${iconSizeClasses[size]}`}></i>
           </div>
         );

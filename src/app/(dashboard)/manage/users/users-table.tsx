@@ -41,6 +41,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { AddUserDialog } from "./_components/add-user-dialog";
 import { BulkUploadDialog } from "./_components/bulk-upload-dialog";
 
@@ -86,7 +87,7 @@ export function UsersTable({ initialUsers, canEdit = true }: UsersTableProps) {
   const [roleFilter, setRoleFilter] = useState<string>("ALL");
   const [teamFilter, setTeamFilter] = useState<string>("ALL");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
@@ -380,35 +381,15 @@ export function UsersTable({ initialUsers, canEdit = true }: UsersTableProps) {
         </Table>
 
         {/* Pagination Bar */}
-        <div className="flex items-center justify-between px-3 py-2 border-t border-border/60 bg-muted/20 text-xs">
-          <span className="text-muted-foreground text-[11px]">
-            Showing {filteredUsers.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} to{" "}
-            {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length} users
-          </span>
-          <div className="flex items-center gap-1.5">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage <= 1}
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              className="h-7 text-xs px-2.5 rounded-lg"
-            >
-              Previous
-            </Button>
-            <span className="text-[11px] font-semibold px-2">
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              className="h-7 text-xs px-2.5 rounded-lg"
-            >
-              Next
-            </Button>
-          </div>
-        </div>
+        <DataTablePagination
+          pageIndex={currentPage}
+          pageSize={itemsPerPage}
+          totalItems={filteredUsers.length}
+          pageSizeOptions={[10, 25, 50, 100]}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={setItemsPerPage}
+          itemLabel="users"
+        />
       </div>
 
       {/* Edit Role & Team Dialog */}
@@ -417,7 +398,7 @@ export function UsersTable({ initialUsers, canEdit = true }: UsersTableProps) {
           <DialogContent className="sm:max-w-[420px] rounded-lg border bg-card p-5 shadow-xl animate-in zoom-in-95 duration-200">
             <DialogHeader className="space-y-1 pb-1">
               <DialogTitle className="text-lg font-bold tracking-tight flex items-center gap-2">
-                <Edit3 className="h-4 w-4 text-indigo-500" />
+                <Edit3 className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
                 Edit User Role & Team
               </DialogTitle>
               <DialogDescription className="text-muted-foreground text-xs">

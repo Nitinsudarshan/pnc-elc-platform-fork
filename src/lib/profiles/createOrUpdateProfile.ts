@@ -1,6 +1,8 @@
 'use server'
 
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { auditEmployee } from '@/lib/audit/events'
+import { resolveEmployeeSubject } from '@/lib/audit/subject'
 
 export type ProfileInput = {
   employeeId: string
@@ -54,6 +56,21 @@ export async function createOrUpdateProfile(input: ProfileInput) {
     console.error('Error saving profile:', error.message, error.details, error.hint)
     return null
   }
+
+  await auditEmployee.profileUpdated({
+    subject: {
+      ...(await resolveEmployeeSubject(input.employeeId)),
+      // Prefer the names just saved over whatever the directory row still holds.
+      employee_name: `${input.firstName} ${input.lastName}`.trim(),
+    },
+    entityId: input.employeeId,
+    entityType: 'employee_profile',
+    summary: `Employee profile details updated for ${input.firstName} ${input.lastName}.`.trim(),
+    metadata: {
+      official_email: input.officialEmail,
+      personal_email: input.personalEmail,
+    },
+  })
 
   return data
 }

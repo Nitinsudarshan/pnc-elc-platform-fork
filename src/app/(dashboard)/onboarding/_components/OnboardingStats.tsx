@@ -2,7 +2,7 @@ import { AlertTriangle, CheckCircle2, Hourglass, Users } from 'lucide-react'
 
 import { Card, CardContent } from '@/components/ui/card'
 
-import type { OnboardingDashboardData } from '@/lib/onboarding/getOnboardingDashboard'
+import type { OnboardingDashboardData } from '@/lib/onboarding/automation/getOnboardingDashboard'
 
 type OnboardingStatsProps = {
   totals: OnboardingDashboardData['totals']

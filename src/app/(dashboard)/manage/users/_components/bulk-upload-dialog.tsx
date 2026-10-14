@@ -170,7 +170,7 @@ export function BulkUploadDialog({ open, onOpenChange, onSuccess }: BulkUploadDi
           {/* Template Download Banner */}
           <div className="flex items-center justify-between p-2.5 rounded-lg bg-muted/40 border border-border">
             <div className="flex items-center gap-2">
-              <Sheet className="h-3.5 w-3.5 text-indigo-500" />
+              <Sheet className="h-3.5 w-3.5 text-indigo-700 dark:text-indigo-300" />
               <div className="text-xs">
                 <span className="font-semibold text-foreground">Need the format?</span>
                 <p className="text-[11px] text-muted-foreground">Download sample CSV template</p>
@@ -199,7 +199,7 @@ export function BulkUploadDialog({ open, onOpenChange, onSuccess }: BulkUploadDi
               className="hidden"
             />
             <label htmlFor="bulk-user-file" className="cursor-pointer block">
-              <FileUp className="h-6 w-6 mx-auto text-indigo-500 mb-1.5" />
+              <FileUp className="h-6 w-6 mx-auto text-indigo-700 dark:text-indigo-300 mb-1.5" />
               <span className="text-xs font-semibold text-foreground">
                 {file ? file.name : "Click to select or drop CSV file"}
               </span>
@@ -213,7 +213,7 @@ export function BulkUploadDialog({ open, onOpenChange, onSuccess }: BulkUploadDi
               <div className="flex items-center justify-between text-xs font-semibold">
                 <span>Total Rows: {previewRows.length}</span>
                 <div className="flex gap-1.5">
-                  <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-none text-[10px] rounded-lg">
+                  <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-none text-[10px] rounded-lg">
                     Valid: {previewRows.filter((r) => r._valid).length}
                   </Badge>
                   {previewRows.some((r) => !r._valid) && (
@@ -229,7 +229,7 @@ export function BulkUploadDialog({ open, onOpenChange, onSuccess }: BulkUploadDi
           {/* Result Banner */}
           {importResult && (
             <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg flex items-center gap-2.5">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <CheckCircle2 className="h-4 w-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
               <div className="text-xs">
                 <p className="font-bold text-emerald-700 dark:text-emerald-300">Import Complete</p>
                 <p className="text-muted-foreground text-[11px]">

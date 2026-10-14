@@ -1,6 +1,8 @@
 'use server'
 
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { auditConfirmation } from '@/lib/audit/events'
+import { resolveEmployeeSubject } from '@/lib/audit/subject'
 
 export async function approveConfirmation(confirmationId: string, employeeId: string) {
   const supabase = await createServerSupabaseClient()
@@ -27,6 +29,13 @@ export async function approveConfirmation(confirmationId: string, employeeId: st
     console.error('Error updating employee confirmation_date:', employeeError.message)
     return { success: false, error: employeeError.message }
   }
+
+  await auditConfirmation.approved({
+    subject: await resolveEmployeeSubject(employeeId),
+    entityId: confirmationId,
+    entityType: 'confirmation',
+    metadata: { confirmation_date: today },
+  })
 
   return { success: true, confirmationDate: today }
 }

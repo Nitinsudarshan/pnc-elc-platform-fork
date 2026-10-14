@@ -23,8 +23,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { EMPLOYEE_TYPE_LABELS } from '@/lib/onboarding/constants'
-import { formatDisplayDate } from '@/lib/onboarding/dates'
+import { EMPLOYEE_TYPE_LABELS } from '@/lib/onboarding/automation/constants'
+import { formatDisplayDate } from '@/lib/onboarding/automation/dates'
 
 import type {
   ChannelProgress,

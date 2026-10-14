@@ -14,9 +14,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
-import { markStepSent, setTaskCompletion } from '@/lib/onboarding/actions'
-import { EMPLOYEE_TYPE_LABELS } from '@/lib/onboarding/constants'
-import { formatDisplayDate } from '@/lib/onboarding/dates'
+import { markStepSent, setTaskCompletion } from '@/lib/onboarding/automation/actions'
+import { EMPLOYEE_TYPE_LABELS } from '@/lib/onboarding/automation/constants'
+import { formatDisplayDate } from '@/lib/onboarding/automation/dates'
 
 import type { ChannelProgress, OnboardingDashboardRow } from '@/types/onboarding'
 
