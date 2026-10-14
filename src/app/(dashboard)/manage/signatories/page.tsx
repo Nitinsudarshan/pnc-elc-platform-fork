@@ -1,5 +1,6 @@
 import { getSignatories } from '@/lib/signatories/service'
 import { SignatoriesTable } from './signatories-table'
+export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'Authorized Signatories | PNC ELC Platform',
