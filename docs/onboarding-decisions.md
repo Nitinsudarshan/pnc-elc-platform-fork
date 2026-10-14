@@ -14,18 +14,29 @@ date before the behaviour it describes can be considered settled.
 
 ---
 
+## Provisionally settled — defaulted to legacy, awaiting P&C confirmation
+
+Phase 1 had to pick a behaviour for each of these to be implementable. Each was
+resolved by the source-of-truth order at the top of this file: **the legacy code
+wins** unless P&C say otherwise. Changing any of them is a one-line change plus
+a test update.
+
+| # | Decision | Built | Why | Confirm by |
+|---|---|---|---|---|
+| 1 | Induction task source | In-app completion (option a) | Notion is being retired; a temporary read-sync would mean building an integration with a planned death date. `canonicalizeTaskName` is not ported. | P&C |
+| 2 | Slack channel creation day | DOJ | Legacy created it on the joining date; the first port had DOJ−1. | P&C |
+| 3 | Milestone cadence | Single email at +3 months | Legacy code. The 30/60/90 cadence appears only in the guide. | P&C |
+| 4 | Induction kickoff email | DOJ+1 | Legacy code. The guide says DOJ. | P&C |
+| 5 | Guide-only Slack messages | Dropped | Day-1 buddy reminder, manager conflict DM and 90-day manager DM exist only in the guide, which is not authoritative. | P&C |
+| 8 | Cron time | 08:00 IST (`30 2 * * *` UTC) | Legacy code. The guide says 08:30. | P&C |
+
 ## Open
 
 | # | Decision | Options | Owner | Status |
 |---|---|---|---|---|
-| 1 | Induction task source | (a) in-app submission form, or (b) temporary Notion read-sync keeping `canonicalizeTaskName` | P&C | Open |
-| 2 | Slack channel creation day | DOJ (legacy) or DOJ−1 (current port) | P&C | Open |
-| 3 | Milestone cadence | Single 3-month email (legacy code) or 30/60/90 reviews (guide) | P&C | Open |
-| 4 | Induction kickoff email | DOJ+1 (legacy code) or DOJ (guide) | P&C | Open |
-| 5 | Guide-only Slack messages | Day-1 buddy reminder, manager conflict DM, 90-day manager DM — build or drop | P&C | Open |
 | 6 | `ftc` treated as staff for induction | See note below | P&C | Open |
 | 7 | Cutover owner and 30-day rollback window | — | Eng + P&C | Open |
-| 8 | Cron time | 08:00 IST (legacy code, current) or 08:30 (guide) | P&C | Open |
+| 9 | Legacy sources in a public repo | Make the repo private, redact identifiers, or keep them out of git | Nitin | Open |
 
 ### Note on #6 — `ftc`
 
@@ -63,4 +74,6 @@ than accidental.
 |---|---|---|---|---|
 | A | `dry_run` semantics | Writes nothing to `onboarding_steps`; the expiry sweep runs only in `sandbox` and `live`. Journey sync still runs in `dry_run`, because a shadow run needs journeys to exist before it can project anything. | Nitin | 2026-10-15 |
 | B | Credential and merge emails | Never auto-sent. Surfaced for a human to send, so no account password is stored by this application. | Eng | 2026-10-14 |
+| D | Credential *and* merge emails are manual | Both carry account credentials, so neither is ever auto-sent. | Eng | 2026-10-15 |
+| E | Calendar invites dispatch a day early | Legacy booked on `targetDate = tomorrow`. Invites now go out at DOJ−1 for day-one sessions, matching that, rather than an hour before a 09:00 start. | Eng | 2026-10-15 |
 | C | Onboarding RBAC gate | Applied to the onboarding page, not the `/onboarding` layout, so `/onboarding/review/[token]` stays reachable by candidates holding an invitation token. | Eng | 2026-10-14 |

@@ -185,6 +185,10 @@ export const getDueSteps = (
   for (const step of steps) {
     if (step.status !== 'pending' && step.status !== 'failed') continue
 
+    // Post-meeting mails are sent by a person pressing a button, so the
+    // scheduler must never pick them up — nor expire them for being late.
+    if (STEP_DEFINITION_BY_KEY[step.stepKey]?.isManualOnly) continue
+
     const scheduled = parseDateOnly(step.scheduledFor)
     if (!scheduled) continue
 

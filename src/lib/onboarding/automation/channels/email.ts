@@ -2,6 +2,7 @@ import { sendEmail } from '@/lib/email/sendEmail'
 import {
   canDispatch,
   getRunMode,
+  redirectsRecipients,
   resolveEmailRecipients,
 } from '@/lib/onboarding/automation/runMode'
 import { EMAIL_TEMPLATES } from '@/lib/onboarding/automation/templates/emailTemplates'
@@ -80,9 +81,29 @@ export const dispatchEmailStep = async (
     employeeType: context.employeeType,
   })
 
+  // P&C were copied on every onboarding mail by the legacy script, which is how
+  // they keep a thread to refer back to. The milestone mail also copies the
+  // manager, since it is as much a prompt for them as for the joiner.
+  const ccList = [
+    ...(process.env.ONBOARDING_CC_EMAILS ?? '')
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter(Boolean),
+    ...(definition.key === 'milestone_email' && context.managerEmail
+      ? [context.managerEmail]
+      : []),
+  ]
+
+  // Sandbox must not copy anyone real either.
+  const cc = redirectsRecipients(mode) ? '' : Array.from(new Set(ccList)).join(', ')
+
   const result = await sendEmail(
     definition.key,
-    { subject: rendered.subject, body: rendered.html },
+    {
+      subject: rendered.subject,
+      body: rendered.html,
+      ...(cc ? { cc } : {}),
+    },
     recipients[0]
   )
 

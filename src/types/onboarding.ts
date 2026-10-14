@@ -49,6 +49,12 @@ export type JourneyContext = {
   managerEmail: string | null
   buddyEmail: string | null
   slackChannelId: string | null
+  /** Job title, announced in the Slack welcome. */
+  designation: string | null
+  /** P&C-written introduction posted to the team channel. */
+  slackIntroText: string | null
+  /** Set by P&C when the joiner missed their technical onboarding call. */
+  missedTechCall: boolean
   lastCompletedStep: string | null
   isCompleted: boolean
   employeeStatus: string
@@ -66,6 +72,8 @@ export type OnboardingStepRecord = {
   attempts: number
   lastError: string | null
   skipReason: string | null
+  /** Facts recorded by the dispatch itself, e.g. the slot a call landed on. */
+  dispatchMeta: Record<string, unknown> | null
 }
 
 export type OnboardingTaskRecord = {

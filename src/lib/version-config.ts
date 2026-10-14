@@ -26,10 +26,43 @@ export type VersionEntry = {
   changes: VersionChange[]
 }
 
-export const CURRENT_VERSION = '1.02.00'
+export const CURRENT_VERSION = '1.03.00'
 
 /** Newest first. Prepend new entries; never rewrite a released one. */
 export const VERSION_HISTORY: VersionEntry[] = [
+  {
+    version: '1.03.00',
+    date: '2026-10-15',
+    title: 'Onboarding behaviour parity with the legacy script',
+    type: 'minor',
+    changes: [
+      {
+        category: 'Fixes',
+        description:
+          'The Slack welcome announced a hardcoded 11:00 AM manager connect and never flagged a placeholder booking. It now reads the slot the calendar step actually booked, and says nothing rather than naming an unagreed time.',
+      },
+      {
+        category: 'Fixes',
+        description:
+          'Batched calendar sessions now join the day\u2019s existing event instead of creating a second one, so a joiner synced later is added as a guest rather than sent a duplicate invite.',
+      },
+      {
+        category: 'Features',
+        description:
+          'Merge email for joiners entered with a day or less to go, post-DOJ entry skipping, and step supersession so pre-joining retires the access mail.',
+      },
+      {
+        category: 'Features',
+        description:
+          'Slack introduction step with a 30-day cap, manager-not-found-in-Slack alert, and the two post-meeting emails as manual P&C actions with a missed-call flag.',
+      },
+      {
+        category: 'Improvements',
+        description:
+          'Calendar invites dispatch a day before the session; onboarding mail copies P&C and the milestone copies the manager.',
+      },
+    ],
+  },
   {
     version: '1.02.00',
     date: '2026-10-15',

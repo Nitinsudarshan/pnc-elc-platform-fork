@@ -22,6 +22,7 @@ const step = (
   attempts: 0,
   lastError: null,
   skipReason: null,
+  dispatchMeta: null,
   ...overrides,
 })
 

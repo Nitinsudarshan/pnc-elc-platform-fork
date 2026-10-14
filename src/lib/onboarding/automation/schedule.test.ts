@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
-import { PIPELINE_ORDER } from '@/lib/onboarding/automation/constants'
+import {
+  PIPELINE_ORDER,
+  STEP_DEFINITION_BY_KEY,
+} from '@/lib/onboarding/automation/constants'
 import { parseDateOnly } from '@/lib/onboarding/automation/dates'
 import { deriveStage, planSteps } from '@/lib/onboarding/automation/schedule'
 
@@ -22,6 +25,9 @@ const context = (overrides: Partial<JourneyContext> = {}): JourneyContext => ({
   managerEmail: 'manager@navgurukul.org',
   buddyEmail: 'buddy@navgurukul.org',
   slackChannelId: null,
+  designation: 'Engineer',
+  slackIntroText: null,
+  missedTechCall: false,
   lastCompletedStep: null,
   isCompleted: false,
   employeeStatus: 'active',
@@ -45,8 +51,25 @@ describe('planSteps — the DOJ-relative timeline', () => {
     expect(dateOf(steps, key)).toBe(expected)
   })
 
-  it('anchors the P&C check-in to the first Friday from DOJ+14', () => {
-    expect(dateOf(steps, 'pnc_checkin')).toBe('2026-10-30')
+  it('dispatches the P&C check-in the day before its Friday session', () => {
+    // The session itself is Friday 30 Oct (first Friday from DOJ+14); the
+    // invite goes out the day before, as the legacy script did.
+    expect(dateOf(steps, 'pnc_checkin')).toBe('2026-10-29')
+  })
+
+  it.each([
+    ['manager_connect', '2026-10-13'],
+    ['technical_onboarding', '2026-10-13'],
+    ['warm_onboarding', '2026-10-13'],
+    ['buddy_connect', '2026-10-14'],
+  ])('%s is dispatched a day before the session, on %s', (key, expected) => {
+    // Booking an 09:00 session at 08:00 the same morning gives nobody notice.
+    expect(dateOf(steps, key)).toBe(expected)
+  })
+
+  it('creates the Slack channel on the joining date', () => {
+    // Decision #2: legacy created it on DOJ, not the day before.
+    expect(dateOf(steps, 'slack_channel')).toBe('2026-10-14')
   })
 
   it('schedules the milestone three months out', () => {
@@ -91,14 +114,21 @@ describe('planSteps — eligibility', () => {
     // here: it matched the literal string "contract" (so a consultant skipped
     // induction) and the string "full-time" (so "Full-Time Consultant" did get
     // a milestone mail). The port inverts both.
-    expect(skippedKeys('ftc', 'Operations')).toEqual(['milestone_email'])
+    // merge_email is skipped for every normal joiner; see the entry-path tests.
+    expect(skippedKeys('ftc', 'Operations')).toEqual([
+      'merge_email',
+      'milestone_email',
+    ])
   })
 
   it('skips the warm session for Sama staff only', () => {
     const sama = planSteps(
       context({ personalEmail: 'asha@thesama.in' })
     ).filter((step) => step.status === 'skipped')
-    expect(sama.map((step) => step.stepKey)).toEqual(['warm_onboarding'])
+    expect(sama.map((step) => step.stepKey)).toEqual([
+      'merge_email',
+      'warm_onboarding',
+    ])
   })
 
   it('halts everything for an exited employee', () => {
@@ -114,10 +144,11 @@ describe('planSteps — resuming a part-finished onboarding', () => {
       .filter((step) => step.status === 'skipped')
       .map((step) => step.stepKey)
 
-    const expected = PIPELINE_ORDER.slice(
-      0,
-      PIPELINE_ORDER.indexOf('slack_welcome') + 1
-    )
+    const expected = [
+      ...PIPELINE_ORDER.slice(0, PIPELINE_ORDER.indexOf('slack_welcome') + 1),
+      // Not part of the pipeline order, and skipped for a normal joiner.
+      'merge_email',
+    ]
     expect(skipped.sort()).toEqual(expected.sort())
   })
 
@@ -153,5 +184,62 @@ describe('deriveStage — boundaries', () => {
         on('2026-10-14')
       )
     ).toBe('onboarded')
+  })
+})
+
+describe('planSteps — how the joiner was entered', () => {
+  const on = (date: string) => parseDateOnly(date) as Date
+  const statusOf = (steps: ReturnType<typeof planSteps>, key: string) =>
+    steps.find((step) => step.stepKey === key)?.status
+
+  it('runs the normal three-mail run-up with plenty of notice', () => {
+    const steps = planSteps(context(), on('2026-10-01'))
+    expect(statusOf(steps, 'credential_email')).toBe('pending')
+    expect(statusOf(steps, 'pre_joining_email')).toBe('pending')
+    expect(statusOf(steps, 'merge_email')).toBe('skipped')
+  })
+
+  it.each(['2026-10-13', '2026-10-14'])(
+    'collapses to the merge email when entered on %s',
+    (entry) => {
+      // Someone entered the day before joining cannot receive a credential mail
+      // two days before; three mails in two days reads as a mistake.
+      const steps = planSteps(context(), on(entry))
+      expect(statusOf(steps, 'merge_email')).toBe('pending')
+      expect(statusOf(steps, 'credential_email')).toBe('skipped')
+      expect(statusOf(steps, 'pre_joining_email')).toBe('skipped')
+      expect(statusOf(steps, 'access_email')).toBe('skipped')
+    }
+  )
+
+  it('skips the whole run-up when entered after the joining date', () => {
+    const steps = planSteps(context(), on('2026-10-20'))
+    expect(statusOf(steps, 'merge_email')).toBe('skipped')
+    for (const key of ['credential_email', 'pre_joining_email', 'access_email']) {
+      expect(statusOf(steps, key)).toBe('skipped')
+    }
+    // Later steps still run — they are not part of the run-up.
+    expect(statusOf(steps, 'week1_followup_email')).toBe('pending')
+  })
+})
+
+describe('step supersession', () => {
+  it('declares what the merge email replaces', () => {
+    expect(STEP_DEFINITION_BY_KEY.merge_email.supersedes).toEqual([
+      'credential_email',
+      'pre_joining_email',
+      'access_email',
+    ])
+  })
+
+  it('retires the access mail once pre-joining has gone out', () => {
+    expect(STEP_DEFINITION_BY_KEY.pre_joining_email.supersedes).toEqual([
+      'access_email',
+    ])
+  })
+
+  it('keeps both credential-bearing mails on manual send', () => {
+    expect(STEP_DEFINITION_BY_KEY.credential_email.requiresManualReview).toBe(true)
+    expect(STEP_DEFINITION_BY_KEY.merge_email.requiresManualReview).toBe(true)
   })
 })

@@ -192,6 +192,7 @@ const persistOutcome = async (
       patch.last_error = null
       patch.skip_reason = null
       patch.attempts = step.attempts + 1
+      if (outcome.meta) patch.dispatch_meta = outcome.meta
       break
     case 'skipped':
       patch.status = 'skipped'
@@ -222,6 +223,38 @@ const persistOutcome = async (
 }
 
 /** Refreshes stage and the terminal completion flag for every journey. */
+/**
+ * Retires the steps a sent step makes unnecessary.
+ *
+ * The merge email contains the credential, pre-joining and access content, and
+ * the pre-joining mail repeats what the access mail would say. Sending one has
+ * to close the others, or the joiner receives the same thing twice.
+ */
+const applySupersession = async (
+  supabase: SupabaseClient,
+  journeyId: string,
+  stepKey: string
+): Promise<void> => {
+  const superseded = STEP_DEFINITION_BY_KEY[stepKey]?.supersedes
+  if (!superseded || superseded.length === 0) return
+
+  const { error } = await supabase
+    .from('onboarding_steps')
+    .update({
+      status: 'skipped',
+      completed_at: new Date().toISOString(),
+      skip_reason: `Covered by ${STEP_DEFINITION_BY_KEY[stepKey]?.label ?? stepKey}`,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('journey_id', journeyId)
+    .in('step_key', superseded)
+    .eq('status', 'pending')
+
+  if (error) {
+    console.error('Onboarding run: failed to apply supersession', error.message)
+  }
+}
+
 const refreshStages = async (
   supabase: SupabaseClient,
   journeys: LoadedJourney[]
@@ -511,9 +544,18 @@ export const runOnboardingAutomation = async (
           context: item.journey.context,
           step: item.step,
           tasks: item.journey.tasks,
+          siblingSteps: item.journey.steps,
         })
 
         await applyOutcome(item, outcome)
+
+        if (outcome.status === 'sent') {
+          await applySupersession(
+            supabase,
+            item.journey.context.journeyId,
+            item.step.stepKey
+          )
+        }
 
         // A newly created Slack channel has to be remembered before the welcome
         // message can be posted to it.
@@ -557,6 +599,7 @@ export const runOnboardingAutomation = async (
           context: primary.journey.context,
           step: primary.step,
           tasks: primary.journey.tasks,
+          siblingSteps: primary.journey.steps,
           batchMates: mates.map((item) => item.journey.context),
         })
 

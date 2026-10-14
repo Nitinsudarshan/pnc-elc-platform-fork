@@ -1,6 +1,11 @@
 import { google } from 'googleapis'
 
-import { ORG_TIME_ZONE } from '@/lib/onboarding/automation/dates'
+import {
+  addDays,
+  ORG_TIME_ZONE,
+  parseDateOnly,
+  toDateKey,
+} from '@/lib/onboarding/automation/dates'
 import {
   canDispatch,
   getRunMode,
@@ -159,6 +164,23 @@ const findAvailableSlot = async (
   return null
 }
 
+/** Finds the day's event for a batched session, if one was already created. */
+const findExistingEvent = async (
+  calendar: NonNullable<ReturnType<typeof getCalendarClient>>,
+  dateKey: string,
+  title: string
+) => {
+  const { data } = await calendar.events.list({
+    calendarId: 'primary',
+    timeMin: toIstDateTime(dateKey, 0, 0),
+    timeMax: toIstDateTime(dateKey, 23, 59),
+    singleEvents: true,
+    maxResults: 50,
+  })
+
+  return (data.items ?? []).find((event) => event.summary === title)
+}
+
 export const dispatchCalendarStep = async (
   input: DispatchInput
 ): Promise<DispatchOutcome> => {
@@ -200,14 +222,20 @@ export const dispatchCalendarStep = async (
   const durationMinutes = definition.durationMinutes ?? 30
   const placeholderHour = definition.hour ?? 11
 
-  let startDateTime = toIstDateTime(step.scheduledFor, placeholderHour)
+  // The step is dispatched ahead of the session, so the event itself sits
+  // `leadDays` later than the step's own date.
+  const eventDate = toDateKey(
+    addDays(parseDateOnly(step.scheduledFor) as Date, definition.leadDays ?? 0)
+  )
+
+  let startDateTime = toIstDateTime(eventDate, placeholderHour)
   let isPlaceholder = false
 
   if (definition.usesDynamicSlot) {
     const slot = await findAvailableSlot(
       calendar,
       attendees,
-      step.scheduledFor,
+      eventDate,
       durationMinutes
     )
 
@@ -224,7 +252,7 @@ export const dispatchCalendarStep = async (
 
   const rendered = template({
     attendeeNames: names,
-    scheduledFor: step.scheduledFor,
+    scheduledFor: eventDate,
   })
 
   const description = isPlaceholder
@@ -232,6 +260,42 @@ export const dispatchCalendarStep = async (
     : rendered.description
 
   try {
+    // A joiner synced after the day's batch event already exists must be added
+    // to it, not given a second invite to the same session.
+    if (definition.isBatched) {
+      const existing = await findExistingEvent(calendar, eventDate, rendered.title)
+      if (existing?.id) {
+        const current = new Set(
+          (existing.attendees ?? [])
+            .map((guest) => guest.email?.toLowerCase())
+            .filter(Boolean) as string[]
+        )
+        const missing = attendees.filter(
+          (email) => !current.has(email.toLowerCase())
+        )
+
+        if (missing.length > 0) {
+          await calendar.events.patch({
+            calendarId: 'primary',
+            eventId: existing.id,
+            sendUpdates: 'all',
+            requestBody: {
+              attendees: [
+                ...(existing.attendees ?? []),
+                ...missing.map((email) => ({ email })),
+              ],
+            },
+          })
+        }
+
+        return {
+          status: 'sent',
+          externalRef: existing.id,
+          meta: { startsAt: existing.start?.dateTime ?? null, isPlaceholder: false },
+        }
+      }
+    }
+
     const event = await calendar.events.insert({
       calendarId: 'primary',
       sendUpdates: 'all',
@@ -249,7 +313,13 @@ export const dispatchCalendarStep = async (
       },
     })
 
-    return { status: 'sent', externalRef: event.data.id ?? null }
+    return {
+      status: 'sent',
+      externalRef: event.data.id ?? null,
+      // The Slack welcome announces this time, so it has to come from the
+      // booking rather than be assumed.
+      meta: { startsAt: startDateTime, isPlaceholder },
+    }
   } catch (error) {
     return {
       status: 'failed',
