@@ -32,12 +32,14 @@ import { NavSecondary } from "@/components/nav-secondary"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { SidebarVersionFooter } from "@/components/sidebar-version-footer"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
@@ -263,6 +265,9 @@ export function AppSidebar({
         <NavMain items={visibleNav} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
+      <SidebarFooter className="p-0">
+        <SidebarVersionFooter />
+      </SidebarFooter>
     </Sidebar>
   )
 }

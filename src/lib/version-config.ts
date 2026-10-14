@@ -26,10 +26,43 @@ export type VersionEntry = {
   changes: VersionChange[]
 }
 
-export const CURRENT_VERSION = '1.01.00'
+export const CURRENT_VERSION = '1.02.00'
 
 /** Newest first. Prepend new entries; never rewrite a released one. */
 export const VERSION_HISTORY: VersionEntry[] = [
+  {
+    version: '1.02.00',
+    date: '2026-10-14',
+    title: 'Role Switcher, User Emulation, and Changelog Suite',
+    type: 'minor',
+    changes: [
+      {
+        category: 'Features',
+        description:
+          'Interactive DevRoleToggle header component supporting live role switching across all 10 platform roles with dev cookie persistence and instant re-evaluation.',
+      },
+      {
+        category: 'Features',
+        description:
+          'User emulation engine with realistic persona presets (Eng Manager, PnC Lead, Finance Executive, Employee) to test role-scoped workflows.',
+      },
+      {
+        category: 'Features',
+        description:
+          'SidebarVersionFooter component and dedicated /changelog dashboard page rendering interactive version history, type badges, and category pills.',
+      },
+      {
+        category: 'Improvements',
+        description:
+          'Tied header user menu and UserContext directly into actual Supabase auth metadata and employee roster records instead of dummy boilerplate.',
+      },
+      {
+        category: 'Fixes',
+        description:
+          'Resolved duplicate /onboarding dashboard key error and Next.js dynamic prerender warning on signatories route.',
+      },
+    ],
+  },
   {
     version: '1.01.00',
     date: '2026-10-14',
