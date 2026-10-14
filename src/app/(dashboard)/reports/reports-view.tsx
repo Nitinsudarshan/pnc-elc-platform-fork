@@ -48,7 +48,7 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart'
 import { UnifiedReportsData } from '@/lib/reports/getReportsData'
-import { PageBanner } from '@/components/shared/page_banner'
+import { PageBanner } from '@/components/shared/page-banner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'

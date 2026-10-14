@@ -1,5 +1,5 @@
-import { getOrgToday, parseDateOnly, diffInDays, toDateKey } from '@/lib/onboarding/dates'
-import { planSteps, planTasks } from '@/lib/onboarding/schedule'
+import { getOrgToday, parseDateOnly, diffInDays, toDateKey } from '@/lib/onboarding/automation/dates'
+import { planSteps, planTasks } from '@/lib/onboarding/automation/schedule'
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { EmployeeType, JourneyContext } from '@/types/onboarding'

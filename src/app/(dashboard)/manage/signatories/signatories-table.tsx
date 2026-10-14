@@ -20,7 +20,7 @@ import {
   Shield,
   Sparkles,
 } from 'lucide-react'
-import { PageBanner } from '@/components/shared/page_banner'
+import { PageBanner } from '@/components/shared/page-banner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

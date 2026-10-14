@@ -1,5 +1,5 @@
-import { getOrgToday } from '@/lib/onboarding/dates'
-import { deriveStage } from '@/lib/onboarding/schedule'
+import { getOrgToday } from '@/lib/onboarding/automation/dates'
+import { deriveStage } from '@/lib/onboarding/automation/schedule'
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type {

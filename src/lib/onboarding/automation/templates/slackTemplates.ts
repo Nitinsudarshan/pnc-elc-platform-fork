@@ -1,4 +1,4 @@
-import { INDUCTION_TASKS } from '@/lib/onboarding/constants'
+import { INDUCTION_TASKS } from '@/lib/onboarding/automation/constants'
 
 /**
  * Slack message copy, ported from the Apps Script `slack.gs`.

@@ -6,14 +6,14 @@ import {
   PIPELINE_ORDER,
   STEP_DEFINITIONS,
   type StepDefinition,
-} from '@/lib/onboarding/constants'
-import { addDays, addMonths, diffInDays, nextOrSameFriday, parseDateOnly, toDateKey } from '@/lib/onboarding/dates'
+} from '@/lib/onboarding/automation/constants'
+import { addDays, addMonths, diffInDays, nextOrSameFriday, parseDateOnly, toDateKey } from '@/lib/onboarding/automation/dates'
 import {
   isContractOrApprentice,
   isDroppedStatus,
   isInductionEligible,
   isSamaEmployee,
-} from '@/lib/onboarding/eligibility'
+} from '@/lib/onboarding/automation/eligibility'
 
 import type {
   JourneyContext,

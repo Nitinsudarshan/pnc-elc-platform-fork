@@ -15,7 +15,7 @@ import {
   MapPin,
   Briefcase,
 } from 'lucide-react';
-import { PageBanner } from '@/components/shared/page_banner';
+import { PageBanner } from '@/components/shared/page-banner';
 import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 

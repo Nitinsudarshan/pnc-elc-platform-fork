@@ -1,5 +1,5 @@
 import React from "react";
-import { PageBanner } from "@/components/shared/page_banner";
+import { PageBanner } from "@/components/shared/page-banner";
 import {
   Compass,
   Rocket,

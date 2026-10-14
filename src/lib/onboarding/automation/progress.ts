@@ -2,8 +2,8 @@ import {
   INDUCTION_TASKS,
   STEP_DEFINITION_BY_KEY,
   STEP_DEFINITIONS,
-} from '@/lib/onboarding/constants'
-import { diffInDays, parseDateOnly } from '@/lib/onboarding/dates'
+} from '@/lib/onboarding/automation/constants'
+import { diffInDays, parseDateOnly } from '@/lib/onboarding/automation/dates'
 
 import type {
   ChannelProgress,

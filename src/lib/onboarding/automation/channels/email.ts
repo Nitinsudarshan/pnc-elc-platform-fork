@@ -1,7 +1,7 @@
 import { sendEmail } from '@/lib/email/sendEmail'
-import { EMAIL_TEMPLATES } from '@/lib/onboarding/templates/emailTemplates'
+import { EMAIL_TEMPLATES } from '@/lib/onboarding/automation/templates/emailTemplates'
 
-import type { DispatchInput, DispatchOutcome } from '@/lib/onboarding/channels/types'
+import type { DispatchInput, DispatchOutcome } from '@/lib/onboarding/automation/channels/types'
 
 /**
  * Email adapter. Renders the ported template and sends it through the existing

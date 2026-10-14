@@ -1,12 +1,12 @@
 import { google } from 'googleapis'
 
-import { ORG_TIME_ZONE } from '@/lib/onboarding/dates'
+import { ORG_TIME_ZONE } from '@/lib/onboarding/automation/dates'
 import {
   CALENDAR_TEMPLATES,
   getBatchAttendees,
-} from '@/lib/onboarding/templates/calendarTemplates'
+} from '@/lib/onboarding/automation/templates/calendarTemplates'
 
-import type { DispatchInput, DispatchOutcome } from '@/lib/onboarding/channels/types'
+import type { DispatchInput, DispatchOutcome } from '@/lib/onboarding/automation/channels/types'
 import type { JourneyContext } from '@/types/onboarding'
 
 /**

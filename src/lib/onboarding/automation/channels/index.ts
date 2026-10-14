@@ -1,10 +1,10 @@
-import { dispatchCalendarStep } from '@/lib/onboarding/channels/calendar'
-import { dispatchEmailStep } from '@/lib/onboarding/channels/email'
-import { dispatchSlackStep } from '@/lib/onboarding/channels/slack'
+import { dispatchCalendarStep } from '@/lib/onboarding/automation/channels/calendar'
+import { dispatchEmailStep } from '@/lib/onboarding/automation/channels/email'
+import { dispatchSlackStep } from '@/lib/onboarding/automation/channels/slack'
 
-import type { DispatchInput, DispatchOutcome } from '@/lib/onboarding/channels/types'
+import type { DispatchInput, DispatchOutcome } from '@/lib/onboarding/automation/channels/types'
 
-export type { DispatchInput, DispatchOutcome } from '@/lib/onboarding/channels/types'
+export type { DispatchInput, DispatchOutcome } from '@/lib/onboarding/automation/channels/types'
 
 /** Routes a due step to the adapter that owns its channel. */
 export const dispatchStep = async (

@@ -1,7 +1,7 @@
 import {
   DROPPED_EMPLOYEE_STATUSES,
   EMPLOYEE_TYPE_LABELS,
-} from '@/lib/onboarding/constants'
+} from '@/lib/onboarding/automation/constants'
 
 import type { EmployeeType } from '@/types/onboarding'
 

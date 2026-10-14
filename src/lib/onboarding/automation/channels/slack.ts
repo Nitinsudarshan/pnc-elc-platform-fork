@@ -1,7 +1,7 @@
-import { INDUCTION_TASKS } from '@/lib/onboarding/constants'
-import { SLACK_TEMPLATES } from '@/lib/onboarding/templates/slackTemplates'
+import { INDUCTION_TASKS } from '@/lib/onboarding/automation/constants'
+import { SLACK_TEMPLATES } from '@/lib/onboarding/automation/templates/slackTemplates'
 
-import type { DispatchInput, DispatchOutcome } from '@/lib/onboarding/channels/types'
+import type { DispatchInput, DispatchOutcome } from '@/lib/onboarding/automation/channels/types'
 import type { JourneyContext } from '@/types/onboarding'
 
 /**

@@ -1,4 +1,4 @@
-import type { StepDefinition } from '@/lib/onboarding/constants'
+import type { StepDefinition } from '@/lib/onboarding/automation/constants'
 import type {
   JourneyContext,
   OnboardingStepRecord,

@@ -51,7 +51,6 @@ export const FEATURE_ACCESS: Record<Feature, UserRole[]> = {
 
 const ROUTE_FEATURE: [string, Feature][] = [
   ["/employees", "employees"],
-  ["/onboarding", "onboarding"],
   ["/confirmations", "confirmations"],
   ["/appraisals", "appraisals"],
   ["/data-management", "dataManagement"],

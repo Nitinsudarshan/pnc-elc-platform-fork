@@ -1,15 +1,15 @@
-import { getOrgToday } from '@/lib/onboarding/dates'
-import { loadJourneys } from '@/lib/onboarding/loadJourneys'
+import { getOrgToday } from '@/lib/onboarding/automation/dates'
+import { loadJourneys } from '@/lib/onboarding/automation/loadJourneys'
 import {
   deriveAttentionReasons,
   deriveChannelProgress,
   deriveTaskProgress,
-} from '@/lib/onboarding/progress'
-import { deriveStage } from '@/lib/onboarding/schedule'
+} from '@/lib/onboarding/automation/progress'
+import { deriveStage } from '@/lib/onboarding/automation/schedule'
 import {
   INDUCTION_TASKS,
   STEP_DEFINITION_BY_KEY,
-} from '@/lib/onboarding/constants'
+} from '@/lib/onboarding/automation/constants'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 
 import type { OnboardingDashboardRow } from '@/types/onboarding'

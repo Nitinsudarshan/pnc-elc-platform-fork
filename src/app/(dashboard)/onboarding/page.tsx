@@ -8,6 +8,7 @@ import { OnboardingTabs } from '@/app/(dashboard)/onboarding/_components/Onboard
 import { PageBanner } from '@/components/shared/page-banner'
 import { Button } from '@/components/ui/button'
 import { getOnboardingDashboard } from '@/lib/onboarding/automation/getOnboardingDashboard'
+import { requireFeature } from '@/lib/rbac/requireFeature'
 
 /**
  * Onboarding.
@@ -17,6 +18,11 @@ import { getOnboardingDashboard } from '@/lib/onboarding/automation/getOnboardin
  * run from two days before joining to the end of induction.
  */
 export default async function OnboardingPage() {
+  // Gated here rather than in a layout: a layout would also cover
+  // /onboarding/review/[token], which candidates open with an invitation token
+  // and no staff role.
+  await requireFeature('onboarding')
+
   const { rows, totals } = await getOnboardingDashboard()
 
   return (

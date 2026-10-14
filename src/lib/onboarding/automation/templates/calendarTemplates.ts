@@ -5,7 +5,7 @@
  * cohort date so a day's joiners share one invite, matching the original.
  */
 
-import { formatDisplayDate } from '@/lib/onboarding/dates'
+import { formatDisplayDate } from '@/lib/onboarding/automation/dates'
 
 export type CalendarTemplateContext = {
   /** For an individual call, the joiner's name; for a batch, "A & B". */
