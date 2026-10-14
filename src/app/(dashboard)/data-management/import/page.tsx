@@ -139,7 +139,7 @@ export default function ImportEmployeeDataPage() {
       <PageBanner
         title="Import Employee Data"
         description="Upload CSV or XLSX files, map columns to employee schema attributes, and review validation preview."
-        icon={<FileUp className="h-8 w-8 text-teal-500" />}
+        icon={<FileUp className="h-8 w-8 text-teal-700 dark:text-teal-300" />}
         actions={
           <div className="flex items-center gap-2">
             <Link
@@ -155,7 +155,7 @@ export default function ImportEmployeeDataPage() {
               onClick={handleDownloadTemplate}
               className="rounded-lg h-9 text-xs gap-1.5 font-semibold bg-background"
             >
-              <Download className="h-3.5 w-3.5 text-indigo-500" />
+              <Download className="h-3.5 w-3.5 text-indigo-700 dark:text-indigo-300" />
               Template
             </Button>
           </div>
@@ -166,7 +166,7 @@ export default function ImportEmployeeDataPage() {
       <Card className="rounded-lg bg-card/60 backdrop-blur-md border border-border shadow-xs p-5">
         <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/80 mb-4">
           <div className="flex items-center gap-2.5">
-            <Sheet className="h-4 w-4 text-indigo-500" />
+            <Sheet className="h-4 w-4 text-indigo-700 dark:text-indigo-300" />
             <div className="text-xs">
               <span className="font-semibold text-foreground">Standardized Template</span>
               <p className="text-[11px] text-muted-foreground">Download pre-mapped CSV template</p>
@@ -194,7 +194,7 @@ export default function ImportEmployeeDataPage() {
             className="hidden"
           />
           <label htmlFor="employee-file-input" className="cursor-pointer block">
-            <FileUp className="h-8 w-8 mx-auto text-indigo-500 mb-2" />
+            <FileUp className="h-8 w-8 mx-auto text-indigo-700 dark:text-indigo-300 mb-2" />
             <span className="text-sm font-semibold text-foreground">
               {file ? file.name : "Click to select or drop CSV file"}
             </span>
@@ -213,7 +213,7 @@ export default function ImportEmployeeDataPage() {
               Validation Preview ({previewRows.length} rows)
             </h2>
             <div className="flex gap-2">
-              <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-none text-[11px] rounded-lg">
+              <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-none text-[11px] rounded-lg">
                 Valid: {previewRows.filter((r) => r._valid).length}
               </Badge>
               {previewRows.some((r) => !r._valid) && (

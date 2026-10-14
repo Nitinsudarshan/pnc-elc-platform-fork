@@ -1,115 +1,166 @@
 import React from "react";
-import { PageBanner } from "@/components/shared/page-banner";
+import { PageBanner } from "@/components/shared/page_banner";
 import {
   Compass,
   Users,
   TrendingUp,
-  Database,
   UserCheck,
-  Layers,
+  UserMinus,
+  BarChart3,
+  Database,
+  ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
+import { Card, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function DashboardPage() {
-  const quickLinks = [
+  const coreModules = [
+    {
+      title: "Onboarding Hub",
+      description: "Manage pre-joining candidate pipelines, document KYC, account provisioning, and Day-1 orientation.",
+      href: "/onboarding",
+      icon: Compass,
+      badge: "Pipeline",
+      gradient: "from-blue-500/10 via-indigo-500/5 to-transparent",
+      iconBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white border-blue-500/20",
+      badgeStyle: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-900/50",
+      hoverBorder: "hover:border-blue-500/40",
+      arrowHover: "group-hover:text-blue-600 dark:group-hover:text-blue-400",
+    },
     {
       title: "Employees Directory",
-      description: "Search, filter, and inspect comprehensive employee profiles, roles, and status records.",
+      description: "Search, filter, and inspect comprehensive employee profiles, roles, designations, and status records.",
       href: "/employees",
       icon: Users,
-      badge: "Core Directory",
+      badge: "Core Roster",
       gradient: "from-sky-500/10 via-blue-500/5 to-transparent",
-      iconBg: "bg-sky-500/10 text-sky-600 dark:text-sky-400 group-hover:bg-sky-600 group-hover:text-white",
+      iconBg: "bg-sky-500/10 text-sky-700 dark:text-sky-400 group-hover:bg-sky-700 group-hover:text-white border-sky-500/20",
+      badgeStyle: "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-900/50",
+      hoverBorder: "hover:border-sky-500/40",
+      arrowHover: "group-hover:text-sky-700 dark:group-hover:text-sky-400",
+    },
+    {
+      title: "Offboarding & Exits",
+      description: "Manage exit lifecycles, structured checklists, asset clearance, No Dues Certificates, and F&F settlement.",
+      href: "/offboarding",
+      icon: UserMinus,
+      badge: "Separations",
+      gradient: "from-rose-500/10 via-pink-500/5 to-transparent",
+      iconBg: "bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:bg-rose-600 group-hover:text-white border-rose-500/20",
+      badgeStyle: "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900/50",
+      hoverBorder: "hover:border-rose-500/40",
+      arrowHover: "group-hover:text-rose-600 dark:group-hover:text-rose-400",
     },
     {
       title: "Appraisal Cohorts",
-      description: "Oversee review cycles, track July & December cohorts, and view cycle analytics reporting.",
+      description: "Oversee bi-annual review cycles, manage July & December cohorts, and track eligibility timelines.",
       href: "/appraisals",
       icon: TrendingUp,
       badge: "Bi-Annual",
       gradient: "from-emerald-500/10 via-teal-500/5 to-transparent",
-      iconBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white",
+      iconBg: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 group-hover:bg-emerald-700 group-hover:text-white border-emerald-500/20",
+      badgeStyle: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50",
+      hoverBorder: "hover:border-emerald-500/40",
+      arrowHover: "group-hover:text-emerald-700 dark:group-hover:text-emerald-400",
     },
     {
       title: "Confirmation Reviews",
-      description: "Initiate probation reviews, nominate peer reviewers, and compile manager evaluation reports.",
+      description: "Initiate probation reviews, nominate peer reviewers, compile manager evaluations, and issue letters.",
       href: "/confirmations/new",
       icon: UserCheck,
-      badge: "Lifecycle",
+      badge: "Probation",
       gradient: "from-amber-500/10 via-orange-500/5 to-transparent",
-      iconBg: "bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:bg-amber-600 group-hover:text-white",
+      iconBg: "bg-amber-500/10 text-amber-700 dark:text-amber-400 group-hover:bg-amber-700 group-hover:text-white border-amber-500/20",
+      badgeStyle: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900/50",
+      hoverBorder: "hover:border-amber-500/40",
+      arrowHover: "group-hover:text-amber-700 dark:group-hover:text-amber-400",
     },
     {
-      title: "User Management",
-      description: "Configure system user permissions, assign team roles, and track active users.",
-      href: "/manage/users",
-      icon: Users,
-      badge: "Access Control",
-      gradient: "from-indigo-500/10 via-purple-500/5 to-transparent",
-      iconBg: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white",
+      title: "Reports & Analytics",
+      description: "Unified reporting center for cycle distributions, confirmation tracking, onboarding funnel, and headcount.",
+      href: "/reports",
+      icon: BarChart3,
+      badge: "Analytics",
+      gradient: "from-purple-500/10 via-pink-500/5 to-transparent",
+      iconBg: "bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:bg-purple-600 group-hover:text-white border-purple-500/20",
+      badgeStyle: "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-900/50",
+      hoverBorder: "hover:border-purple-500/40",
+      arrowHover: "group-hover:text-purple-600 dark:group-hover:text-purple-400",
     },
     {
       title: "Data Management",
-      description: "Execute batch imports, inspect audit logs, view record history, and manage rollbacks.",
+      description: "Batch CSV/XLSX imports, audit tracking, profile change logs, and database rollbacks.",
       href: "/data-management",
       icon: Database,
-      badge: "System Hub",
-      gradient: "from-violet-500/10 via-fuchsia-500/5 to-transparent",
-      iconBg: "bg-violet-500/10 text-violet-600 dark:text-violet-400 group-hover:bg-violet-600 group-hover:text-white",
-    },
-    {
-      title: "Design System",
-      description: "Interactive showcase of all design tokens, UI primitives, and standardized components.",
-      href: "/components",
-      icon: Layers,
-      badge: "Catalog",
-      gradient: "from-pink-500/10 via-rose-500/5 to-transparent",
-      iconBg: "bg-pink-500/10 text-pink-600 dark:text-pink-400 group-hover:bg-pink-600 group-hover:text-white",
+      badge: "System Data",
+      gradient: "from-indigo-500/10 via-violet-500/5 to-transparent",
+      iconBg: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white border-indigo-500/20",
+      badgeStyle: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900/50",
+      hoverBorder: "hover:border-indigo-500/40",
+      arrowHover: "group-hover:text-indigo-600 dark:group-hover:text-indigo-400",
     },
   ];
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-20 animate-in fade-in duration-300">
-      {/* Banner */}
+      {/* Banner - Single Line Title and Description */}
       <PageBanner
-        title="Welcome to Navgurukul ELC"
-        description="Comprehensive Employee Life Cycle platform for performance appraisals, confirmations, and organizational data."
-        icon={<Compass className="h-6 w-6 text-teal-600 dark:text-teal-400" />}
+        title="Welcome to Navgurukul ELC (NG ELC)"
+        description="Unified Employee Life Cycle platform for onboarding, appraisals, confirmations, and reports."
+        icon={<Compass className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />}
       />
 
-      {/* Quick Access Grid */}
-      <div className="space-y-3">
-        <h2 className="text-base font-bold tracking-tight text-foreground">
-          Quick Access
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {quickLinks.map((item) => {
+      {/* Main Core Modules Grid */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold tracking-tight text-foreground">
+            Platform Workflows
+          </h2>
+          <span className="text-xs text-muted-foreground">Select a workflow to proceed</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {coreModules.map((item) => {
             const Icon = item.icon;
             return (
               <Link key={item.href} href={item.href} className="group block">
-                <div className="h-full border border-border/80 bg-card/60 backdrop-blur-sm transition-all duration-300 relative overflow-hidden group-hover:-translate-y-0.5 group-hover:shadow-md rounded-lg p-4 flex flex-col gap-2.5">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`} />
+                <Card
+                  className={`h-full rounded-lg border border-border bg-card p-4 transition-all duration-300 relative overflow-hidden group-hover:-translate-y-0.5 group-hover:shadow-md flex flex-col justify-between gap-3 ${item.hoverBorder}`}
+                >
+                  {/* Subtle ambient hover gradient */}
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`}
+                  />
 
-                  <div className="relative z-10 flex items-center justify-between">
-                    <div className={`p-2 rounded-lg transition-all duration-300 ${item.iconBg} shadow-xs group-hover:scale-105 shrink-0 flex items-center justify-center`}>
-                      <Icon className="w-4 h-4" />
+                  <div className="relative z-10 flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`p-2.5 rounded-lg border shadow-xs transition-all duration-300 shrink-0 flex items-center justify-center ${item.iconBg}`}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-sm font-semibold tracking-tight text-foreground transition-colors">
+                          {item.title}
+                        </CardTitle>
+                        <Badge
+                          variant="outline"
+                          className={`rounded-lg text-[10px] font-medium py-0 px-1.5 mt-1 border ${item.badgeStyle}`}
+                        >
+                          {item.badge}
+                        </Badge>
+                      </div>
                     </div>
-                    {item.badge && (
-                      <span className="text-[10px] px-2 py-0.5 font-semibold rounded-lg bg-secondary/80 text-muted-foreground border border-border/60">
-                        {item.badge}
-                      </span>
-                    )}
+                    <ArrowRight
+                      className={`w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-all shrink-0 mt-1 ${item.arrowHover}`}
+                    />
                   </div>
 
-                  <div className="relative z-10 space-y-1">
-                    <h3 className="text-sm font-bold tracking-tight text-foreground group-hover:text-primary dark:group-hover:text-white transition-colors duration-200">
-                      {item.title}
-                    </h3>
-                    <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
+                  <CardDescription className="relative z-10 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                    {item.description}
+                  </CardDescription>
+                </Card>
               </Link>
             );
           })}

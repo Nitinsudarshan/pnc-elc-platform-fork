@@ -1,12 +1,28 @@
 export type UserRole =
-  | "Super Admin" | "Admin" | "PnC" | "Finance"
-  | "Manager" | "Program" | "Operations" | "Viewer" | "Member" | "Employee";
+  | "Super Admin"
+  | "Admin"
+  | "PnC"
+  | "Finance"
+  | "Manager"
+  | "Program"
+  | "Operations"
+  | "Viewer"
+  | "Member"
+  | "Employee";
 
 export type UserTeam = "Engineering" | "Operations" | "Design" | "Finance" | "PnC" | "None";
 
 export const ROLE_HIERARCHY: Record<UserRole, number> = {
-  "Super Admin": 7, "Admin": 6, "PnC": 5, "Manager": 5, "Finance": 4,
-  "Program": 4, "Operations": 3, "Viewer": 2, "Member": 1, "Employee": 1,
+  "Super Admin": 7,
+  "Admin": 6,
+  "PnC": 5,
+  "Manager": 5,
+  "Finance": 4,
+  "Program": 4,
+  "Operations": 3,
+  "Viewer": 2,
+  "Member": 1,
+  "Employee": 1,
 };
 
 export function canImpersonate(actorRole?: UserRole | null, targetRole?: UserRole | null): boolean {

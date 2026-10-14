@@ -42,7 +42,7 @@ export function ManagerDecisionForm({
 
       return (
         <div>
-          <p className="text-green-600 font-medium mb-4">Decision recorded successfully.</p>
+          <p className="text-green-700 dark:text-green-300 font-medium mb-4">Decision recorded successfully.</p>
             <a
             href={calendarLink}
             target="_blank"
@@ -55,7 +55,7 @@ export function ManagerDecisionForm({
       )
     }
 
-    return <p className="text-green-600 font-medium">Decision recorded successfully.</p>
+    return <p className="text-green-700 dark:text-green-300 font-medium">Decision recorded successfully.</p>
   }
 
   return (

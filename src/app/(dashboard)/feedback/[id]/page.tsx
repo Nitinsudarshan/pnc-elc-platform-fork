@@ -29,10 +29,10 @@ export default async function PeerFeedbackPage({
         <PageBanner
           title="Feedback Recorded"
           description="Thank you, your peer review response has already been submitted and compiled."
-          icon={<CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />}
+          icon={<CheckCircle2 className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />}
         />
         <div className="p-8 bg-card border border-border rounded-lg text-center max-w-xl mx-auto space-y-3">
-          <div className="w-12 h-12 bg-emerald-500/10 text-emerald-600 rounded-lg flex items-center justify-center mx-auto">
+          <div className="w-12 h-12 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 rounded-lg flex items-center justify-center mx-auto">
             <CheckCircle2 className="w-6 h-6" />
           </div>
           <h2 className="text-lg font-semibold text-foreground">Response Already Submitted</h2>

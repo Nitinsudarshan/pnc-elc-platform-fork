@@ -37,7 +37,7 @@ export function LoginForm() {
         <Toaster />
 
         {/* Brand Icon */}
-        <div className="w-12 h-12 rounded-lg bg-sky-500 text-white flex items-center justify-center shadow-lg shadow-sky-500/20 mb-5">
+        <div className="w-12 h-12 rounded-lg bg-sky-700 text-white flex items-center justify-center shadow-lg shadow-sky-500/20 mb-5">
           <i className="fa-solid fa-user-group text-xl"></i>
         </div>
 
@@ -54,7 +54,7 @@ export function LoginForm() {
         {/* Error Alert */}
         {error && (
           <div className="w-full mt-4 p-2.5 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-lg flex items-start gap-2 text-left">
-            <i className="fa-solid fa-circle-exclamation text-rose-500 mt-0.5 text-xs"></i>
+            <i className="fa-solid fa-circle-exclamation text-rose-700 dark:text-rose-300 mt-0.5 text-xs"></i>
             <p className="text-xs font-semibold text-rose-700 dark:text-rose-400 leading-tight">{error}</p>
           </div>
         )}
@@ -67,7 +67,7 @@ export function LoginForm() {
         >
           {isSocialLoading ? (
             <div className="flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
+              <Loader2 className="h-4 w-4 animate-spin text-slate-700 dark:text-slate-300" />
               <span className="text-sm">Connecting...</span>
             </div>
           ) : (

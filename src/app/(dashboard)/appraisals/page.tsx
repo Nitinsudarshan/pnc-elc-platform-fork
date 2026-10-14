@@ -16,7 +16,7 @@ export default async function AppraisalsPage() {
       <PageBanner
         title="Appraisal Cohorts"
         description="Bi-annual employee evaluation cohorts categorized by reference eligibility dates and review cycles."
-        icon={<TrendingUp className="h-8 w-8 text-teal-500" />}
+        icon={<TrendingUp className="h-8 w-8 text-teal-700 dark:text-teal-300" />}
         actions={
           <Link
             href="/appraisals/report"
@@ -33,7 +33,7 @@ export default async function AppraisalsPage() {
         <div className="rounded-lg border border-border bg-card/60 backdrop-blur-md shadow-xs p-5 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-border">
             <div className="flex items-center gap-2">
-              <Calendar className="size-4 text-indigo-500" />
+              <Calendar className="size-4 text-indigo-700 dark:text-indigo-300" />
               <h2 className="text-base font-bold text-foreground">July Cycle</h2>
             </div>
             <Badge variant="secondary" className="rounded-lg text-xs font-semibold px-2 py-0.5">
@@ -73,7 +73,7 @@ export default async function AppraisalsPage() {
         <div className="rounded-lg border border-border bg-card/60 backdrop-blur-md shadow-xs p-5 space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-border">
             <div className="flex items-center gap-2">
-              <Calendar className="size-4 text-emerald-500" />
+              <Calendar className="size-4 text-emerald-700 dark:text-emerald-300" />
               <h2 className="text-base font-bold text-foreground">December Cycle</h2>
             </div>
             <Badge variant="secondary" className="rounded-lg text-xs font-semibold px-2 py-0.5">

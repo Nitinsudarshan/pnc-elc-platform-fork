@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { getActiveRedFlagKeywords, getPeerFeedbackSettings } from '@/lib/settings/service'
 
 export type CompiledFeedback = {
   confirmationId: string
@@ -19,8 +20,9 @@ export type CompiledFeedback = {
   }[]
 }
 
-// Simple keyword list for red-flag detection — expand/adjust once criteria is confirmed with the team
-const RED_FLAG_KEYWORDS = ['concern', 'issue', 'problem', 'difficult', 'poor', 'unprofessional', 'late']
+// Fallback keyword list and threshold if settings are unseeded
+const DEFAULT_RED_FLAG_KEYWORDS = ['concern', 'issue', 'problem', 'difficult', 'poor', 'unprofessional', 'late']
+const DEFAULT_RESPONSE_THRESHOLD = 0.5
 
 export async function getCompiledFeedback(confirmationId: string): Promise<CompiledFeedback | null> {
   const supabase = await createServerSupabaseClient()
@@ -51,18 +53,27 @@ export async function getCompiledFeedback(confirmationId: string): Promise<Compi
   const totalSubmitted = submitted.length
   const totalPending = totalNominated - totalSubmitted
 
+  // Fetch configured active red flag keywords and threshold
+  const [activeKeywords, peerSettings] = await Promise.all([
+    getActiveRedFlagKeywords().catch(() => []),
+    getPeerFeedbackSettings().catch(() => null),
+  ])
+
+  const threshold = peerSettings?.red_flag_response_threshold ?? DEFAULT_RESPONSE_THRESHOLD
+  const keywords = activeKeywords && activeKeywords.length > 0 ? activeKeywords : DEFAULT_RED_FLAG_KEYWORDS
+
   // Red flag logic: low response rate OR keyword match in any submitted feedback
   let redFlag = false
   let redFlagReason: string | null = null
 
-  if (totalNominated > 0 && totalSubmitted / totalNominated < 0.5) {
+  if (totalNominated > 0 && totalSubmitted / totalNominated < threshold) {
     redFlag = true
-    redFlagReason = 'Less than half of nominated peers have responded'
+    redFlagReason = `Less than ${Math.round(threshold * 100)}% of nominated peers have responded`
   }
 
   for (const entry of submitted) {
     const text = (entry.feedback_text || '').toLowerCase()
-    const matchedKeyword = RED_FLAG_KEYWORDS.find((kw) => text.includes(kw))
+    const matchedKeyword = keywords.find((kw) => text.includes(kw.toLowerCase()))
     if (matchedKeyword) {
       redFlag = true
       redFlagReason = `Feedback contains flagged term: "${matchedKeyword}"`
